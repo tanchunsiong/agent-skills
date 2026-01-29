@@ -42,11 +42,12 @@ All platforms support custom UI. You render video to your own canvas/view elemen
 | Platform | Use Case |
 |----------|----------|
 | **Web** | Browser-based custom video apps |
+| **Electron** | Cross-platform desktop apps (Windows, macOS, Linux) |
 | **iOS** | Custom video on iPhone/iPad |
 | **Android** | Custom video on Android |
-| **macOS** | Desktop video apps for Mac |
-| **Windows** | Desktop video apps for Windows |
-| **Linux** | Server-side video processing |
+| **macOS** | Native desktop video apps for Mac |
+| **Windows** | Native desktop video apps for Windows |
+| **Linux** | Server-side video processing (headless) |
 
 ## Quick Start (Web)
 
@@ -136,10 +137,11 @@ const response = await fetch('https://api.zoom.us/v2/videosdk/sessions', {
 ### Platform Guides
 - **[references/authorization.md](references/authorization.md)** - Video SDK JWT generation
 - **[references/web.md](references/web.md)** - Web Video SDK
+- **[references/electron.md](references/electron.md)** - Electron Video SDK (cross-platform desktop)
 - **[references/ios.md](references/ios.md)** - iOS Video SDK
 - **[references/android.md](references/android.md)** - Android Video SDK
-- **[references/macos.md](references/macos.md)** - macOS Video SDK
-- **[references/windows.md](references/windows.md)** - Windows Video SDK
+- **[references/macos.md](references/macos.md)** - macOS Video SDK (native)
+- **[references/windows.md](references/windows.md)** - Windows Video SDK (native)
 - **[references/linux.md](references/linux.md)** - Linux Video SDK (headless)
 
 ## Sample Repositories
