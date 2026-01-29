@@ -27,9 +27,11 @@ Embed the full Zoom meeting experience into your application.
 | **Windows** | Windows desktop apps |
 | **C#/.NET** | Windows apps with .NET (WPF, WinForms) |
 | **Linux** | Meeting bots, server-side processing |
-| **Electron** | Cross-platform desktop apps |
+| **Electron** | Cross-platform desktop apps (Windows, macOS) |
 | **React Native** | Cross-platform mobile apps |
 | **Unreal Engine** | Game/VR integrations |
+
+> **Note on Electron**: The GitHub repo is archived, but the SDK is **actively maintained** and distributed via [Zoom Marketplace](https://marketplace.zoom.us/). Current version: **6.7.2** (Dec 2025).
 
 ## Quick Start (Web)
 
@@ -117,7 +119,7 @@ Meeting SDK provides **Zoom's UI with customization options**:
 | iOS | [zoom-sdk-ios](https://github.com/zoom/zoom-sdk-ios) | 179 |
 | Android | [zoom-sdk-android](https://github.com/zoom/zoom-sdk-android) | 159 |
 | Windows | [zoom-sdk-windows](https://github.com/zoom/zoom-sdk-windows) | 108 |
-| Electron | [zoom-sdk-electron](https://github.com/zoom/zoom-sdk-electron) | 97 |
+| Electron | Download from [Marketplace](https://marketplace.zoom.us/) | v6.7.2 |
 | macOS | [zoom-sdk-macos](https://github.com/zoom/zoom-sdk-macos) | 70 |
 | Angular | [meetingsdk-angular-sample](https://github.com/zoom/meetingsdk-angular-sample) | 60 |
 | C# Wrapper | [zoom-c-sharp-wrapper](https://github.com/zoom/zoom-c-sharp-wrapper) | 44 |
