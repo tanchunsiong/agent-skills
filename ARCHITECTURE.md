@@ -30,6 +30,15 @@ A collection of **Agent Skills** for building with Zoom SDKs, APIs, and integrat
 │  Build in-client Zoom apps           → zoom-apps-sdk                        │
 │  Access live media streams           → zoom-rtms                            │
 │  Build phone/VoIP integrations       → zoom-phone                           │
+│  Build Team Chat integrations        → zoom-team-chat                       │
+│  Manage Zoom Rooms                   → zoom-rooms                           │
+│  Work with calendars                 → zoom-calendar                        │
+│  Work with email                     → zoom-mail                            │
+│  Manage whiteboards                  → zoom-whiteboard                      │
+│  Manage documents                    → zoom-docs                            │
+│  Manage events/webinars              → zoom-events                          │
+│  Build AI chatbots                   → zoom-virtual-agent                   │
+│  Connect H.323/SIP rooms             → zoom-crc                             │
 │  Enable collaborative browsing       → zoom-cobrowse-sdk                    │
 │  Build contact center solutions      → zoom-contact-center                  │
 │                                                                              │
@@ -46,12 +55,36 @@ A collection of **Agent Skills** for building with Zoom SDKs, APIs, and integrat
 └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
         │             │               │               │             │
         ▼             ▼               ▼               ▼             ▼
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  zoom-rtms  │ │ zoom-phone  │ │zoom-cobrowse│ │zoom-contact │
-│             │ │             │ │    -sdk     │ │   -center   │
-│ Real-time   │ │ Cloud phone │ │ Co-browsing │ │ Contact     │
-│ media       │ │ VoIP, SMS   │ │ support     │ │ center      │
-└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│  zoom-rtms  │ │ zoom-phone  │ │zoom-team    │ │ zoom-rooms  │ │zoom-calendar│
+│             │ │             │ │   -chat     │ │             │ │             │
+│ Real-time   │ │ Cloud phone │ │ Messaging   │ │ Room mgmt   │ │ Calendar    │
+│ media       │ │ VoIP, SMS   │ │ & channels  │ │ & devices   │ │ integration │
+└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
+        │             │               │               │             │
+        ▼             ▼               ▼               ▼             ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│  zoom-mail  │ │zoom-white   │ │ zoom-docs   │ │zoom-events  │ │zoom-contact │
+│             │ │   -board    │ │             │ │             │ │   -center   │
+│ Email       │ │ Collab      │ │ Document    │ │ Events &    │ │ Contact     │
+│ integration │ │ whiteboard  │ │ collab      │ │ webinars    │ │ center      │
+└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
+        │             │               │               │             │
+        ▼             ▼               ▼               ▼             ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│zoom-virtual │ │  zoom-crc   │ │zoom-cobrowse│ │zoom-rivet   │ │zoom-chatbot │
+│   -agent    │ │             │ │    -sdk     │ │             │ │   -studio   │
+│ AI virtual  │ │ H.323/SIP   │ │ Co-browsing │ │ Dev CLI     │ │ No-code     │
+│ agent       │ │ connector   │ │ support     │ │ toolkit     │ │ chatbots    │
+└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
+        │             │               │
+        ▼             ▼               ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│zoom-ui      │ │zoom-probe   │ │zoom-commerce│
+│   -toolkit  │ │    -sdk     │ │             │
+│ Video UI    │ │ Monitoring  │ │ App         │
+│ components  │ │ & debugging │ │ monetization│
+└─────────────┘ └─────────────┘ └─────────────┘
 ```
 
 ## Directory Structure
@@ -69,17 +102,11 @@ agent-skills/
 │   │   ├── app-types.md
 │   │   ├── scopes.md
 │   │   ├── marketplace.md
-│   │   ├── rivet.md
-│   │   ├── sdk-upgrade-guide.md
-│   │   ├── sdk-logs-troubleshooting.md
-│   │   └── known-limitations.md
+│   │   └── ...
 │   └── use-cases/               # Cross-cutting scenarios
 │       ├── meeting-automation.md
 │       ├── meeting-bots.md
-│       ├── recording-transcription.md
-│       ├── sdk-size-optimization.md
-│       ├── hd-video-resolution.md
-│       └── ... (17 use cases)
+│       └── ...
 │
 ├── zoom-rest-api/               # SPOKE - REST API
 │   ├── SKILL.md
@@ -88,6 +115,18 @@ agent-skills/
 │       ├── users.md
 │       ├── recordings.md
 │       ├── rate-limits.md
+│       ├── authentication.md    # OAuth comprehensive guide
+│       ├── quality-management.md
+│       ├── workforce-management.md
+│       ├── commerce.md
+│       ├── healthcare.md
+│       ├── video-management.md
+│       ├── auto-dialer.md
+│       ├── accounts.md
+│       ├── scim2.md
+│       ├── video-sdk-api.md
+│       ├── cobrowse-sdk-api.md
+│       ├── marketplace-apps.md
 │       └── ...
 │
 ├── zoom-webhooks/               # SPOKE - Webhooks
@@ -97,13 +136,6 @@ agent-skills/
 ├── zoom-meeting-sdk/            # SPOKE - Meeting SDK
 │   ├── SKILL.md
 │   └── references/
-│       ├── web.md
-│       ├── ios.md
-│       ├── android.md
-│       ├── linux.md
-│       ├── bot-authentication.md
-│       ├── breakout-rooms.md
-│       └── ...
 │
 ├── zoom-video-sdk/              # SPOKE - Video SDK
 │   ├── SKILL.md
@@ -121,11 +153,67 @@ agent-skills/
 │   ├── SKILL.md
 │   └── references/
 │
+├── zoom-team-chat/              # SPOKE - Team Chat
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-rooms/                  # SPOKE - Zoom Rooms
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-calendar/               # SPOKE - Zoom Calendar
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-mail/                   # SPOKE - Zoom Mail
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-whiteboard/             # SPOKE - Zoom Whiteboard
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-docs/                   # SPOKE - Zoom Docs
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-events/                 # SPOKE - Zoom Events
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-contact-center/         # SPOKE - Contact Center
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-virtual-agent/          # SPOKE - Virtual Agent
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-crc/                    # SPOKE - Cloud Room Connector
+│   ├── SKILL.md
+│   └── references/
+│
 ├── zoom-cobrowse-sdk/           # SPOKE - Cobrowse SDK
 │   ├── SKILL.md
 │   └── references/
 │
-└── zoom-contact-center/         # SPOKE - Contact Center
+├── zoom-rivet/                  # SPOKE - Rivet CLI Toolkit
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-chatbot-studio/         # SPOKE - Chatbot Studio
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-ui-toolkit/             # SPOKE - UI Toolkit
+│   ├── SKILL.md
+│   └── references/
+│
+├── zoom-probe-sdk/              # SPOKE - Probe SDK
+│   ├── SKILL.md
+│   └── references/
+│
+└── zoom-commerce/               # SPOKE - Commerce/Monetization
     ├── SKILL.md
     └── references/
 ```
@@ -190,6 +278,8 @@ skill-name/           # Level 1
 
 ## Skills Summary
 
+### Core SDKs & APIs
+
 | Skill | Purpose | Key Topics |
 |-------|---------|------------|
 | **zoom-general** | Hub/router | Authentication, app types, use cases |
@@ -199,9 +289,33 @@ skill-name/           # Level 1
 | **zoom-video-sdk** | Custom video | Sessions, raw media, UI customization |
 | **zoom-apps-sdk** | In-client apps | APIs, events, layers, OAuth |
 | **zoom-rtms** | Live media | Audio, video, transcripts via WebSocket |
+
+### Zoom Products
+
+| Skill | Purpose | Key Topics |
+|-------|---------|------------|
 | **zoom-phone** | Cloud phone | VoIP, SMS (read-only), Smart Embed |
-| **zoom-cobrowse-sdk** | Co-browsing | Screen sharing, annotation |
+| **zoom-team-chat** | Team Chat | Channels, messages, chatbots |
+| **zoom-rooms** | Zoom Rooms | Devices, scheduling, controls |
+| **zoom-calendar** | Calendar | Calendar sync, scheduling |
+| **zoom-mail** | Email | Email integration |
+| **zoom-whiteboard** | Whiteboard | Collaborative boards, export |
+| **zoom-docs** | Documents | Document collaboration |
+| **zoom-events** | Events | Webinars, events management |
 | **zoom-contact-center** | Contact center | SDKs, Virtual Agent, APIs |
+| **zoom-virtual-agent** | AI chatbot | Conversational AI |
+| **zoom-crc** | Room connector | H.323/SIP integration |
+| **zoom-cobrowse-sdk** | Co-browsing | Screen sharing, annotation |
+
+### Developer Tools
+
+| Skill | Purpose | Key Topics |
+|-------|---------|------------|
+| **zoom-rivet** | Dev CLI | Project scaffolding, dev server |
+| **zoom-chatbot-studio** | No-code bots | Visual bot builder |
+| **zoom-ui-toolkit** | Video UI | React components for Video SDK |
+| **zoom-probe-sdk** | Monitoring | Error tracking, performance |
+| **zoom-commerce** | Monetization | In-app purchases, subscriptions |
 
 ## Use Cases Summary
 
@@ -214,6 +328,9 @@ skill-name/           # Level 1
 | SDK Size Optimization | zoom-meeting-sdk / zoom-video-sdk |
 | Real-Time AI Integration | zoom-rtms |
 | Contact Center | zoom-contact-center |
+| Team Chat Bots | zoom-team-chat + zoom-chatbot-studio |
+| Room Management | zoom-rooms + zoom-crc |
+| Document Collaboration | zoom-docs + zoom-whiteboard |
 
 ## Key Technical Gotchas
 
