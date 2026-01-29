@@ -62,6 +62,40 @@ Entry point for building with Zoom. This skill helps you choose the right SDK or
 - **[references/sdk-upgrade-guide.md](references/sdk-upgrade-guide.md)** - Version policy, upgrade steps
 - **[references/sdk-logs-troubleshooting.md](references/sdk-logs-troubleshooting.md)** - Collecting SDK logs
 
+## Skill Chaining
+
+Many Zoom integrations require combining multiple skills. Common patterns:
+
+| Chain | Skills | Use Case | Guide |
+|-------|--------|----------|-------|
+| Meeting + Events | zoom-rest-api → zoom-webhooks | Create meeting, track lifecycle events | [meeting-details-with-events.md](use-cases/meeting-details-with-events.md) |
+| User + Meeting | zoom-rest-api (users) → zoom-rest-api (meetings) | Provision user, schedule onboarding meetings | [user-and-meeting-creation.md](use-cases/user-and-meeting-creation.md) |
+| Meeting + Real-Time | zoom-rest-api → zoom-rtms | Create meeting, join with bot for transcription | [meeting-bots.md](use-cases/meeting-bots.md) |
+| Recording + Storage | zoom-webhooks → zoom-rest-api | Receive completion event, download recording | [byos-recording-storage.md](use-cases/byos-recording-storage.md) |
+
+### How Skill Chaining Works
+
+1. **Identify the workflow** - What sequence of actions is needed?
+2. **Map to skills** - Which Zoom skills handle each step?
+3. **Handle authorization** - Ensure scopes cover all operations (see [authorization-patterns.md](references/authorization-patterns.md))
+4. **Connect the chain** - Pass IDs/data between steps
+
+### Example: User Onboarding Chain
+
+```
+zoom-rest-api (users)     →     zoom-rest-api (meetings)     →     zoom-webhooks
+      │                               │                              │
+   Create user              Schedule onboarding meeting      Subscribe to events
+   Returns: user_id         Uses: user_id                    Track: meeting.started
+```
+
+For detailed patterns and code examples, see the use-case guides linked above.
+
+## Skill Discovery
+
+For agents that need to programmatically discover and load skills, see:
+- **[references/skill-discovery.md](references/skill-discovery.md)** - Framework for auto-discovering Zoom skills
+
 ## Resources
 
 - **Official docs**: https://developers.zoom.us/

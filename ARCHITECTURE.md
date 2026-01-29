@@ -276,6 +276,75 @@ skill-name/           # Level 1
     └── scenario.md   # Level 3 (max)
 ```
 
+## How Skill Discovery Works
+
+Agents need to dynamically discover and load the right skills. This repository supports a three-level loading model:
+
+### Level 1: Hub Routing (Always Load First)
+
+```
+Agent receives: "How do I create a meeting?"
+Agent loads: zoom-general/SKILL.md
+Agent reads: "Choose Your Path" table → routes to zoom-rest-api
+```
+
+### Level 2: Spoke Skill Loading
+
+```
+Agent loads: zoom-rest-api/SKILL.md
+Agent finds: Reference to meetings.md for detailed API docs
+```
+
+### Level 3: On-Demand Reference Loading
+
+```
+Agent loads: zoom-rest-api/references/meetings.md
+Agent now has: Full endpoint documentation
+```
+
+### Discovery Patterns for Agents
+
+| Pattern | When to Use | How It Works |
+|---------|-------------|--------------|
+| **Keyword matching** | User mentions "meeting", "user", "recording" | Match keywords in skill descriptions |
+| **Intent routing** | User wants to "embed" vs "build" | zoom-general hub routes based on intent |
+| **Skill chaining** | Multi-step workflows | Skills reference other skills by name |
+| **Lazy loading** | Detailed docs needed | Load references/ only when needed |
+
+### Skill Discovery Triggers
+
+Agents should load additional skills when they encounter:
+
+1. **Cross-references**: "Use the **zoom-webhooks** skill for event handling"
+2. **Combined patterns**: "This use case requires zoom-rest-api + zoom-rtms"
+3. **Reference links**: "[See meetings.md](references/meetings.md)"
+
+### Implementation Example
+
+```javascript
+// Agent skill discovery pseudocode
+function discoverSkills(userQuery) {
+  // Always start with hub
+  const hubSkill = loadSkill('zoom-general/SKILL.md');
+  
+  // Route based on intent
+  const targetSkill = hubSkill.routeIntent(userQuery);
+  
+  // Load spoke skill
+  const spokeSkill = loadSkill(`${targetSkill}/SKILL.md`);
+  
+  // Load references on-demand
+  if (needsDetailedDocs(userQuery)) {
+    const references = spokeSkill.getRelevantReferences(userQuery);
+    references.forEach(ref => loadSkill(ref));
+  }
+  
+  return assembledContext;
+}
+```
+
+For detailed discovery patterns and agent implementation guidance, see [zoom-general/references/skill-discovery.md](zoom-general/references/skill-discovery.md).
+
 ## Skills Summary
 
 ### Core SDKs & APIs
