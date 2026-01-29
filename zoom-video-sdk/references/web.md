@@ -611,3 +611,47 @@ These are caused by COOP/COEP headers blocking telemetry requests. They don't af
 - **Official docs**: https://developers.zoom.us/docs/video-sdk/web/
 - **API Reference**: https://marketplacefront.zoom.us/sdk/custom/web/modules.html
 - **Sample app**: https://github.com/zoom/videosdk-web-sample
+
+## Host Participant Management
+
+```javascript
+const stream = client.getMediaStream();
+
+// Mute all participants
+await stream.muteAllAudio();
+
+// Mute/unmute specific participant
+await stream.muteAudio(userId);
+await stream.unmuteAudio(userId);
+
+// Remove participant (host only)
+await client.removeUser(userId);
+
+// Transfer host
+await client.makeHost(userId);
+
+// Make co-host
+await client.makeManager(userId);
+```
+
+## Mirror Self View
+
+```javascript
+const stream = client.getMediaStream();
+
+// Toggle mirror (useful for self-view)
+await stream.mirrorVideo(true);   // Enable mirror
+await stream.mirrorVideo(false);  // Disable mirror
+```
+
+## Share Screen with Audio
+
+```javascript
+const stream = client.getMediaStream();
+const shareElement = document.getElementById('share-element');
+
+// Share with system audio
+await stream.startShareScreen(shareElement, { 
+  secondaryAudio: true 
+});
+```
