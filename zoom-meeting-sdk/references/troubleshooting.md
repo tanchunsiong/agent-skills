@@ -52,7 +52,7 @@ Troubleshooting guide for Meeting SDK across all platforms.
 
 ## Collecting Logs
 
-See [SDK Logs & Troubleshooting](../../zoom-platform/references/sdk-logs-troubleshooting.md) for log collection.
+See [SDK Logs & Troubleshooting](../../zoom-general/references/sdk-logs-troubleshooting.md) for log collection.
 
 ## Getting Support
 

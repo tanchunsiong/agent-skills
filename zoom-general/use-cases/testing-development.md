@@ -12,7 +12,7 @@ Zoom provides several options for development and testing:
 
 ## Skills Needed
 
-- **zoom-platform** - App configuration
+- **zoom-general** - App configuration
 - **zoom-webhooks** - Webhook testing
 
 ---

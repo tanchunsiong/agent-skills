@@ -88,7 +88,7 @@ init();
 | Library | [harvard-edtech/zaccl](https://github.com/harvard-edtech/zaccl) | Zoom App Complete Connection Library |
 | AI Demo | [inworld-ai/zoom-demeanor-evaluator-node](https://github.com/inworld-ai/zoom-demeanor-evaluator-node) | RTMS + Inworld AI |
 
-**Full list**: See [zoom-platform/references/community-repos.md](../zoom-platform/references/community-repos.md)
+**Full list**: See [zoom-general/references/community-repos.md](../zoom-general/references/community-repos.md)
 
 ## Resources
 

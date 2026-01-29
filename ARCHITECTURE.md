@@ -16,7 +16,7 @@ A collection of **Agent Skills** for building with Zoom SDKs, APIs, and integrat
                                       │
                                       ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           zoom-platform (HUB)                                │
+│                           zoom-general (HUB)                                │
 │                                                                              │
 │  Entry point for all Zoom development questions.                            │
 │  Routes to the appropriate spoke skill based on user intent.                │
@@ -62,7 +62,7 @@ zoom-developer-platform/
 ├── README.md                    # Installation + Getting Started
 ├── ARCHITECTURE.md              # This file
 │
-├── zoom-platform/               # HUB - Entry point skill
+├── zoom-general/               # HUB - Entry point skill
 │   ├── SKILL.md                 # Router: "Choose Your Path"
 │   ├── references/              # Cross-cutting documentation
 │   │   ├── authentication.md
@@ -158,8 +158,8 @@ description: |
 
 ### 1. Hub-and-Spoke Routing
 
-The `zoom-platform` skill acts as a router. When an agent receives a Zoom-related question, it:
-1. Loads `zoom-platform/SKILL.md`
+The `zoom-general` skill acts as a router. When an agent receives a Zoom-related question, it:
+1. Loads `zoom-general/SKILL.md`
 2. Reads the "Choose Your Path" table
 3. Routes to the appropriate spoke skill by name
 
@@ -192,7 +192,7 @@ skill-name/           # Level 1
 
 | Skill | Purpose | Key Topics |
 |-------|---------|------------|
-| **zoom-platform** | Hub/router | Authentication, app types, use cases |
+| **zoom-general** | Hub/router | Authentication, app types, use cases |
 | **zoom-rest-api** | REST API | 600+ endpoints, rate limits, pagination |
 | **zoom-webhooks** | Events | Event types, verification, subscriptions |
 | **zoom-meeting-sdk** | Embed meetings | Web, iOS, Android, Linux, bot auth |

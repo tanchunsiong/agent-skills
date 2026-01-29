@@ -18,7 +18,7 @@ https://api.zoom.us/v2
 
 ## Authentication
 
-OAuth 2.0 (Server-to-Server or User OAuth). See `zoom-platform/references/authentication.md`.
+OAuth 2.0 (Server-to-Server or User OAuth). See `zoom-general/references/authentication.md`.
 
 ## Key Features
 

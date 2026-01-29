@@ -19,7 +19,7 @@ https://api.zoom.us/v2/chat
 
 ## Authentication
 
-Use OAuth 2.0 with Team Chat scopes. See `zoom-platform/references/authentication.md`.
+Use OAuth 2.0 with Team Chat scopes. See `zoom-general/references/authentication.md`.
 
 ## Core Endpoints
 

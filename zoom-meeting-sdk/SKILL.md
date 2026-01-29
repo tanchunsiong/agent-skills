@@ -134,7 +134,7 @@ Meeting SDK provides **Zoom's UI with customization options**:
 | .NET/MAUI | [AdamDiament/dotnet-zoom-meeting-SDK](https://github.com/AdamDiament/dotnet-zoom-meeting-SDK) | .NET/MAUI/Xamarin binding |
 | Windows Raw Data | [tanchunsiong/Zoom_MeetingSDK_Windows_RawDataDemos](https://github.com/tanchunsiong/Zoom_MeetingSDK_Windows_RawDataDemos) | Raw audio/video access |
 
-**Full list**: See [zoom-platform/references/community-repos.md](../zoom-platform/references/community-repos.md)
+**Full list**: See [zoom-general/references/community-repos.md](../zoom-general/references/community-repos.md)
 
 ## Resources
 

@@ -95,7 +95,7 @@ app.post('/webhook', (req, res) => {
 |------|------------|-------------|
 | Starter Kit | [tanchunsiong/zoom-rtms-meeting-assistance-starter-kit](https://github.com/tanchunsiong/zoom-rtms-meeting-assistance-starter-kit) | Meeting assistance starter |
 
-**Full list**: See [zoom-platform/references/community-repos.md](../zoom-platform/references/community-repos.md)
+**Full list**: See [zoom-general/references/community-repos.md](../zoom-general/references/community-repos.md)
 
 ## Resources
 

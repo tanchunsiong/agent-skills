@@ -98,7 +98,7 @@ https://api.zoom.us/v2
 | Spring Boot | [soorya218/zoom_api_integration_using_springboot_webclient](https://github.com/soorya218/zoom_api_integration_using_springboot_webclient) | Spring Boot + WebClient |
 | C# | [apresence/ZoomJWT](https://github.com/apresence/ZoomJWT) | JWT library for .NET |
 
-**Full list**: See [zoom-platform/references/community-repos.md](../zoom-platform/references/community-repos.md)
+**Full list**: See [zoom-general/references/community-repos.md](../zoom-general/references/community-repos.md)
 
 ## Resources
 

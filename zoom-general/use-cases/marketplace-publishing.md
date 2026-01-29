@@ -8,7 +8,7 @@ This guide covers building multi-tenant applications for the Zoom Marketplace, h
 
 ## Skills Needed
 
-- **zoom-platform** - App configuration
+- **zoom-general** - App configuration
 - **zoom-rest-api** - Multi-tenant API calls
 - **zoom-webhooks** - Per-customer event handling
 

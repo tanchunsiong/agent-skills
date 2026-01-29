@@ -16,7 +16,7 @@ Use OAuth 2.0 access token:
 Authorization: Bearer {access_token}
 ```
 
-See **zoom-platform** → **authentication.md** for OAuth setup.
+See **zoom-general** → **authentication.md** for OAuth setup.
 
 ## Core Endpoints
 

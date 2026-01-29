@@ -137,7 +137,7 @@ For each SDK archive:
 
 ### Step 3: Structure
 - Follow Agent Skills standard (YAML frontmatter + Markdown)
-- Use hub-and-spoke for routing (zoom-platform as hub)
+- Use hub-and-spoke for routing (zoom-general as hub)
 - Keep SKILL.md under 500 lines
 - Move detailed content to references/
 
@@ -207,14 +207,14 @@ A systematic analysis was performed to identify documentation gaps by comparing 
 
 | File | Lines | Description |
 |------|-------|-------------|
-| `zoom-platform/references/error-codes.md` | ~250 | Comprehensive error codes for REST API, Meeting SDK, Video SDK, webhooks |
-| `zoom-platform/use-cases/testing-development.md` | ~200 | ngrok setup, webhook testing, SDK debug modes, test accounts |
+| `zoom-general/references/error-codes.md` | ~250 | Comprehensive error codes for REST API, Meeting SDK, Video SDK, webhooks |
+| `zoom-general/use-cases/testing-development.md` | ~200 | ngrok setup, webhook testing, SDK debug modes, test accounts |
 | `zoom-meeting-sdk/references/webinars.md` | ~250 | SDK-specific webinar features (Q&A, raise hand, polling, attendee/panelist roles) |
-| `zoom-platform/use-cases/marketplace-publishing.md` | ~250 | ISV multi-tenant guide, OAuth token storage, app review process |
-| `zoom-platform/references/compliance.md` | ~250 | HIPAA, GDPR, security best practices, audit logging |
+| `zoom-general/use-cases/marketplace-publishing.md` | ~250 | ISV multi-tenant guide, OAuth token storage, app review process |
+| `zoom-general/references/compliance.md` | ~250 | HIPAA, GDPR, security best practices, audit logging |
 | `zoom-video-sdk/references/macos.md` | +150 | Enhanced: delegate pattern, screen sharing, gallery view, SwiftUI integration |
 | `zoom-video-sdk/references/windows.md` | +350 | Enhanced: event handling, screen sharing, virtual camera/mic/speaker |
-| `zoom-platform/use-cases/minutes-calculation.md` | ~750 | Video SDK & Meeting SDK usage tracking, YTD calculation, billing/cost estimation |
+| `zoom-general/use-cases/minutes-calculation.md` | ~750 | Video SDK & Meeting SDK usage tracking, YTD calculation, billing/cost estimation |
 
 ### Key Topics Added
 

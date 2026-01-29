@@ -171,7 +171,7 @@ const response = await fetch('https://api.zoom.us/v2/videosdk/sessions', {
 | Linux GTK | [tanchunsiong/videosdk-linux-gtk-quickstart](https://github.com/tanchunsiong/videosdk-linux-gtk-quickstart) | GTK GUI integration |
 | Windows Raw Data | [tanchunsiong/Zoom_VideoSDK_Windows_RawDataDemos](https://github.com/tanchunsiong/Zoom_VideoSDK_Windows_RawDataDemos) | Raw audio/video demos |
 
-**Full list**: See [zoom-platform/references/community-repos.md](../zoom-platform/references/community-repos.md)
+**Full list**: See [zoom-general/references/community-repos.md](../zoom-general/references/community-repos.md)
 
 ## Resources
 

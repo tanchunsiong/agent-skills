@@ -220,6 +220,6 @@ func showAICompanionInfo() {
 
 ## Related
 
-- **[AI Companion Integration Use Case](../../zoom-platform/references/use-cases/ai-companion-integration.md)** - Full integration guide
+- **[AI Companion Integration Use Case](../../zoom-general/references/use-cases/ai-companion-integration.md)** - Full integration guide
 - **zoom-rtms** - For real-time transcript access
 - **zoom-rest-api** - For meeting summaries and transcripts after meeting

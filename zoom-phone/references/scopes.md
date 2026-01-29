@@ -132,5 +132,5 @@ If you see this error, your OAuth token is missing the required scope. Either:
 
 ## Resources
 
-- **OAuth setup**: See `zoom-platform/references/authentication.md`
+- **OAuth setup**: See `zoom-general/references/authentication.md`
 - **Marketplace**: https://marketplace.zoom.us/
