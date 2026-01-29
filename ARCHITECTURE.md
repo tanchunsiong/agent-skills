@@ -24,7 +24,8 @@ A collection of **Agent Skills** for building with Zoom SDKs, APIs, and integrat
 │  "I want to..."                      → "Use this skill..."                  │
 │  ─────────────────────────────────────────────────────────────              │
 │  Make API calls                      → zoom-rest-api                        │
-│  Receive event notifications         → zoom-webhooks                        │
+│  Receive event notifications (HTTP)  → zoom-webhooks                        │
+│  Receive event notifications (WS)    → zoom-websockets                      │
 │  Embed Zoom meetings                 → zoom-meeting-sdk                     │
 │  Build custom video experiences      → zoom-video-sdk                       │
 │  Build in-client Zoom apps           → zoom-apps-sdk                        │
@@ -48,10 +49,10 @@ A collection of **Agent Skills** for building with Zoom SDKs, APIs, and integrat
         │             │               │               │             │
         ▼             ▼               ▼               ▼             ▼
 ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│zoom-rest-api│ │zoom-webhooks│ │zoom-meeting │ │zoom-video   │ │zoom-apps    │
-│             │ │             │ │    -sdk     │ │    -sdk     │ │    -sdk     │
-│ 600+ API    │ │ Event       │ │ Embed Zoom  │ │ Custom      │ │ In-client   │
-│ endpoints   │ │ notifications│ │ meetings    │ │ video       │ │ apps        │
+│zoom-rest-api│ │zoom-webhooks│ │  zoom-      │ │zoom-meeting │ │zoom-video   │
+│             │ │             │ │ websockets  │ │    -sdk     │ │    -sdk     │
+│ 600+ API    │ │ Events      │ │ Events      │ │ Embed Zoom  │ │ Custom      │
+│ endpoints   │ │ (HTTP push) │ │ (WebSocket) │ │ meetings    │ │ video       │
 └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
         │             │               │               │             │
         ▼             ▼               ▼               ▼             ▼
@@ -129,10 +130,16 @@ agent-skills/
 │       ├── marketplace-apps.md
 │       └── ...
 │
-├── zoom-webhooks/               # SPOKE - Webhooks
+├── zoom-webhooks/               # SPOKE - Webhooks (HTTP push)
 │   ├── SKILL.md
 │   └── references/
 │
+├── zoom-websockets/             # SPOKE - WebSockets (persistent connection)
+│   ├── SKILL.md
+│   └── references/
+│       ├── connection.md        # Connection lifecycle, auth, reconnection
+│       └── events.md            # Event types reference
+
 ├── zoom-meeting-sdk/            # SPOKE - Meeting SDK
 │   ├── SKILL.md
 │   └── references/
@@ -353,7 +360,8 @@ For detailed discovery patterns and agent implementation guidance, see [zoom-gen
 |-------|---------|------------|
 | **zoom-general** | Hub/router | Authentication, app types, use cases |
 | **zoom-rest-api** | REST API | 600+ endpoints, rate limits, pagination |
-| **zoom-webhooks** | Events | Event types, verification, subscriptions |
+| **zoom-webhooks** | Events (HTTP) | Event types, verification, subscriptions |
+| **zoom-websockets** | Events (WebSocket) | Persistent connection, low-latency, S2S OAuth |
 | **zoom-meeting-sdk** | Embed meetings | Web, iOS, Android, Linux, bot auth |
 | **zoom-video-sdk** | Custom video | Sessions, raw media, UI customization |
 | **zoom-apps-sdk** | In-client apps | APIs, events, layers, OAuth |

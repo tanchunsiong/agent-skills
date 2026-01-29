@@ -16,7 +16,8 @@ Entry point for building with Zoom. This skill helps you choose the right SDK or
 | I want to... | Use this skill |
 |--------------|----------------|
 | Make API calls (create meetings, manage users) | **zoom-rest-api** |
-| Receive real-time event notifications | **zoom-webhooks** |
+| Receive event notifications (HTTP push) | **zoom-webhooks** |
+| Receive event notifications (WebSocket, low-latency) | **zoom-websockets** |
 | Embed Zoom meetings in my app | **zoom-meeting-sdk** |
 | Build custom video experiences (not Zoom meetings) | **zoom-video-sdk** |
 | Build an app that runs inside Zoom client | **zoom-apps-sdk** |
@@ -24,6 +25,18 @@ Entry point for building with Zoom. This skill helps you choose the right SDK or
 | Build cloud phone/VoIP integrations | **zoom-phone** |
 | Enable collaborative browsing for support | **zoom-cobrowse-sdk** |
 | Build contact center integrations | **zoom-contact-center** |
+
+### Webhooks vs WebSockets
+
+Both receive event notifications, but differ in approach:
+
+| Aspect | zoom-webhooks | zoom-websockets |
+|--------|---------------|-----------------|
+| Connection | HTTP POST to your endpoint | Persistent WebSocket |
+| Latency | Higher | Lower |
+| Security | Requires public endpoint | No exposed endpoint |
+| Setup | Simpler | More complex |
+| Best for | Most use cases | Real-time, security-sensitive |
 
 ## Common Use Cases
 
