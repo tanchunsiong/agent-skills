@@ -1,6 +1,6 @@
-# Zoom Developer Platform Skills - Architecture
+# Agent Skills - Architecture
 
-This document describes the structure and design of the Zoom Developer Platform agent skills.
+This document describes the structure and design of the Zoom agent skills repository.
 
 ## Overview
 
@@ -57,7 +57,7 @@ A collection of **Agent Skills** for building with Zoom SDKs, APIs, and integrat
 ## Directory Structure
 
 ```
-zoom-developer-platform/
+agent-skills/
 │
 ├── README.md                    # Installation + Getting Started
 ├── ARCHITECTURE.md              # This file
