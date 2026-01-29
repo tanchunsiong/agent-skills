@@ -8,23 +8,23 @@ Agent Skills for building with Zoom SDKs, APIs, and integrations. Follows the [A
 
 ```bash
 # Clone the repository
-git clone https://github.com/user/zoom-developer-platform.git
+git clone https://github.com/user/agent-skills.git
 
 # Copy to Claude Code skills directory
-cp -r zoom-developer-platform/* ~/.claude/skills/
+cp -r agent-skills/* ~/.claude/skills/
 ```
 
 Or install individual skills:
 ```bash
-cp -r zoom-developer-platform/zoom-platform ~/.claude/skills/
-cp -r zoom-developer-platform/zoom-meeting-sdk ~/.claude/skills/
+cp -r agent-skills/zoom-general ~/.claude/skills/
+cp -r agent-skills/zoom-meeting-sdk ~/.claude/skills/
 ```
 
 ### OpenCode
 
 ```bash
 # Copy to OpenCode skills directory
-cp -r zoom-developer-platform/* ~/.config/opencode/skills/
+cp -r agent-skills/* ~/.config/opencode/skills/
 ```
 
 ### Context7
@@ -51,7 +51,7 @@ What's the difference between Meeting SDK and Video SDK?
 
 ### 2. The agent loads the right skill automatically
 
-The **zoom-platform** skill acts as a router and directs to the appropriate specialized skill:
+The **zoom-general** skill acts as a router and directs to the appropriate specialized skill:
 
 | Your Question | Skill Loaded |
 |---------------|--------------|
@@ -72,7 +72,7 @@ When your task requires multiple skills, the agent loads them as needed. For exa
 
 | Skill | Description |
 |-------|-------------|
-| [zoom-platform](zoom-platform/) | **Hub** - Core concepts, authentication, use cases, routing |
+| [zoom-general](zoom-general/) | **Hub** - Core concepts, authentication, use cases, routing |
 | [zoom-rest-api](zoom-rest-api/) | 600+ REST API endpoints, rate limits, pagination |
 | [zoom-webhooks](zoom-webhooks/) | Real-time event notifications |
 | [zoom-meeting-sdk](zoom-meeting-sdk/) | Embed Zoom meetings (Web, iOS, Android, Desktop, Linux) |
@@ -112,7 +112,7 @@ This skills repository contains comprehensive documentation with code examples f
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full hub-and-spoke structure diagram.
 
 ```
-zoom-platform (HUB)
+zoom-general (HUB)
        │
        ├── zoom-rest-api
        ├── zoom-webhooks
@@ -128,11 +128,11 @@ zoom-platform (HUB)
 ## Directory Structure
 
 ```
-zoom-developer-platform/
+agent-skills/
 ├── README.md                 # This file
 ├── ARCHITECTURE.md           # Full architecture diagram
 │
-├── zoom-platform/            # HUB (entry point)
+├── zoom-general/            # HUB (entry point)
 │   ├── SKILL.md
 │   ├── references/           # Cross-cutting docs
 │   └── use-cases/            # Multi-skill scenarios

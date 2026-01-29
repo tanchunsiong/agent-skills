@@ -10,7 +10,7 @@ This repository contains hub-and-spoke skills for Claude Code, OpenCode, and oth
 
 | # | Skill | Type | Description |
 |---|-------|------|-------------|
-| 1 | **zoom-platform** | Hub | Core concepts, authentication, app types, scopes, Marketplace setup |
+| 1 | **zoom-general** | Hub | Core concepts, authentication, app types, scopes, Marketplace setup |
 | 2 | **zoom-rest-api** | Spoke | 600+ REST API endpoints for meetings, users, webinars, recordings |
 | 3 | **zoom-webhooks** | Spoke | Real-time event notifications and webhook verification |
 | 4 | **zoom-meeting-sdk** | Spoke | Embed Zoom meetings (Web, iOS, Android, macOS, Windows, Linux, Electron, React Native, Unreal Engine) |
@@ -24,14 +24,14 @@ This repository contains hub-and-spoke skills for Claude Code, OpenCode, and oth
 ## Folder Structure
 
 ```
-zoom-developer-platform/
+agent-skills/
 ├── .claude-plugin/
 │   └── manifest.json
 ├── README.md
 ├── LICENSE
 ├── PLAN.md
 │
-├── zoom-platform/                    # Hub: Core Platform
+├── zoom-general/                    # Hub: Core Platform
 │   ├── SKILL.md
 │   └── references/
 │       ├── authentication.md
@@ -137,7 +137,7 @@ We follow Cloudflare's pattern - organize by SDK/product, not by scenario. Use c
 
 | Type | Location | Examples |
 |------|----------|----------|
-| **Use Cases** (cross-cutting scenarios) | `zoom-platform/references/use-cases/` | Meeting bots, BYOS storage, AI integration |
+| **Use Cases** (cross-cutting scenarios) | `zoom-general/references/use-cases/` | Meeting bots, BYOS storage, AI integration |
 | **Platforms** (SDK-specific) | Each SDK's `references/` folder | iOS, Android, Unity, Flutter, Electron |
 
 **Rule:** Gaming/VR/Flutter/React Native are **platforms**, not use cases.
@@ -146,7 +146,7 @@ We follow Cloudflare's pattern - organize by SDK/product, not by scenario. Use c
 
 | Type | Location | Examples |
 |------|----------|----------|
-| **Cross-cutting** (applies to all SDKs) | `zoom-platform/references/` | `sdk-upgrade-guide.md`, `sdk-logs-troubleshooting.md` |
+| **Cross-cutting** (applies to all SDKs) | `zoom-general/references/` | `sdk-upgrade-guide.md`, `sdk-logs-troubleshooting.md` |
 | **SDK-specific** | Each SDK's `references/` folder | `troubleshooting.md`, `web-tracking-id.md` |
 
 ### 4. Event Handling / Callbacks / Delegates
