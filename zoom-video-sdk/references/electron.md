@@ -726,6 +726,123 @@ Logs are written to:
 - **macOS**: `~/Library/Logs/videosdk/`
 - **Linux**: `~/.videosdk/logs/`
 
+### Windows DLL Security Warnings
+
+**Problem**: Windows displays "unknown publisher" security warnings when launching the app.
+
+**Cause**: The native SDK binaries (`zoomvideosdk.node` and associated DLLs in `sdk/win64/`) are not digitally signed. Windows SmartScreen flags unsigned executables.
+
+**Impact**: Users see multiple security prompts on first run, which degrades user experience.
+
+**Solutions**:
+- Try a different SDK version (signing status varies between releases)
+- Users can click "Run anyway" after clicking "More info"
+- For distribution, consider code signing your Electron app wrapper
+
+### Error Code 5: Module Load Failed
+
+**Problem**: `initialize()` returns error code 5 (`ZoomVideoSDKErrors_Load_Module_Error`).
+
+**Cause**: SDK failed to load native DLL modules from `sdk/win64/` (or platform equivalent).
+
+**Common causes**:
+1. Windows Defender or SmartScreen blocking unsigned DLLs
+2. Missing Visual C++ Redistributables
+3. DLL file corruption during download/extraction
+4. Insufficient file permissions
+
+**Solutions**:
+- Temporarily disable Windows Defender real-time protection during testing
+- Install [Visual C++ Redistributables](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist)
+- Re-download and extract the SDK
+- Run as administrator to rule out permission issues
+- Try a different SDK version
+
+### Error Code 2003: Session Join Failed
+
+**Problem**: `joinSession()` returns error code 2003 (`ZoomVideoSDKErrors_Session_Join_Failed`).
+
+**Most common cause**: Session name mismatch between JWT token and join parameters.
+
+**Example**:
+```javascript
+// Token generated for session "test"
+const token = generateToken({ tpc: 'test', ... })
+
+// But user enters different name - FAILS with 2003
+zoomVideoSdk.joinSession({
+  sessionName: 'test-session',  // Does not match 'test' in token!
+  token: token,
+  ...
+})
+```
+
+**Solutions**:
+- Ensure `sessionName` exactly matches the `tpc` claim in the JWT token
+- Check for trailing spaces or case sensitivity issues
+- This error can also cascade from issues #1 and #2 above (DLL problems)
+
+### Grey Screen with EventEmitter Error
+
+**Problem**: Electron window opens but displays a grey/blank screen. React or Vue app doesn't render.
+
+**Error in console**:
+```
+Module 'events' has been externalized, cannot access events.EventEmitter in client code
+```
+
+**Cause**: Code in the renderer process imports `EventEmitter` from Node.js `events` module. Modern build tools like Vite externalize Node.js modules for browser context, causing this import to fail.
+
+**Example problematic code**:
+```javascript
+// src/renderer/main.jsx - This breaks with Vite
+import { EventEmitter } from 'events'
+export const EventBus = new EventEmitter()
+```
+
+**Solution**: Create a browser-compatible EventBus class:
+
+```javascript
+// src/renderer/EventBus.js
+class EventBus {
+  constructor() {
+    this.events = {}
+  }
+  
+  on(event, listener) {
+    if (!this.events[event]) this.events[event] = []
+    this.events[event].push(listener)
+  }
+  
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args))
+    }
+  }
+  
+  off(event, listenerToRemove) {
+    if (!this.events[event]) return
+    this.events[event] = this.events[event].filter(l => l !== listenerToRemove)
+  }
+  
+  removeAllListeners(event) {
+    if (event) delete this.events[event]
+    else this.events = {}
+  }
+}
+
+export default new EventBus()
+```
+
+Then update your imports:
+```javascript
+// src/renderer/main.jsx - Fixed
+import EventBus from './EventBus.js'
+export { EventBus }
+```
+
+**Note**: The official SDK sample uses Node.js `EventEmitter` which works with `vue-cli-plugin-electron-builder` but not with Vite/electron-vite. If using Vite, you'll need this workaround.
+
 ## Dependencies
 
 From `package.json` (v2.4.5):
