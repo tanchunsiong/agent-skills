@@ -338,37 +338,144 @@ class FaceDetectionProcessor extends VideoProcessor {
 - **VideoProcessor API**: https://marketplacefront.zoom.us/sdk/custom/web/classes/VideoProcessor.html
 - **Zoom Blog - AI Text Translation**: https://developers.zoom.us/blog/ai-text-translator-with-videosdk-share-processor/
 
-## Video Rendering (Canvas Mode)
+## Video Rendering (CRITICAL - Event Driven)
 
-### Render Order (CRITICAL)
+The SDK is **event-driven**. You must listen for events and render/detach videos accordingly.
 
-**Must call `renderVideo()` AFTER `startVideo()` completes:**
+### Use `attachVideo()` NOT `renderVideo()` 
+
+`renderVideo()` is **deprecated**. Use `attachVideo()` which returns a VideoPlayer element to append to DOM.
 
 ```javascript
+import { VideoQuality } from '@zoom/videosdk';
+
 const stream = client.getMediaStream();
 
-// CORRECT: Wait for startVideo to complete
+// Start your camera
 await stream.startVideo();
-await stream.renderVideo(canvas, client.getCurrentUserInfo().oderId, 640, 360, 0, 0, 3);
 
-// WRONG: Calling renderVideo before startVideo completes
-stream.startVideo();  // Don't await
-stream.renderVideo(canvas, userId);  // Will fail!
+// Attach video - returns a VideoPlayer element
+const videoElement = await stream.attachVideo(userId, VideoQuality.Video_360P);
+
+// Append to your container
+document.getElementById('video-container').appendChild(videoElement);
 ```
 
-### Stop Order (CRITICAL)
-
-**Stop rendering BEFORE stopping video:**
+### VideoQuality Enum
 
 ```javascript
-// CORRECT order
-await stream.stopRenderVideo(canvas, userId);
-await stream.stopVideo();
+import { VideoQuality } from '@zoom/videosdk';
 
-// WRONG order - may cause errors
-await stream.stopVideo();
-await stream.stopRenderVideo(canvas, userId);  // Too late!
+VideoQuality.Video_90P   // 0
+VideoQuality.Video_180P  // 1
+VideoQuality.Video_360P  // 2 (recommended for most cases)
+VideoQuality.Video_720P  // 3
+VideoQuality.Video_1080P // 4
 ```
+
+### Detach Video
+
+```javascript
+// Detach and remove from DOM
+const elements = await stream.detachVideo(userId);
+if (Array.isArray(elements)) {
+  elements.forEach(e => e.remove());
+} else {
+  elements.remove();
+}
+```
+
+### Required Events to Listen
+
+**You MUST listen to these events to properly render participant videos:**
+
+```javascript
+// When another participant's video state changes
+client.on('peer-video-state-change', async (payload) => {
+  const { action, userId } = payload;
+  
+  if (action === 'Start') {
+    // Participant turned on video - attach it
+    const element = await stream.attachVideo(userId, VideoQuality.Video_360P);
+    container.appendChild(element);
+  } else if (action === 'Stop') {
+    // Participant turned off video - detach it
+    await stream.detachVideo(userId);
+  }
+});
+
+// When participants join/leave
+client.on('user-added', (payload) => {
+  // New participant joined - check if their video is on
+  const users = client.getAllUser();
+  // Render videos for users with bVideoOn === true
+});
+
+client.on('user-removed', (payload) => {
+  // Participant left - clean up their video element
+  const { userId } = payload;
+  stream.detachVideo(userId);
+});
+
+// Participant state updates (mute, video, etc)
+client.on('user-updated', (payload) => {
+  // Re-check participant states
+  const users = client.getAllUser();
+});
+```
+
+### Participant Properties
+
+```javascript
+const users = client.getAllUser();
+
+users.forEach(user => {
+  user.userId      // Unique user ID
+  user.displayName // User's display name
+  user.bVideoOn    // Boolean - is video enabled?
+  user.muted       // Boolean - is audio muted?
+  user.audio       // '' | 'computer' | 'phone'
+});
+```
+
+### Complete React Pattern
+
+```typescript
+// When your video turns on
+useEffect(() => {
+  if (isVideoOn && stream && currentUserId) {
+    const attach = async () => {
+      const element = await stream.attachVideo(currentUserId, VideoQuality.Video_360P);
+      containerRef.current?.appendChild(element);
+    };
+    attach();
+  }
+}, [isVideoOn, stream, currentUserId]);
+
+// Listen for other participants
+useEffect(() => {
+  if (!client) return;
+  
+  const handleVideoChange = async (payload) => {
+    const { action, userId } = payload;
+    if (action === 'Start') {
+      const element = await stream.attachVideo(userId, VideoQuality.Video_360P);
+      // Append to appropriate container
+    } else {
+      await stream.detachVideo(userId);
+    }
+  };
+  
+  client.on('peer-video-state-change', handleVideoChange);
+  return () => client.off('peer-video-state-change', handleVideoChange);
+}, [client, stream]);
+```
+
+### Legacy: renderVideo (Deprecated)
+
+> **Note**: `renderVideo()` is deprecated. Use `attachVideo()` instead.
+
+If you must use canvas rendering:
 
 ### Canvas Must Exist in DOM
 
@@ -413,30 +520,33 @@ participants.forEach(p => {
 
 **Existing participants' videos won't auto-render when you join mid-session.**
 
-You must manually iterate all users and render their video:
+You must manually iterate all users and attach their video:
 
 ```javascript
-client.on('connection-change', async (payload) => {
-  if (payload.state === 'Connected') {
-    // Add delay to ensure session is fully established
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const stream = client.getMediaStream();
-    const users = client.getAllUser();
-    
-    for (const user of users) {
-      if (user.bVideoOn && user.oderId !== client.getCurrentUserInfo().oderId) {
-        await stream.renderVideo(canvas, user.oderId, 640, 360, 0, 0, 3);
-      }
+import { VideoQuality } from '@zoom/videosdk';
+
+// After joining, render existing participants' videos
+const renderExistingVideos = async () => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  const stream = client.getMediaStream();
+  const users = client.getAllUser();
+  const currentUserId = client.getCurrentUserInfo().userId;
+  
+  for (const user of users) {
+    if (user.bVideoOn && user.userId !== currentUserId) {
+      const element = await stream.attachVideo(user.userId, VideoQuality.Video_360P);
+      document.getElementById(`video-${user.userId}`).appendChild(element);
     }
   }
-});
+};
 ```
 
 **Key points:**
 - Check `user.bVideoOn` to see if video is enabled
-- Skip self (`client.getCurrentUserInfo().oderId`)
-- Add ~1 second delay after join before rendering
+- Skip self (`client.getCurrentUserInfo().userId`)
+- Add ~500ms delay after join before rendering
+- Use `attachVideo()` not `renderVideo()`
 
 ## SharedArrayBuffer
 
@@ -449,20 +559,62 @@ Cross-Origin-Embedder-Policy: require-corp
 
 **Note:** As of v1.11.2, SharedArrayBuffer is elective (not strictly required).
 
-## Event Handling
+## Event Handling (CRITICAL)
+
+**The SDK is event-driven. You MUST listen for these events:**
 
 ```javascript
+// Participant joined
 client.on('user-added', (payload) => {
   console.log('User joined:', payload);
+  // payload contains user info
 });
 
+// Participant left
 client.on('user-removed', (payload) => {
   console.log('User left:', payload);
+  // Clean up their video element
+  stream.detachVideo(payload.userId);
 });
 
-client.on('video-active-change', (payload) => {
-  // Handle video state changes
+// Participant state changed (mute, video, etc)
+client.on('user-updated', (payload) => {
+  console.log('User updated:', payload);
 });
+
+// CRITICAL: Other participant's video turned on/off
+client.on('peer-video-state-change', async (payload) => {
+  const { action, userId } = payload;
+  // action: 'Start' | 'Stop'
+  
+  if (action === 'Start') {
+    const element = await stream.attachVideo(userId, VideoQuality.Video_360P);
+    // Append element to container
+  } else {
+    await stream.detachVideo(userId);
+  }
+});
+
+// Connection state changed
+client.on('connection-change', (payload) => {
+  // payload.state: 'Connected' | 'Closed' | 'Reconnecting' | etc
+});
+```
+
+### Event Cleanup
+
+Always remove listeners when component unmounts:
+
+```javascript
+// React pattern
+useEffect(() => {
+  const handler = (payload) => { /* ... */ };
+  client.on('peer-video-state-change', handler);
+  
+  return () => {
+    client.off('peer-video-state-change', handler);
+  };
+}, [client]);
 ```
 
 ## Common Tasks

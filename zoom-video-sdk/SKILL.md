@@ -153,6 +153,47 @@ await client.join(...);
 const stream = client.getMediaStream();  // Works!
 ```
 
+## Video Rendering (Event-Driven)
+
+**The SDK is event-driven.** You must listen for events and render videos accordingly.
+
+### Use `attachVideo()` NOT `renderVideo()`
+
+```javascript
+import { VideoQuality } from '@zoom/videosdk';
+
+// Start your camera
+await stream.startVideo();
+
+// Attach video - returns element to append to DOM
+const element = await stream.attachVideo(userId, VideoQuality.Video_360P);
+container.appendChild(element);
+
+// Detach when done
+await stream.detachVideo(userId);
+```
+
+### Required Events
+
+```javascript
+// When other participant's video turns on/off
+client.on('peer-video-state-change', async (payload) => {
+  const { action, userId } = payload;
+  if (action === 'Start') {
+    const el = await stream.attachVideo(userId, VideoQuality.Video_360P);
+    container.appendChild(el);
+  } else {
+    await stream.detachVideo(userId);
+  }
+});
+
+// When participants join/leave
+client.on('user-added', (payload) => { /* check bVideoOn */ });
+client.on('user-removed', (payload) => { stream.detachVideo(payload.userId); });
+```
+
+See [references/web.md](references/web.md) for complete event handling patterns.
+
 ## Key Concepts
 
 | Concept | Description |
