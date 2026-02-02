@@ -15,31 +15,126 @@ Embed the full Zoom meeting experience into your web application.
 - SDK Key and Secret from Marketplace
 - Web development environment
 
-## Quick Start (Web)
+## Quick Start (Web - Client View via CDN)
 
 ```html
-<script src="https://source.zoom.us/2.18.0/lib/vendor/react.min.js"></script>
-<script src="https://source.zoom.us/2.18.0/lib/vendor/react-dom.min.js"></script>
-<script src="https://source.zoom.us/2.18.0/lib/vendor/redux.min.js"></script>
-<script src="https://source.zoom.us/2.18.0/lib/vendor/redux-thunk.min.js"></script>
-<script src="https://source.zoom.us/2.18.0/lib/vendor/lodash.min.js"></script>
-<script src="https://source.zoom.us/zoom-meeting-2.18.0.min.js"></script>
+<script src="https://source.zoom.us/3.1.6/lib/vendor/react.min.js"></script>
+<script src="https://source.zoom.us/3.1.6/lib/vendor/react-dom.min.js"></script>
+<script src="https://source.zoom.us/3.1.6/lib/vendor/redux.min.js"></script>
+<script src="https://source.zoom.us/3.1.6/lib/vendor/redux-thunk.min.js"></script>
+<script src="https://source.zoom.us/3.1.6/lib/vendor/lodash.min.js"></script>
+<script src="https://source.zoom.us/3.1.6/zoom-meeting-3.1.6.min.js"></script>
 
 <script>
-const client = ZoomMtgEmbedded.createClient();
+// CDN provides ZoomMtg (Client View - full page)
+// For ZoomMtgEmbedded (Component View), use npm instead
 
-client.init({
-  zoomAppRoot: document.getElementById('meetingSDKElement'),
-  language: 'en-US',
-});
+ZoomMtg.preLoadWasm();
+ZoomMtg.prepareWebSDK();
 
-client.join({
-  sdkKey: 'YOUR_SDK_KEY',
-  signature: 'YOUR_SIGNATURE',
-  meetingNumber: 'MEETING_NUMBER',
-  userName: 'User Name',
+ZoomMtg.init({
+  leaveUrl: window.location.href,
+  patchJsMedia: true,
+  disableCORP: !window.crossOriginIsolated,
+  success: function() {
+    ZoomMtg.join({
+      sdkKey: 'YOUR_SDK_KEY',
+      signature: 'YOUR_SIGNATURE',  // Generate server-side!
+      meetingNumber: 'MEETING_NUMBER',
+      userName: 'User Name',
+      passWord: '',  // Note: camelCase with capital W
+      success: function(res) { console.log('Joined'); },
+      error: function(err) { console.error(err); }
+    });
+  },
+  error: function(err) { console.error(err); }
 });
 </script>
+```
+
+## Critical Notes (Web)
+
+### 1. CDN vs npm - Different APIs!
+
+| Distribution | Global Object | View Type | API Style |
+|--------------|---------------|-----------|-----------|
+| CDN (`zoom-meeting-{ver}.min.js`) | `ZoomMtg` | Client View (full-page) | Callbacks |
+| npm (`@zoom/meetingsdk`) | `ZoomMtgEmbedded` | Component View (embeddable) | Promises |
+
+### 2. Backend Required for Production
+
+**Never expose SDK Secret in client code.** Generate signatures server-side:
+
+```javascript
+// server.js (Node.js example)
+const KJUR = require('jsrsasign');
+
+app.post('/api/signature', (req, res) => {
+  const { meetingNumber, role } = req.body;
+  const iat = Math.floor(Date.now() / 1000) - 30;
+  const exp = iat + 60 * 60 * 2;
+  
+  const header = { alg: 'HS256', typ: 'JWT' };
+  const payload = {
+    sdkKey: process.env.ZOOM_SDK_KEY,
+    mn: String(meetingNumber).replace(/\D/g, ''),
+    role: parseInt(role, 10),
+    iat, exp, tokenExp: exp
+  };
+  
+  const signature = KJUR.jws.JWS.sign('HS256',
+    JSON.stringify(header),
+    JSON.stringify(payload),
+    process.env.ZOOM_SDK_SECRET
+  );
+  
+  res.json({ signature, sdkKey: process.env.ZOOM_SDK_KEY });
+});
+```
+
+### 3. CSS Conflicts - Avoid Global Resets
+
+Global `* { margin: 0; }` breaks Zoom's UI. Scope your styles:
+
+```css
+/* BAD */
+* { margin: 0; padding: 0; }
+
+/* GOOD */
+.your-app, .your-app * { box-sizing: border-box; }
+```
+
+### 4. Client View Toolbar Cropping Fix
+
+If toolbar falls off screen, scale down the Zoom UI:
+
+```css
+#zmmtg-root {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  transform: scale(0.95) !important;
+  transform-origin: top center !important;
+}
+```
+
+### 5. Hide Your App When Meeting Starts
+
+Client View takes over full page. Hide your UI:
+
+```javascript
+// In ZoomMtg.init success callback:
+document.documentElement.classList.add('meeting-active');
+document.body.classList.add('meeting-active');
+```
+
+```css
+body.meeting-active .your-app { display: none !important; }
+body.meeting-active { background: #000 !important; }
 ```
 
 ## UI Options (Web)

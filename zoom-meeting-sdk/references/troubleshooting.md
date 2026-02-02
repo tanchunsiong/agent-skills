@@ -49,6 +49,32 @@ Troubleshooting guide for Meeting SDK across all platforms.
 |-------|----------------|----------|
 | SharedArrayBuffer error | Missing headers | Add COOP/COEP headers |
 | Component not rendering | Wrong container | Check `zoomAppRoot` element |
+| Toolbar/controls missing | Global CSS resets | Don't use `* { margin: 0; }` - scope styles to your app |
+| Toolbar cropped/off-screen | Zoom UI exceeds viewport | Use `transform: scale(0.95)` on `#zmmtg-root` |
+| `ZoomMtgEmbedded is undefined` | Using CDN but Component View API | CDN provides `ZoomMtg`, use npm for `ZoomMtgEmbedded` |
+
+### Client View CSS Fixes
+
+**Toolbar falling off screen:**
+```css
+#zmmtg-root {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  transform: scale(0.95) !important;
+  transform-origin: top center !important;
+}
+```
+
+**Hide your app when meeting starts:**
+```css
+body.meeting-active .your-app { display: none !important; }
+body.meeting-active { background: #000 !important; }
+```
 
 ## Collecting Logs
 
