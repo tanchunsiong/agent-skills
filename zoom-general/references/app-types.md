@@ -12,6 +12,7 @@ Zoom Marketplace offers different app types based on your use case:
 | **Admin-managed** | Installed by admins | Internal/Marketplace |
 | **OAuth** | User-authorized access | Marketplace |
 | **Server-to-Server OAuth** | Server automation | Internal |
+| **Webhook Only** | Receive events, no API calls | Internal |
 | **Meeting SDK** | Embed meetings | Marketplace |
 | **Video SDK** | Custom video | Marketplace |
 | **Zoom App** | In-client apps | Marketplace |
@@ -38,6 +39,10 @@ Zoom Marketplace offers different app types based on your use case:
 
 → Zoom App
 
+### Need to receive events only (no API calls)?
+
+→ Webhook Only app
+
 ## App Type Details
 
 ### Server-to-Server OAuth
@@ -45,6 +50,13 @@ Zoom Marketplace offers different app types based on your use case:
 - No user interaction required
 - Access your account's data only
 - Best for: automation, reporting, integrations
+
+### Webhook Only
+
+- Receive event notifications only
+- No API call capabilities
+- No OAuth tokens needed
+- Best for: event logging, triggering external workflows, audit trails
 
 ### OAuth
 

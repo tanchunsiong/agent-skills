@@ -2,7 +2,7 @@
 
 Agent Skills for building with Zoom SDKs, APIs, and integrations. Follows the [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) open standard.
 
-This is a streamlined version focusing on core SDK and API skills.
+This is a streamlined version focusing on core SDK and API skills for web development.
 
 ## Installation
 
@@ -10,7 +10,7 @@ This is a streamlined version focusing on core SDK and API skills.
 
 ```bash
 # Clone the repository
-git clone https://github.com/user/agent-skills-lite.git
+git clone https://github.com/tanchunsiong/agent-skills.git
 
 # Copy to Claude Code skills directory
 cp -r agent-skills-lite/* ~/.claude/skills/
@@ -66,7 +66,7 @@ The **zoom-general** skill acts as a router and directs to the appropriate speci
 ### 3. Skills chain automatically
 
 When your task requires multiple skills, the agent loads them as needed. For example, "build a meeting bot" loads:
-- **zoom-meeting-sdk** (Linux platform for joining meetings)
+- **zoom-meeting-sdk** (for joining meetings)
 - **zoom-rtms** (for real-time audio/video/transcript access)
 - **zoom-rest-api** (for creating meetings)
 
@@ -77,13 +77,13 @@ When your task requires multiple skills, the agent loads them as needed. For exa
 | [zoom-general](zoom-general/) | **Hub** - Core concepts, authentication, use cases, routing |
 | [zoom-rest-api](zoom-rest-api/) | 600+ REST API endpoints, rate limits, pagination |
 | [zoom-webhooks](zoom-webhooks/) | Real-time event notifications |
-| [zoom-websockets](zoom-websockets/) | Real-time WebSocket connections |
-| [zoom-meeting-sdk](zoom-meeting-sdk/) | Embed Zoom meetings (Web, iOS, Android, Desktop, Linux) |
-| [zoom-video-sdk](zoom-video-sdk/) | Custom video experiences (not Zoom meetings) |
+| [zoom-websockets](zoom-websockets/) | Real-time WebSocket event connections |
+| [zoom-meeting-sdk](zoom-meeting-sdk/) | Embed Zoom meetings (Web) |
+| [zoom-video-sdk](zoom-video-sdk/) | Custom video experiences (Web) |
 | [zoom-apps-sdk](zoom-apps-sdk/) | Apps that run inside Zoom client |
 | [zoom-rtms](zoom-rtms/) | Real-time Media Streams (live audio/video/transcripts) |
 | [zoom-team-chat](zoom-team-chat/) | Team Chat APIs and integrations |
-| [zoom-ui-toolkit](zoom-ui-toolkit/) | UI components for Zoom Apps |
+| [zoom-ui-toolkit](zoom-ui-toolkit/) | Pre-built UI components for Video SDK |
 | [zoom-cobrowse-sdk](zoom-cobrowse-sdk/) | Collaborative browsing for support |
 
 ## Common Use Cases
@@ -96,10 +96,9 @@ When your task requires multiple skills, the agent loads them as needed. For exa
 | Custom video experiences | zoom-video-sdk |
 | Auto-download recordings to S3/GCS | zoom-webhooks + zoom-rest-api |
 | Real-time AI processing | zoom-rtms |
-| HD video (720p/1080p) | zoom-meeting-sdk / zoom-video-sdk |
-| Reduce mobile SDK size | zoom-meeting-sdk / zoom-video-sdk |
 | In-meeting collaborative apps | zoom-apps-sdk |
 | Team Chat integrations | zoom-team-chat |
+| Low-latency event notifications | zoom-websockets |
 
 ## Architecture
 

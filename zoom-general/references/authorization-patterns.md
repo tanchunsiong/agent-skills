@@ -2,6 +2,8 @@
 
 Permission validation middleware and role-based access control for Zoom API integrations.
 
+> **Note**: These are **implementation patterns for YOUR application** when building Zoom integrations. These are not Zoom's internal authorization mechanisms - they are examples of how to structure authorization logic in your own backend.
+
 ## Overview
 
 When chaining multiple Zoom API calls, each step may require different scopes and permissions. This document provides patterns for validating authorization at each step before proceeding.
@@ -102,10 +104,12 @@ function requireScopes(requiredScopes) {
 
 /**
  * Get token information including scopes
+ * 
+ * IMPORTANT: Scopes are returned during OAuth token exchange, not from API calls.
+ * You should store the scopes when you receive the access token.
  */
 async function getTokenInfo(accessToken) {
-  // Decode JWT to get scopes (for Server-to-Server OAuth)
-  // Or call token introspection endpoint
+  // For Server-to-Server OAuth: Decode JWT to get scopes
   const parts = accessToken.split('.');
   if (parts.length === 3) {
     const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
@@ -116,15 +120,52 @@ async function getTokenInfo(accessToken) {
     };
   }
   
-  // For user OAuth tokens, call the /users/me endpoint to verify
-  const response = await axios.get('https://api.zoom.us/v2/users/me', {
-    headers: { 'Authorization': `Bearer ${accessToken}` }
+  // For User OAuth tokens: Scopes are NOT available from API responses.
+  // You must store scopes when you receive them during token exchange.
+  // 
+  // During OAuth token exchange, the response includes:
+  // {
+  //   "access_token": "...",
+  //   "token_type": "bearer",
+  //   "scope": "user:read meeting:write ...",  <-- Store this!
+  //   "expires_in": 3600
+  // }
+  //
+  // Store the scope in your database alongside the token.
+  
+  throw new Error(
+    'User OAuth token scopes must be stored during token exchange. ' +
+    'Cannot retrieve scopes from an opaque access token.'
+  );
+}
+
+/**
+ * Example: Store scopes during OAuth token exchange
+ */
+async function handleOAuthCallback(code) {
+  const response = await axios.post('https://zoom.us/oauth/token', null, {
+    params: {
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: REDIRECT_URI
+    },
+    auth: {
+      username: CLIENT_ID,
+      password: CLIENT_SECRET
+    }
   });
   
-  return {
-    scope: response.headers['x-zm-scopes'] || '',
-    user_id: response.data.id
-  };
+  const { access_token, refresh_token, scope, expires_in } = response.data;
+  
+  // IMPORTANT: Store the scope along with the token
+  await saveTokenToDatabase({
+    accessToken: access_token,
+    refreshToken: refresh_token,
+    scope: scope,  // <-- Store this for later permission checks
+    expiresAt: Date.now() + (expires_in * 1000)
+  });
+  
+  return { access_token, scope };
 }
 
 // Usage
@@ -153,15 +194,24 @@ app.post('/api/users/:id/meetings',
 
 ### Scope Requirements by Operation
 
-| Operation | Required Scopes |
-|-----------|-----------------|
-| List users | `user:read:admin` |
-| Create user | `user:write:admin` |
-| Get meeting | `meeting:read` or `meeting:read:admin` |
-| Create meeting | `meeting:write` or `meeting:write:admin` |
-| List recordings | `recording:read` or `recording:read:admin` |
-| Delete recording | `recording:write` or `recording:write:admin` |
-| Access phone | `phone:read`, `phone:write` |
+| Operation | User Scope | Admin Scope (S2S) |
+|-----------|------------|-------------------|
+| Get own user info | `user:read` | `user:read:admin` |
+| List all users | N/A | `user:read:admin` |
+| Create user | N/A | `user:write:admin` |
+| Get own meetings | `meeting:read` | `meeting:read:admin` |
+| Get any user's meetings | N/A | `meeting:read:admin` |
+| Create meeting for self | `meeting:write` | `meeting:write:admin` |
+| Create meeting for others | N/A | `meeting:write:admin` |
+| List own recordings | `recording:read` | `recording:read:admin` |
+| List any user's recordings | N/A | `recording:read:admin` |
+| Delete own recording | `recording:write` | `recording:write:admin` |
+| Delete any recording | N/A | `recording:write:admin` |
+| Access own phone | `phone:read` | `phone:read:admin` |
+| Access any user's phone | N/A | `phone:read:admin` |
+| Manage phone settings | `phone:write` | `phone:write:admin` |
+
+> **Note**: "N/A" means this operation requires admin-level scopes and cannot be done with user-level OAuth.
 
 ## Role-Based Access Control
 

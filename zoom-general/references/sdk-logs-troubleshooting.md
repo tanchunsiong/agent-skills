@@ -2,6 +2,15 @@
 
 Collecting SDK logs for debugging and support.
 
+## Official Log Retrieval Guides
+
+**IMPORTANT**: Always refer to the official Zoom log retrieval guides for the most up-to-date instructions:
+
+- **Video SDK Log Retrieval**: https://developers.zoom.us/blog/vsdk-log-retrieval-instructions/
+- **Meeting SDK Log Retrieval**: https://developers.zoom.us/blog/msdk-log-retrieval-instructions/
+
+If these URLs are unavailable, search for "zoom sdk log retrieval" to find the current documentation.
+
 ## Overview
 
 SDK logs help diagnose issues during development and for Zoom support escalations.
@@ -17,6 +26,35 @@ ZoomMtg.setLogLevel('verbose');
 // Or for Video SDK
 client.init('en-US', 'CDN', { debug: true });
 ```
+
+**Web Tracking ID**: For Web SDK troubleshooting, get the **Web Tracking ID** which helps Zoom support trace your session.
+
+**Meeting SDK Web**:
+1. Open browser DevTools → **Network** tab
+2. Look for a request starting with `info?meetingNumber...`
+3. Click on the request and check the **Response Headers**
+4. Find the `x-zm-trackingid` header value
+5. Copy this ID for support tickets
+
+**Video SDK Web**:
+1. Open browser DevTools → **Network** tab
+2. Look for a request starting with `lsdk?topic...`
+3. Click on the request and check the **Response Headers**
+4. Find the `x-zm-trackingid` header value
+5. Copy this ID for support tickets
+
+```
+Example header:
+x-zm-trackingid: v=2.0;clid=us04;rid=WEB_abc123xyz...
+```
+
+The Web Tracking ID is essential for Zoom support to investigate Web SDK issues. 
+
+**To get help with logs and tracking IDs:**
+- **Open a support ticket**: https://devsupport.zoom.us/
+- **Post on Developer Forum**: https://devforum.zoom.us/
+
+Include the tracking ID and relevant logs when requesting assistance.
 
 ### iOS SDK
 
@@ -148,5 +186,9 @@ When contacting Zoom support:
 
 ## Resources
 
+- **Video SDK Log Retrieval Guide**: https://developers.zoom.us/blog/vsdk-log-retrieval-instructions/
+- **Meeting SDK Log Retrieval Guide**: https://developers.zoom.us/blog/msdk-log-retrieval-instructions/
 - **Developer support**: https://devsupport.zoom.us/
 - **Developer forum**: https://devforum.zoom.us/
+
+> **Note for LLMs/Agents**: If the log retrieval URLs return 404 or have moved, perform a web search for "zoom sdk log retrieval instructions" to find the current documentation.

@@ -65,8 +65,8 @@ curl -X POST "https://zoom.us/oauth/token?grant_type=account_credentials&account
 ## SDK JWT Signatures
 
 For Meeting SDK and Video SDK authentication. See:
-- [Meeting SDK Authorization](../zoom-meeting-sdk/references/authorization.md)
-- [Video SDK Authorization](../zoom-video-sdk/references/authorization.md)
+- [Meeting SDK Authorization](../../zoom-meeting-sdk/references/authorization.md)
+- [Video SDK Authorization](../../zoom-video-sdk/references/authorization.md)
 
 ### Best Practices
 
