@@ -2,90 +2,158 @@
 
 Get started with Zoom Realtime Media Streams.
 
-## Overview
-
-RTMS provides WebSocket-based access to live audio, video, and transcript data from Zoom meetings.
-
 ## Prerequisites
 
-1. Zoom app with RTMS feature enabled
-2. Webhook endpoint configured
-3. Server to handle WebSocket connections
+1. **Node.js 20.3.0+** (24 LTS recommended)
+2. Zoom General App with RTMS feature enabled
+3. Webhook endpoint configured
+4. Server to handle WebSocket connections
 
-## Setup Steps
+## Environment Setup
 
-### 1. Enable RTMS on Your App
+```bash
+# .env file
+ZOOM_CLIENT_ID=your_client_id          # From App Credentials
+ZOOM_CLIENT_SECRET=your_client_secret  # From App Credentials
+ZOOM_SECRET_TOKEN=your_webhook_token   # From Feature → Webhook
+```
 
-1. Go to [Marketplace](https://marketplace.zoom.us/)
-2. Edit your app
-3. Enable RTMS feature
-4. Configure webhook for `meeting.rtms_started`
+## Option 1: RTMSManager (Recommended)
 
-### 2. Handle RTMS Webhook
+Clone the official samples and use RTMSManager:
+
+```bash
+git clone https://github.com/zoom/rtms-samples.git
+cd rtms-samples/boilerplate/working_js
+npm install
+```
 
 ```javascript
+import { RTMSManager } from './library/javascript/rtmsManager/RTMSManager.js';
+import express from 'express';
+import crypto from 'crypto';
+
+const app = express();
+app.use(express.json());
+
+// Initialize with credentials
+await RTMSManager.init({
+  credentials: {
+    meeting: {
+      clientId: process.env.ZOOM_CLIENT_ID,
+      clientSecret: process.env.ZOOM_CLIENT_SECRET,
+      secretToken: process.env.ZOOM_SECRET_TOKEN,
+    }
+  },
+  // Use bitmask: AUDIO(1) | TRANSCRIPT(8) = 9
+  mediaTypes: RTMSManager.MEDIA.AUDIO | RTMSManager.MEDIA.TRANSCRIPT,
+  logging: 'info'
+});
+
+// Handle media events
+RTMSManager.on('audio', ({ buffer, userName }) => {
+  console.log(`Audio from ${userName}: ${buffer.length} bytes`);
+});
+
+RTMSManager.on('transcript', ({ text, userName }) => {
+  console.log(`${userName}: ${text}`);
+});
+
+RTMSManager.on('chat', ({ text, userName }) => {
+  console.log(`[Chat] ${userName}: ${text}`);
+});
+
+RTMSManager.on('sharescreen', ({ buffer, userName }) => {
+  console.log(`Screen share from ${userName}`);
+});
+
+// CRITICAL: Respond 200 IMMEDIATELY before any processing!
 app.post('/webhook', (req, res) => {
+  res.status(200).send();  // FIRST!
+  
   const { event, payload } = req.body;
   
-  if (event === 'meeting.rtms_started') {
-    const {
-      server_urls,
-      rtms_stream_id,
-      signature
-    } = payload;
-    
-    // Connect to RTMS WebSocket
-    connectToRTMS(server_urls, rtms_stream_id, signature);
+  // Handle URL validation challenge
+  if (event === 'endpoint.url_validation') {
+    const hash = crypto
+      .createHmac('sha256', process.env.ZOOM_SECRET_TOKEN)
+      .update(payload.plainToken)
+      .digest('hex');
+    return res.json({ plainToken: payload.plainToken, encryptedToken: hash });
   }
   
-  res.status(200).send();
+  // Feed RTMS events to manager
+  RTMSManager.handleEvent(event, payload);
+});
+
+await RTMSManager.start();
+app.listen(3000, () => console.log('RTMS server on port 3000'));
+```
+
+## Option 2: @zoom/rtms SDK
+
+```bash
+npm install @zoom/rtms express
+```
+
+```javascript
+import rtms from "@zoom/rtms";
+
+rtms.onWebhookEvent(({ event, payload }) => {
+  if (event !== "meeting.rtms_started") return;
+  
+  const client = new rtms.Client();
+  
+  client.onAudioData((data, timestamp, metadata) => {
+    console.log(`Audio from ${metadata.userName}`);
+  });
+  
+  client.onTranscriptData((data, timestamp, metadata) => {
+    console.log(`${metadata.userName}: ${data}`);
+  });
+  
+  client.onChatData((data, timestamp, metadata) => {
+    console.log(`[Chat] ${metadata.userName}: ${data}`);
+  });
+  
+  client.onScreenShareData((data, timestamp, metadata) => {
+    console.log(`Screen share from ${metadata.userName}`);
+  });
+  
+  client.join(payload);
 });
 ```
 
-### 3. Connect to WebSocket
+## Zoom App Setup Steps
 
-```javascript
-const WebSocket = require('ws');
+1. Go to [marketplace.zoom.us](https://marketplace.zoom.us)
+2. Click **Develop** → **Build App**
+3. Choose **General App** → **User-Managed**
+4. Features → Access → **Enable Event Subscription**
+5. Add Events → Search "rtms" → Select RTMS endpoints:
+   - `meeting.rtms_started`
+   - `meeting.rtms_stopped`
+6. Scopes → Add Scopes → Search "rtms" → Add for both "Meetings" and "Rtms":
+   - `meeting:read:meeting_audio`
+   - `meeting:read:meeting_video`
+   - etc.
 
-function connectToRTMS(serverUrl, streamId, signature) {
-  const ws = new WebSocket(serverUrl, {
-    headers: {
-      'X-Zoom-RTMS-Stream-Id': streamId,
-      'X-Zoom-RTMS-Signature': signature
-    }
-  });
-  
-  ws.on('open', () => {
-    console.log('Connected to RTMS');
-  });
-  
-  ws.on('message', (data) => {
-    // Process media data
-    handleMediaData(data);
-  });
-  
-  ws.on('close', () => {
-    console.log('RTMS connection closed');
-  });
-}
-```
+## How to Start RTMS
 
-### 4. Process Media Data
+RTMS must be started for each meeting. Options:
 
-```javascript
-function handleMediaData(data) {
-  // Parse message type and process accordingly
-  // Audio: PCM 16-bit samples
-  // Video: H.264 encoded frames
-  // Transcript: JSON with text
-}
-```
+| Product | How to Start |
+|---------|--------------|
+| Meeting/Webinar | Zoom client, REST API, Zoom App SDK, or **autostart** (zoom.us settings) |
+| Video SDK | Video SDK client or REST API |
 
 ## Next Steps
 
-- [Media Types](media-types.md) - Audio, video, transcript formats
-- [Connection](connection.md) - WebSocket protocol details
+- [Media Types](media-types.md) - All 5 data types (audio, video, transcript, chat, screen share)
+- [Connection](connection.md) - WebSocket protocol & message types
+- [Webhooks](webhooks.md) - Event subscription details
 
 ## Resources
 
 - **RTMS docs**: https://developers.zoom.us/docs/rtms/
+- **rtms-samples**: https://github.com/zoom/rtms-samples
