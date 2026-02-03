@@ -147,6 +147,34 @@ RTMS must be started for each meeting. Options:
 | Meeting/Webinar | Zoom client, REST API, Zoom App SDK, or **autostart** (zoom.us settings) |
 | Video SDK | Video SDK client or REST API |
 
+## Deployment with Reverse Proxy
+
+When deploying behind nginx with a path prefix (e.g., `/my-app/`):
+
+1. **Socket.IO path must match nginx config**:
+```javascript
+const socketPath = window.location.pathname.includes('/my-app') 
+    ? '/my-app/rtms-socket' 
+    : '/rtms-socket';
+const socket = io({ path: socketPath });
+```
+
+2. **API calls must use relative paths**:
+```javascript
+const basePath = window.location.pathname.replace(/\/$/, '');
+fetch(`${basePath}/api/sessions`);  // NOT fetch('/api/sessions')
+```
+
+3. **Nginx WebSocket proxy**:
+```nginx
+location /my-app/rtms-socket {
+    proxy_pass http://localhost:3000/rtms-socket;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+```
+
 ## Next Steps
 
 - [Media Types](media-types.md) - All 5 data types (audio, video, transcript, chat, screen share)
