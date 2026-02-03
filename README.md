@@ -1,6 +1,6 @@
 # Zoom Developer Platform Skills
 
-Agent Skills for building with Zoom SDKs, APIs, and integrations. Focused on core SDK and API skills for web development.
+Skills for building with Zoom SDKs, APIs, and integrations. Focused on web development.
 
 ## Installation
 
