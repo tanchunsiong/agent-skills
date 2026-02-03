@@ -283,6 +283,93 @@ const data = await response.json();
 - [OAuth Authorization](https://developers.zoom.us/docs/integrations/oauth/)
 - [Chatbot Quickstart](https://github.com/zoom/chatbot-nodejs-quickstart) - includes OAuth routes example
 
+### OAuth Routes (from official quickstart)
+
+```javascript
+// routes/oauth-routes.js
+import crypto from 'crypto';
+
+// OAuth: start login
+router.get('/login', (req, res) => {
+  const state = crypto.randomBytes(16).toString('hex');
+  req.session.oauth_state = state;  // Store for CSRF protection
+
+  const url = buildBasicAuth({
+    clientId: process.env.ZOOM_CLIENT_ID,
+    redirectUri: process.env.ZOOM_REDIRECT_URI,
+    state,
+  });
+
+  return res.redirect(url);
+});
+
+// OAuth: callback
+router.get('/callback', async (req, res) => {
+  const { code, state, error } = req.query;
+
+  if (error) return res.status(400).send(`Authorization error: ${error}`);
+  if (!code || !state) return res.status(400).send('Missing code or state.');
+  if (state !== req.session.oauth_state) return res.status(400).send('Invalid state.');
+  
+  delete req.session.oauth_state; // one-time use
+
+  const tokens = await exchangeCodeForAccessToken({
+    code,
+    redirectUri: process.env.ZOOM_REDIRECT_URI,
+    clientId: process.env.ZOOM_CLIENT_ID,
+    clientSecret: process.env.ZOOM_CLIENT_SECRET,
+  });
+
+  req.session.zoomTokens = tokens;  // Store tokens (use DB in production)
+  return res.redirect('/dashboard');
+});
+```
+
+### Helper Functions (from official quickstart)
+
+```javascript
+// utils/zoom-api.js
+
+// Build OAuth authorization URL
+function buildBasicAuth({ clientId, redirectUri, state }) {
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    state: state
+  });
+  return `https://zoom.us/oauth/authorize?${params.toString()}`;
+}
+
+// Build Basic Auth header
+function buildBasicAuthHeader(clientId, clientSecret) {
+  return 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+}
+
+// Exchange code for tokens
+async function exchangeCodeForAccessToken({ code, redirectUri, clientId, clientSecret }) {
+  const res = await fetch('https://zoom.us/oauth/token', {
+    method: 'POST',
+    headers: {
+      Authorization: buildBasicAuthHeader(clientId, clientSecret),
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+    }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(`Token exchange failed: ${error.error_description || error.error}`);
+  }
+
+  return res.json();
+}
+```
+
 ---
 
 # Section B: Chatbot API (Bot-Level)
