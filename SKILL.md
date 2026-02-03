@@ -6,55 +6,25 @@ description: |
   and references.
 ---
 
-# Zoom Developer Platform Agent Skills
+# Zoom Developer Platform Skills
 
-This repository contains skills for building with Zoom APIs and SDKs, organized by product.
+This repository contains skills for building with Zoom APIs and SDKs, focused on web development.
 
 ## Folder Structure
 
-### Core SDKs & APIs
-
 | Folder | Description |
 |--------|-------------|
-| **zoom-rest-api** | Skills for Zoom REST API calls (600+ endpoints) |
-| **zoom-webhooks** | Skills for real-time event notifications |
-| **zoom-meeting-sdk** | Skills for embedding Zoom meetings in your app |
-| **zoom-video-sdk** | Skills for custom video experiences (not Zoom meetings) |
-| **zoom-apps-sdk** | Skills for building apps that run inside the Zoom client |
-| **zoom-rtms** | Skills for Real-Time Media Streams (live audio/video/transcripts) |
-
-### Zoom Products
-
-| Folder | Description |
-|--------|-------------|
-| **zoom-phone** | Skills for cloud phone/VoIP integrations |
-| **zoom-team-chat** | Skills for Team Chat messaging and channels |
-| **zoom-rooms** | Skills for Zoom Rooms device and scheduling management |
-| **zoom-calendar** | Skills for Zoom Calendar integrations |
-| **zoom-mail** | Skills for Zoom Mail integrations |
-| **zoom-whiteboard** | Skills for collaborative whiteboard management |
-| **zoom-docs** | Skills for document collaboration |
-| **zoom-events** | Skills for Zoom Events and webinar management |
-| **zoom-contact-center** | Skills for contact center integrations |
-| **zoom-virtual-agent** | Skills for AI-powered virtual agent/chatbot |
-| **zoom-crc** | Skills for Cloud Room Connector (H.323/SIP) |
-
-### Developer Tools
-
-| Folder | Description |
-|--------|-------------|
-| **zoom-rivet** | CLI toolkit for Zoom App development |
-| **zoom-chatbot-studio** | No-code chatbot builder for Team Chat |
+| **zoom-general** | **Hub** - Cross-product use cases and shared references |
+| **zoom-rest-api** | REST API calls (600+ endpoints) |
+| **zoom-webhooks** | Real-time event notifications (HTTP) |
+| **zoom-websockets** | Real-time event notifications (WebSocket) |
+| **zoom-meeting-sdk** | Embed Zoom meetings in your app (Web) |
+| **zoom-video-sdk** | Custom video experiences (Web) |
+| **zoom-apps-sdk** | Apps that run inside the Zoom client |
+| **zoom-rtms** | Real-Time Media Streams (live audio/video/transcripts) |
+| **zoom-team-chat** | Team Chat messaging and channels |
 | **zoom-ui-toolkit** | Pre-built React components for Video SDK |
-| **zoom-probe-sdk** | Monitoring and debugging toolkit for Zoom Apps |
-| **zoom-commerce** | App monetization and entitlement management |
-| **zoom-cobrowse-sdk** | Skills for collaborative browsing/co-browsing support |
-
-### General
-
-| Folder | Description |
-|--------|-------------|
-| **zoom-general** | **Generic skills** - cross-product use cases and shared references |
+| **zoom-cobrowse-sdk** | Collaborative browsing for support |
 
 ## How to Use
 
@@ -62,12 +32,12 @@ This repository contains skills for building with Zoom APIs and SDKs, organized 
 2. **Cross-product or general task?** → Check `zoom-general/` for generic use cases
 3. **Each folder has a `SKILL.md`** → Start there for that product's overview
 
-## zoom-general (Generic Skills)
+## zoom-general (Hub)
 
-The `zoom-general` folder is different from other folders. It contains:
+The `zoom-general` folder contains:
 
 - **Cross-product use cases** - Tasks that span multiple Zoom products
-- **Generic references** - Authentication, app types, scopes, error codes
+- **Generic references** - Authentication, app types, scopes
 - **Shared documentation** - SDK maintenance, troubleshooting, marketplace publishing
 
 Use `zoom-general` when:
@@ -80,27 +50,14 @@ Use `zoom-general` when:
 | I want to... | Use this skill |
 |--------------|----------------|
 | Make API calls (create meetings, manage users) | **zoom-rest-api** |
-| Receive real-time event notifications | **zoom-webhooks** |
+| Receive event notifications (HTTP push) | **zoom-webhooks** |
+| Receive event notifications (WebSocket) | **zoom-websockets** |
 | Embed Zoom meetings in my app | **zoom-meeting-sdk** |
 | Build custom video experiences | **zoom-video-sdk** |
 | Build an app inside Zoom client | **zoom-apps-sdk** |
 | Access live audio/video/transcripts | **zoom-rtms** |
-| Build phone/VoIP integrations | **zoom-phone** |
 | Build Team Chat integrations | **zoom-team-chat** |
-| Manage Zoom Rooms | **zoom-rooms** |
-| Work with calendars | **zoom-calendar** |
-| Work with email | **zoom-mail** |
-| Manage whiteboards | **zoom-whiteboard** |
-| Manage documents | **zoom-docs** |
-| Manage events/webinars | **zoom-events** |
-| Build contact center solutions | **zoom-contact-center** |
-| Build AI chatbots | **zoom-virtual-agent** |
-| Connect H.323/SIP rooms | **zoom-crc** |
-| Scaffold Zoom Apps quickly | **zoom-rivet** |
-| Build no-code chatbots | **zoom-chatbot-studio** |
 | Use pre-built video UI components | **zoom-ui-toolkit** |
-| Monitor/debug Zoom Apps | **zoom-probe-sdk** |
-| Monetize your Zoom App | **zoom-commerce** |
 | Enable co-browsing for support | **zoom-cobrowse-sdk** |
 | General/cross-product guidance | **zoom-general** |
 

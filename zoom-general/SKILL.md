@@ -22,9 +22,9 @@ Entry point for building with Zoom. This skill helps you choose the right SDK or
 | Build custom video experiences (not Zoom meetings) | **zoom-video-sdk** |
 | Build an app that runs inside Zoom client | **zoom-apps-sdk** |
 | Access live audio/video/transcripts from meetings | **zoom-rtms** |
-| Build cloud phone/VoIP integrations | **zoom-phone** |
 | Enable collaborative browsing for support | **zoom-cobrowse-sdk** |
-| Build contact center integrations | **zoom-contact-center** |
+| Build Team Chat apps and integrations | **zoom-team-chat** |
+| Add pre-built UI components for Video SDK | **zoom-ui-toolkit** |
 
 ### Webhooks vs WebSockets
 
@@ -68,7 +68,6 @@ Both receive event notifications, but differ in approach:
 - **[references/app-types.md](references/app-types.md)** - Decision guide for app types
 - **[references/scopes.md](references/scopes.md)** - OAuth scopes reference
 - **[references/marketplace.md](references/marketplace.md)** - Marketplace portal navigation
-- **[references/error-codes.md](references/error-codes.md)** - Common error codes across SDKs
 
 ## SDK Maintenance
 
@@ -103,11 +102,6 @@ zoom-rest-api (users)     →     zoom-rest-api (meetings)     →     zoom-webh
 ```
 
 For detailed patterns and code examples, see the use-case guides linked above.
-
-## Skill Discovery
-
-For agents that need to programmatically discover and load skills, see:
-- **[references/skill-discovery.md](references/skill-discovery.md)** - Framework for auto-discovering Zoom skills
 
 ## Resources
 
