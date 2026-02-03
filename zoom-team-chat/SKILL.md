@@ -896,6 +896,184 @@ Your server must respond with:
 | Token error | Wrong credentials | Verify Client ID/Secret match your app |
 | Messages not sending | Missing Account ID or Bot JID | Check `.env` has all required values |
 
+## Section B References
+
+- [Chatbot API Reference](https://developers.zoom.us/docs/api/rest/reference/chatbot/methods/)
+- [Chatbot Quickstart](https://github.com/zoom/chatbot-nodejs-quickstart)
+- [Claude Chatbot Sample](https://github.com/zoom/zoom-chatbot-claude-sample)
+- [Unsplash Chatbot](https://github.com/zoom/unsplash-chatbot) - includes database storage pattern
+- [ERP Chatbot](https://github.com/zoom/zoom-erp-chatbot-sample) - includes scheduled alerts
+
+### Webhook Handler (from official quickstart)
+
+```javascript
+// routes/zoom-webhookHandler.js
+import { verifyZoomWebhookSignature } from '../utils/validation.js';
+import { sendChatMessage } from '../utils/zoom-api.js';
+
+async function handleZoomWebhook(req, res) {
+  try {
+    verifyZoomWebhookSignature(req);
+
+    const { event, payload } = req.body;
+    const toJid = payload?.toJid;
+    const message = payload?.cmd || payload?.message || '';
+
+    switch (event) {
+      case 'bot_installed':
+        console.log('Bot installed successfully');
+        break;
+
+      case 'bot_notification':
+        console.log('Processing bot notification');
+        sendChatMessage(toJid, message);
+        break;
+      
+      case 'interactive_message_actions':
+        console.log('Button clicked:', payload?.actionItem?.value);
+        sendChatMessage(toJid, `You clicked: ${payload?.actionItem?.value}`);
+        break;
+
+      case 'app_deauthorized':
+        console.log('Bot uninstalled');
+        break;
+
+      case 'endpoint.url_validation':
+        return res.status(200).json({
+          message: { plainToken: payload?.plainToken }
+        });
+
+      default:
+        console.log('Unsupported event:', event);
+    }
+
+    res.status(200).json({ success: true, event });
+  } catch (error) {
+    if (error.message.includes('signature')) {
+      return res.status(401).json({ error: 'Invalid webhook signature' });
+    }
+    res.status(500).json({ error: error.message });
+  }
+}
+```
+
+### Get Chatbot Token (from official quickstart)
+
+```javascript
+// utils/zoom-chatbot-auth.js
+export async function getChatbotToken() {
+  const credentials = Buffer.from(
+    `${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`
+  ).toString('base64');
+
+  const response = await fetch('https://zoom.us/oauth/token', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${credentials}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'grant_type=client_credentials'
+  });
+
+  const data = await response.json();
+  return data.access_token;
+}
+```
+
+### Send Chat Message (from official quickstart)
+
+```javascript
+// utils/zoom-api.js
+export async function sendChatMessage(toJid, message, replyTo = null) {
+  const accessToken = await getChatbotToken();
+  
+  const body = {
+    account_id: process.env.ACCOUNT_ID,
+    robot_jid: process.env.ZOOM_BOT_JID,
+    to_jid: toJid,
+    content: {
+      head: { text: 'Bot Response', style: { bold: true } },
+      body: [
+        { type: 'message', text: message },
+        {
+          type: 'actions',
+          items: [
+            { text: 'Thumbsup', value: 'thumbsup', style: 'Primary' },
+            { text: 'Thumbsdown', value: 'thumbsdown', style: 'Danger' }
+          ]
+        }
+      ]
+    }
+  };
+
+  if (replyTo) body.reply_to = replyTo;
+
+  const response = await fetch('https://api.zoom.us/v2/im/chat/messages', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  return response.json();
+}
+```
+
+### Validation Utilities (from official quickstart)
+
+```javascript
+// utils/validation.js
+import crypto from 'crypto';
+
+// Verify webhook signature
+export function verifyZoomWebhookSignature(req) {
+  const signature = req.headers['x-zm-signature'];
+  const timestamp = req.headers['x-zm-request-timestamp'];
+
+  if (!signature || !timestamp) {
+    throw new Error('Missing signature headers');
+  }
+
+  const message = `v0:${timestamp}:${JSON.stringify(req.body)}`;
+  const hash = crypto
+    .createHmac('sha256', process.env.ZOOM_VERIFICATION_TOKEN)
+    .update(message)
+    .digest('hex');
+
+  if (signature !== `v0=${hash}`) {
+    throw new Error('Invalid webhook signature');
+  }
+}
+
+// Sanitize message (4096 char limit)
+export function sanitizeMessage(message) {
+  if (typeof message !== 'string') return '';
+  return message
+    .trim()
+    .replace(/[\x00-\x1F\x7F]/g, '')
+    .substring(0, 4096);
+}
+
+// Validate JID format
+export function isValidJID(jid) {
+  if (typeof jid !== 'string' || !jid.trim()) return false;
+  return /^[^@\s]+@[^@\s]+$/.test(jid);
+}
+
+// Validate required env vars
+export function validateEnvironmentVariables() {
+  const required = ['ZOOM_CLIENT_ID', 'ZOOM_CLIENT_SECRET', 'ZOOM_BOT_JID', 'ZOOM_VERIFICATION_TOKEN'];
+  const missing = required.filter(v => !process.env[v]);
+  
+  return {
+    isValid: missing.length === 0,
+    errors: missing.map(v => `Missing: ${v}`)
+  };
+}
+```
+
 ---
 
 # Common Operations (Both APIs)
