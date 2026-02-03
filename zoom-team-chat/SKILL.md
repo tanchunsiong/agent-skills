@@ -277,6 +277,12 @@ const data = await response.json();
 | DM | 3 | Direct message |
 | Group | 4 | Group chat |
 
+## Section A References
+
+- [Team Chat API Reference](https://developers.zoom.us/docs/api/rest/reference/chat/methods/)
+- [OAuth Authorization](https://developers.zoom.us/docs/integrations/oauth/)
+- [Chatbot Quickstart](https://github.com/zoom/chatbot-nodejs-quickstart) - includes OAuth routes example
+
 ---
 
 # Section B: Chatbot API (Bot-Level)
