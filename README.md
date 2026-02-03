@@ -145,10 +145,8 @@ agent-skills-lite/
 
 ## Contributing
 
-1. Follow the [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) format
-2. Keep SKILL.md under 500 lines
-3. Use `references/` for detailed documentation
-4. Max 3 directory levels
+1. Use `references/` for detailed documentation
+2. Max 3 directory levels
 
 ## License
 
