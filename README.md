@@ -1,8 +1,6 @@
-# Zoom Developer Platform Skills (Lite)
+# Zoom Developer Platform Skills
 
-Agent Skills for building with Zoom SDKs, APIs, and integrations. Follows the [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) open standard.
-
-This is a streamlined version focusing on core SDK and API skills for web development.
+Agent Skills for building with Zoom SDKs, APIs, and integrations. Focused on core SDK and API skills for web development.
 
 ## Installation
 
@@ -13,20 +11,20 @@ This is a streamlined version focusing on core SDK and API skills for web develo
 git clone https://github.com/tanchunsiong/agent-skills.git
 
 # Copy to Claude Code skills directory
-cp -r agent-skills-lite/* ~/.claude/skills/
+cp -r agent-skills/* ~/.claude/skills/
 ```
 
 Or install individual skills:
 ```bash
-cp -r agent-skills-lite/zoom-general ~/.claude/skills/
-cp -r agent-skills-lite/zoom-meeting-sdk ~/.claude/skills/
+cp -r agent-skills/zoom-general ~/.claude/skills/
+cp -r agent-skills/zoom-meeting-sdk ~/.claude/skills/
 ```
 
 ### OpenCode
 
 ```bash
 # Copy to OpenCode skills directory
-cp -r agent-skills-lite/* ~/.config/opencode/skills/
+cp -r agent-skills/* ~/.config/opencode/skills/
 ```
 
 ### Context7
@@ -122,7 +120,7 @@ zoom-general (HUB)
 ## Directory Structure
 
 ```
-agent-skills-lite/
+agent-skills/
 ├── README.md                 # This file
 ├── ARCHITECTURE.md           # Full architecture diagram
 │
