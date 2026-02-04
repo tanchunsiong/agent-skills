@@ -38,6 +38,8 @@ Receive real-time event notifications from Zoom via persistent WebSocket connect
 - Account ID, Client ID, and Client Secret
 - WebSocket subscription with events enabled
 
+> **Need help with S2S OAuth?** See the **[zoom-oauth](/zoom-oauth/SKILL.md)** skill for complete authentication flows.
+
 ## Quick Start
 
 ### 1. Create Server-to-Server OAuth App

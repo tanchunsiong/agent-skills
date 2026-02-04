@@ -2,6 +2,7 @@
 
 JavaScript SDK for embedding video and chat engagement in web applications.
 
+> **Parent skill:** [zoom-contact-center](../SKILL.md)
 > **Official docs:** https://developers.zoom.us/docs/contact-center/web/
 
 ## Prerequisites

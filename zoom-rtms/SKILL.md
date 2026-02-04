@@ -17,6 +17,8 @@ Access live audio, video, transcript, chat, and screen share data from Zoom meet
 - Webhook endpoint for RTMS events
 - Server to receive WebSocket streams
 
+> **Need help with OAuth?** See the **[zoom-oauth](/zoom-oauth/SKILL.md)** skill for authentication flows.
+
 ## Quick Start (Recommended: RTMSManager)
 
 ```javascript

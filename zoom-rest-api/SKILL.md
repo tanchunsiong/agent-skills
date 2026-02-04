@@ -15,6 +15,8 @@ Server-side API for managing Zoom resources programmatically.
 - Zoom app with OAuth or Server-to-Server OAuth credentials
 - Appropriate scopes for the endpoints you need
 
+> **Need help with authentication?** See the **[zoom-oauth](/zoom-oauth/SKILL.md)** skill for complete OAuth flows (S2S, User Auth, Device Flow, PKCE).
+
 ## Quick Start
 
 ```bash

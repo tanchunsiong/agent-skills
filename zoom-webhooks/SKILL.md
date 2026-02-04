@@ -16,6 +16,8 @@ Receive real-time event notifications from Zoom services.
 - HTTPS endpoint to receive webhooks
 - Webhook secret token for verification
 
+> **Need help with authentication?** See the **[zoom-oauth](/zoom-oauth/SKILL.md)** skill for OAuth setup.
+
 ## Quick Start
 
 ```javascript

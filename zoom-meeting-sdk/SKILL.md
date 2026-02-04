@@ -15,6 +15,8 @@ Embed the full Zoom meeting experience into your web application.
 - SDK Key and Secret from Marketplace
 - Web development environment
 
+> **Need help with OAuth or signatures?** See the **[zoom-oauth](/zoom-oauth/SKILL.md)** skill for authentication flows.
+
 ## Quick Start (Web - Client View via CDN)
 
 ```html

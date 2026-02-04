@@ -39,6 +39,8 @@ Build messaging integrations with Zoom Team Chat. This skill covers two distinct
 - Account owner, admin, or **Zoom for developers** role enabled
   - To enable: **User Management** → **Roles** → **Role Settings** → **Advanced features** → Enable **Zoom for developers**
 
+> **Need help with OAuth?** See the **[zoom-oauth](/zoom-oauth/SKILL.md)** skill for authentication flows. Note: Team Chat/Chatbot requires General App (OAuth), NOT Server-to-Server OAuth.
+
 ## Step 1: Create Zoom App
 
 1. Go to [Zoom App Marketplace](https://marketplace.zoom.us/)

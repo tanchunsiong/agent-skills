@@ -33,6 +33,8 @@ Video SDK gives you **full control over the UI**:
 - SDK Key and Secret
 - Web development environment
 
+> **Need help with OAuth or signatures?** See the **[zoom-oauth](/zoom-oauth/SKILL.md)** skill for authentication flows.
+
 ## Quick Start (Web)
 
 ### NPM Usage (Bundler like Vite/Webpack)

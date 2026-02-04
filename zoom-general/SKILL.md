@@ -25,6 +25,8 @@ Entry point for building with Zoom. This skill helps you choose the right SDK or
 | Enable collaborative browsing for support | **zoom-cobrowse-sdk** |
 | Build Team Chat apps and integrations | **zoom-team-chat** |
 | Add pre-built UI components for Video SDK | **zoom-ui-toolkit** |
+| Build contact center apps (agent/consumer) | **zoom-contact-center** |
+| Implement OAuth authentication (all grant types) | **zoom-oauth** |
 
 ### Webhooks vs WebSockets
 

@@ -60,6 +60,8 @@ The **zoom-general** skill acts as a router and directs to the appropriate speci
 | "Build custom video UI" | zoom-video-sdk |
 | "Handle webhook events" | zoom-webhooks |
 | "Build a meeting bot" | zoom-meeting-sdk + zoom-rtms |
+| "Build a contact center app" | zoom-contact-center |
+| "Set up OAuth authentication" | zoom-oauth |
 
 ### 3. Skills chain automatically
 
@@ -83,6 +85,8 @@ When your task requires multiple skills, the agent loads them as needed. For exa
 | [zoom-team-chat](zoom-team-chat/) | Team Chat APIs and integrations |
 | [zoom-ui-toolkit](zoom-ui-toolkit/) | Pre-built UI components for Video SDK |
 | [zoom-cobrowse-sdk](zoom-cobrowse-sdk/) | Collaborative browsing for support |
+| [zoom-contact-center](zoom-contact-center/) | Contact Center SDK (agent/consumer engagement) |
+| [zoom-oauth](zoom-oauth/) | OAuth authentication (all 4 grant types) |
 
 ## Common Use Cases
 
@@ -97,6 +101,9 @@ When your task requires multiple skills, the agent loads them as needed. For exa
 | In-meeting collaborative apps | zoom-apps-sdk |
 | Team Chat integrations | zoom-team-chat |
 | Low-latency event notifications | zoom-websockets |
+| Contact Center agent apps | zoom-contact-center |
+| Customer support portals | zoom-contact-center |
+| OAuth authentication setup | zoom-oauth |
 
 ## Architecture
 
@@ -114,7 +121,9 @@ zoom-general (HUB)
        ├── zoom-rtms
        ├── zoom-team-chat
        ├── zoom-ui-toolkit
-       └── zoom-cobrowse-sdk
+       ├── zoom-cobrowse-sdk
+       ├── zoom-contact-center
+       └── zoom-oauth
 ```
 
 ## Directory Structure

@@ -2,6 +2,7 @@
 
 Native iOS SDK for video and chat customer engagement.
 
+> **Parent skill:** [zoom-contact-center](../SKILL.md)
 > **Official docs:** https://developers.zoom.us/docs/contact-center/ios/
 > **SDK Download:** https://marketplace.zoom.us/ (Create Contact Center SDK app type)
 

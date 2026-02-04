@@ -17,6 +17,8 @@ Build apps that run inside the Zoom client.
 - Web application to serve your Zoom App
 - **Your hosted URL whitelisted in Marketplace** (see below)
 
+> **Need help with OAuth?** See the **[zoom-oauth](/zoom-oauth/SKILL.md)** skill for authentication flows.
+
 ## Quick Start
 
 ```html
