@@ -247,6 +247,40 @@ app.use(cors({
 
 **WARNING:** Mixed content (HTTPS page → HTTP API) will be blocked by browsers.
 
+## Use Cases
+
+| Use Case | Description |
+|----------|-------------|
+| [BYOS (Bring Your Own Storage)](use-cases/byos-storage.md) | Save recordings directly to your S3 bucket |
+
+## BYOS (Bring Your Own Storage)
+
+Video SDK feature - Zoom saves cloud recordings **directly** to your Amazon S3 bucket. No downloading required.
+
+> **Official docs:** https://developers.zoom.us/docs/build/storage/
+
+**Prerequisites:**
+- Video SDK account with Cloud Recording add-on (Universal Credit includes this)
+- AWS S3 bucket
+
+**Authentication options:**
+1. **AWS Access Key** - simpler setup
+2. **Cross Account Access** - more secure (IAM role assumption)
+
+**S3 path structure:**
+```
+Buckets/{bucketName}/cmr/byos/{YYYY}/{MM}/{DD}/{GUID}/cmr_byos/
+```
+
+**Key benefits:**
+- Zero download bandwidth costs
+- Direct storage during recording
+- Config-only setup (no webhook/download code needed)
+
+**Setup location:** Developer Portal → Account Settings → General → Communications Content Storage Location
+
+See **[use-cases/byos-storage.md](use-cases/byos-storage.md)** for complete setup guide.
+
 ## Detailed References
 
 ### UI & Components

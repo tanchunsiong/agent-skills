@@ -45,7 +45,7 @@ Both receive event notifications, but differ in approach:
 | [Meeting Automation](use-cases/meeting-automation.md) | Schedule, update, delete meetings programmatically | zoom-rest-api |
 | [Meeting Bots](use-cases/meeting-bots.md) | Build bots that join meetings for AI/transcription | zoom-meeting-sdk (Linux) + zoom-rtms |
 | [Recording & Transcription](use-cases/recording-transcription.md) | Download recordings, get transcripts | zoom-webhooks + zoom-rest-api |
-| [BYOS Recording Storage](use-cases/byos-recording-storage.md) | Auto-download recordings to your own storage (S3, GCS, etc.) | zoom-webhooks + zoom-rest-api |
+| [Recording Download Pipeline](use-cases/recording-download-pipeline.md) | Auto-download recordings to your own storage (S3, GCS, etc.) | zoom-webhooks + zoom-rest-api |
 | [Real-Time Media Streams](use-cases/real-time-media-streams.md) | Access live audio, video, transcripts via WebSocket | zoom-rtms + zoom-webhooks |
 
 ## Prerequisites
@@ -83,7 +83,7 @@ Many Zoom integrations require combining multiple skills. Common patterns:
 | Meeting + Events | zoom-rest-api → zoom-webhooks | Create meeting, track lifecycle events | [meeting-details-with-events.md](use-cases/meeting-details-with-events.md) |
 | User + Meeting | zoom-rest-api (users) → zoom-rest-api (meetings) | Provision user, schedule onboarding meetings | [user-and-meeting-creation.md](use-cases/user-and-meeting-creation.md) |
 | Meeting + Real-Time | zoom-rest-api → zoom-rtms | Create meeting, join with bot for transcription | [meeting-bots.md](use-cases/meeting-bots.md) |
-| Recording + Storage | zoom-webhooks → zoom-rest-api | Receive completion event, download recording | [byos-recording-storage.md](use-cases/byos-recording-storage.md) |
+| Recording + Storage | zoom-webhooks → zoom-rest-api | Receive completion event, download recording | [recording-download-pipeline.md](use-cases/recording-download-pipeline.md) |
 
 ### How Skill Chaining Works
 

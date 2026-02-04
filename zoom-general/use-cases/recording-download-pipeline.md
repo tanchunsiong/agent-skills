@@ -1,10 +1,12 @@
-# BYOS Recording Storage
+# Recording Download Pipeline
 
-Bring Your Own Storage - automatically download Zoom recordings to your own storage (S3, GCS, Azure Blob, etc.).
+Automatically download Zoom Meeting cloud recordings to your own storage (S3, GCS, Azure Blob, etc.) using webhooks and REST API.
+
+> **Note:** This is NOT Video SDK BYOS (Bring Your Own Storage). Video SDK BYOS saves recordings **directly** to S3 without downloading through Zoom servers. See `zoom-video-sdk` for true BYOS.
 
 ## Overview
 
-Set up automated pipelines to download Zoom cloud recordings to your own storage infrastructure for compliance, cost management, or integration with existing media workflows.
+Set up automated pipelines to download Zoom Meeting cloud recordings to your own storage infrastructure for compliance, cost management, or integration with existing media workflows.
 
 ## Skills Needed
 
@@ -14,7 +16,7 @@ Set up automated pipelines to download Zoom cloud recordings to your own storage
 ## Architecture
 
 ```
-BYOS Architecture:
+Recording Download Pipeline:
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
 │    Zoom     │────▶│  Webhook    │────▶│   Your      │
 │   Cloud     │     │  Handler    │     │   Storage   │
