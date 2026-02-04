@@ -33,7 +33,6 @@ Skills for building with Zoom SDKs, APIs, and integrations. Focused on web devel
 │  Build Team Chat integrations        → zoom-team-chat                       │
 │  Enable collaborative browsing       → zoom-cobrowse-sdk                    │
 │  Add pre-built UI components         → zoom-ui-toolkit                      │
-│  Build contact center apps           → zoom-contact-center                  │
 │  Implement OAuth authentication      → zoom-oauth                           │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -118,15 +117,6 @@ agent-skills/
 │   ├── SKILL.md
 │   └── references/
 │
-├── zoom-contact-center/         # SPOKE - Contact Center
-│   ├── SKILL.md
-│   ├── web/                     # Consumer Web SDK
-│   ├── ios/                     # Consumer iOS SDK
-│   ├── android/                 # Consumer Android SDK
-│   └── references/
-│       ├── smart-embed.md       # Agent UI embedding
-│       └── rest-api.md          # Contact Center APIs
-│
 └── zoom-oauth/                  # SPOKE - OAuth Authentication
     ├── SKILL.md
     ├── references/
@@ -182,7 +172,6 @@ skill-name/           # Level 1
 | **zoom-team-chat** | Team Chat | Channels, messages, chatbots |
 | **zoom-ui-toolkit** | Video UI | Pre-built React components for Video SDK |
 | **zoom-cobrowse-sdk** | Co-browsing | Screen sharing, annotation |
-| **zoom-contact-center** | Contact Center | Agent Smart Embed, Consumer SDKs, CRM APIs |
 | **zoom-oauth** | OAuth | Auth Code, PKCE, Client Credentials, Device Code |
 
 ## Use Cases Summary
@@ -197,9 +186,6 @@ skill-name/           # Level 1
 | Custom Video Apps | zoom-video-sdk + zoom-ui-toolkit |
 | In-Meeting Apps | zoom-apps-sdk |
 | Low-Latency Events | zoom-websockets |
-| CRM Integration | zoom-contact-center + zoom-oauth |
-| Contact Center Agent App | zoom-contact-center (Smart Embed) |
-| Customer Support Portal | zoom-contact-center (Web SDK) |
 
 ## Key Technical Gotchas
 

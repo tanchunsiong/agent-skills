@@ -25,7 +25,6 @@ This repository contains skills for building with Zoom APIs and SDKs, focused on
 | **zoom-team-chat** | Team Chat messaging and channels |
 | **zoom-ui-toolkit** | Pre-built React components for Video SDK |
 | **zoom-cobrowse-sdk** | Collaborative browsing for support |
-| **zoom-contact-center** | Contact Center SDK for agent/consumer engagement |
 | **zoom-oauth** | OAuth authentication flows (all 4 grant types) |
 
 ## How to Use
@@ -61,7 +60,6 @@ Use `zoom-general` when:
 | Build Team Chat integrations | **zoom-team-chat** |
 | Use pre-built video UI components | **zoom-ui-toolkit** |
 | Enable co-browsing for support | **zoom-cobrowse-sdk** |
-| Build contact center (agent/consumer) apps | **zoom-contact-center** |
 | Implement OAuth authentication | **zoom-oauth** |
 | General/cross-product guidance | **zoom-general** |
 
