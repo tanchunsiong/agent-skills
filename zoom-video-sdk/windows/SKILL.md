@@ -263,6 +263,361 @@ Official samples show correct patterns for:
 - Error handling ✓
 - Memory management ✓
 
+## Video Rendering - Two Approaches
+
+The Zoom SDK provides **two different ways** to render video. Choose based on your needs.
+
+### 🎯 Canvas API (Recommended for Most Use Cases)
+
+**Best for**: Standard applications, clean video quality, ease of implementation
+
+The SDK renders video directly to your HWND. **No YUV conversion needed**.
+
+```cpp
+// Subscribe to a user's video with Canvas API
+IZoomVideoSDKCanvas* canvas = user->GetVideoCanvas();
+if (canvas) {
+    ZoomVideoSDKErrors ret = canvas->subscribeWithView(
+        hwnd,                                    // Your window handle
+        ZoomVideoSDKVideoAspect_PanAndScan,     // Fit to window, may crop
+        ZoomVideoSDKResolution_Auto              // Let SDK choose best resolution
+    );
+    
+    if (ret == ZoomVideoSDKErrors_Success) {
+        // SDK is now rendering directly to your window!
+    }
+}
+
+// Unsubscribe when done
+canvas->unSubscribeWithView(hwnd);
+```
+
+**Advantages**:
+- ✅ **Best quality** - SDK uses optimized, hardware-accelerated rendering
+- ✅ **No artifacts** - Professional video quality
+- ✅ **Simple code** - 3 lines to subscribe
+- ✅ **Better performance** - No CPU-intensive YUV conversion
+- ✅ **Automatic scaling** - SDK handles window resizing
+- ✅ **Aspect ratio** - Built-in aspect ratio handling
+
+**Example from official .NET sample**:
+```cpp
+// Self video preview
+IZoomVideoSDKCanvas* canvas = myself->GetVideoCanvas();
+canvas->subscribeWithView(selfVideoHwnd, aspect, resolution);
+
+// Remote user video
+IZoomVideoSDKCanvas* remoteCanvas = remoteUser->GetVideoCanvas();
+remoteCanvas->subscribeWithView(remoteVideoHwnd, aspect, resolution);
+```
+
+**Video Aspect Options**:
+- `ZoomVideoSDKVideoAspect_Original` - Letterbox/pillarbox, no cropping
+- `ZoomVideoSDKVideoAspect_FullFilled` - Fill window, may crop edges
+- `ZoomVideoSDKVideoAspect_PanAndScan` - Smart crop to fill window
+- `ZoomVideoSDKVideoAspect_LetterBox` - Show full video with black bars
+
+**Resolution Options**:
+- `ZoomVideoSDKResolution_90P`
+- `ZoomVideoSDKResolution_180P`
+- `ZoomVideoSDKResolution_360P` - Good balance
+- `ZoomVideoSDKResolution_720P` - HD quality
+- `ZoomVideoSDKResolution_1080P`
+- `ZoomVideoSDKResolution_Auto` - Let SDK decide (recommended)
+
+### 🔧 Raw Data Pipe (Advanced Use Cases)
+
+**Best for**: Custom video processing, effects, recording, computer vision
+
+You receive raw YUV420 frames and handle rendering yourself.
+
+```cpp
+// 1. Create a delegate to receive frames
+class VideoRenderer : public IZoomVideoSDKRawDataPipeDelegate {
+public:
+    void onRawDataFrameReceived(YUVRawDataI420* data) override {
+        int width = data->GetStreamWidth();
+        int height = data->GetStreamHeight();
+        
+        char* yBuffer = data->GetYBuffer();
+        char* uBuffer = data->GetUBuffer();
+        char* vBuffer = data->GetVBuffer();
+        
+        // Convert YUV420 to RGB and render
+        ConvertYUVToRGB(yBuffer, uBuffer, vBuffer, width, height);
+        RenderToWindow(rgbBuffer, width, height);
+    }
+    
+    void onRawDataStatusChanged(RawDataStatus status) override {
+        // Handle video on/off
+    }
+};
+
+// 2. Subscribe to raw data
+IZoomVideoSDKRawDataPipe* pipe = user->GetVideoPipe();
+VideoRenderer* renderer = new VideoRenderer();
+pipe->subscribe(ZoomVideoSDKResolution_720P, renderer);
+```
+
+**YUV420 to RGB Conversion** (ITU-R BT.601):
+```cpp
+void ConvertYUV420ToRGB(char* yBuffer, char* uBuffer, char* vBuffer, 
+                        int width, int height) {
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int yIndex = y * width + x;
+            int uvIndex = (y / 2) * (width / 2) + (x / 2);
+            
+            int Y = (unsigned char)yBuffer[yIndex];
+            int U = (unsigned char)uBuffer[uvIndex];
+            int V = (unsigned char)vBuffer[uvIndex];
+            
+            // YUV to RGB conversion
+            int C = Y - 16;
+            int D = U - 128;
+            int E = V - 128;
+            
+            int R = (298 * C + 409 * E + 128) >> 8;
+            int G = (298 * C - 100 * D - 208 * E + 128) >> 8;
+            int B = (298 * C + 516 * D + 128) >> 8;
+            
+            // Clamp to [0, 255]
+            R = (R < 0) ? 0 : (R > 255) ? 255 : R;
+            G = (G < 0) ? 0 : (G > 255) ? 255 : G;
+            B = (B < 0) ? 0 : (B > 255) ? 255 : B;
+            
+            // Store RGB (BGR format for Windows)
+            rgbBuffer[yIndex * 3 + 0] = (unsigned char)B;
+            rgbBuffer[yIndex * 3 + 1] = (unsigned char)G;
+            rgbBuffer[yIndex * 3 + 2] = (unsigned char)R;
+        }
+    }
+}
+```
+
+**Render with GDI**:
+```cpp
+void RenderToWindow(unsigned char* rgbBuffer, int width, int height) {
+    HDC hdc = GetDC(hwnd);
+    
+    BITMAPINFO bmi = {};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = width;
+    bmi.bmiHeader.biHeight = -height;  // Negative for top-down
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 24;     // 24-bit RGB
+    bmi.bmiHeader.biCompression = BI_RGB;
+    
+    RECT rect;
+    GetClientRect(hwnd, &rect);
+    
+    StretchDIBits(hdc,
+        0, 0, rect.right, rect.bottom,  // Destination
+        0, 0, width, height,              // Source
+        rgbBuffer, &bmi,
+        DIB_RGB_COLORS, SRCCOPY);
+    
+    ReleaseDC(hwnd, hdc);
+}
+```
+
+**Disadvantages**:
+- ⚠️ **CPU intensive** - YUV conversion can cause frame drops
+- ⚠️ **Artifacts** - Manual rendering may show tearing/artifacts
+- ⚠️ **Complex** - More code to maintain
+- ⚠️ **Performance** - Slower than Canvas API
+
+**Use Raw Data When**:
+- Adding video filters/effects
+- Recording to custom formats
+- Computer vision processing
+- Custom compositing
+- Streaming to non-standard outputs
+
+### Self Video vs Remote Users
+
+**Self Video** (your own camera):
+
+**Option A: Canvas API**
+```cpp
+IZoomVideoSDKSession* session = sdk->getSessionInfo();
+IZoomVideoSDKUser* myself = session->getMyself();
+IZoomVideoSDKCanvas* canvas = myself->GetVideoCanvas();
+canvas->subscribeWithView(selfVideoHwnd, aspect, resolution);
+```
+
+**Option B: Video Preview** (for self only)
+```cpp
+IZoomVideoSDKVideoHelper* videoHelper = sdk->getVideoHelper();
+videoHelper->startVideo();  // Start transmission
+
+// For preview rendering
+videoHelper->startVideoCanvasPreview(selfVideoHwnd, aspect, resolution);
+```
+
+**Remote Users** (other participants):
+
+**Canvas API** (recommended):
+```cpp
+// In onUserJoin callback
+void onUserJoin(IZoomVideoSDKUserHelper*, IVideoSDKVector<IZoomVideoSDKUser*>* userList) {
+    for (int i = 0; i < userList->GetCount(); i++) {
+        IZoomVideoSDKUser* user = userList->GetItem(i);
+        IZoomVideoSDKCanvas* canvas = user->GetVideoCanvas();
+        canvas->subscribeWithView(userVideoHwnd, aspect, resolution);
+    }
+}
+```
+
+### Event-Driven Subscription Pattern
+
+⚠️ **CRITICAL**: Video subscription must be **event-driven** and **manual**.
+
+**Key Events**:
+
+1. **`onSessionJoin`** - Subscribe to self video
+2. **`onUserJoin`** - Subscribe to new remote users
+3. **`onUserVideoStatusChanged`** - Re-subscribe when video turns on/off
+4. **`onUserLeave`** - Unsubscribe and cleanup
+
+**Complete Pattern**:
+
+```cpp
+class MainFrame : public IZoomVideoSDKDelegate {
+private:
+    std::map<IZoomVideoSDKUser*, IZoomVideoSDKCanvas*> subscribedUsers_;
+    HWND videoWindow_;
+    
+public:
+    void onSessionJoin() override {
+        // Start your own video
+        IZoomVideoSDKVideoHelper* videoHelper = sdk->getVideoHelper();
+        videoHelper->startVideo();
+        
+        // Subscribe to self video
+        IZoomVideoSDKUser* myself = sdk->getSessionInfo()->getMyself();
+        SubscribeToUser(myself);
+    }
+    
+    void onUserJoin(IZoomVideoSDKUserHelper*, 
+                    IVideoSDKVector<IZoomVideoSDKUser*>* userList) override {
+        // Get current user to exclude self
+        IZoomVideoSDKUser* myself = sdk->getSessionInfo()->getMyself();
+        
+        for (int i = 0; i < userList->GetCount(); i++) {
+            IZoomVideoSDKUser* user = userList->GetItem(i);
+            
+            // IMPORTANT: Only subscribe to REMOTE users!
+            if (user != myself) {
+                SubscribeToUser(user);
+            }
+        }
+    }
+    
+    void onUserVideoStatusChanged(IZoomVideoSDKVideoHelper*, 
+                                  IVideoSDKVector<IZoomVideoSDKUser*>* userList) override {
+        IZoomVideoSDKUser* myself = sdk->getSessionInfo()->getMyself();
+        
+        for (int i = 0; i < userList->GetCount(); i++) {
+            IZoomVideoSDKUser* user = userList->GetItem(i);
+            if (user != myself) {
+                // Re-subscribe when video status changes
+                SubscribeToUser(user);
+            }
+        }
+    }
+    
+    void onUserLeave(IZoomVideoSDKUserHelper*, 
+                    IVideoSDKVector<IZoomVideoSDKUser*>* userList) override {
+        for (int i = 0; i < userList->GetCount(); i++) {
+            IZoomVideoSDKUser* user = userList->GetItem(i);
+            UnsubscribeFromUser(user);
+        }
+    }
+    
+    void onSessionLeave() override {
+        // Cleanup all subscriptions
+        for (auto& pair : subscribedUsers_) {
+            IZoomVideoSDKCanvas* canvas = pair.second;
+            if (canvas) {
+                canvas->unSubscribeWithView(videoWindow_);
+            }
+        }
+        subscribedUsers_.clear();
+    }
+    
+private:
+    void SubscribeToUser(IZoomVideoSDKUser* user) {
+        if (!user || subscribedUsers_.find(user) != subscribedUsers_.end())
+            return;
+            
+        IZoomVideoSDKCanvas* canvas = user->GetVideoCanvas();
+        if (canvas) {
+            ZoomVideoSDKErrors ret = canvas->subscribeWithView(
+                videoWindow_,
+                ZoomVideoSDKVideoAspect_PanAndScan,
+                ZoomVideoSDKResolution_Auto
+            );
+            
+            if (ret == ZoomVideoSDKErrors_Success) {
+                subscribedUsers_[user] = canvas;
+            }
+        }
+    }
+    
+    void UnsubscribeFromUser(IZoomVideoSDKUser* user) {
+        auto it = subscribedUsers_.find(user);
+        if (it != subscribedUsers_.end()) {
+            IZoomVideoSDKCanvas* canvas = it->second;
+            if (canvas) {
+                canvas->unSubscribeWithView(videoWindow_);
+            }
+            subscribedUsers_.erase(it);
+        }
+    }
+};
+```
+
+**Key Points**:
+- ✅ Subscribe in response to events (onUserJoin, onUserVideoStatusChanged)
+- ✅ Always exclude current user from remote subscriptions
+- ✅ Unsubscribe on onUserLeave
+- ✅ Clean up all subscriptions on onSessionLeave
+- ✅ Track subscriptions in a map for lifecycle management
+
+### Multi-User Video Layout
+
+For multiple participants, you need **one HWND per user**:
+
+```cpp
+// Create separate windows/panels for each user
+HWND selfVideoWindow = CreateWindow(...);   // Your video
+HWND user1Window = CreateWindow(...);       // User 1's video
+HWND user2Window = CreateWindow(...);       // User 2's video
+
+// Subscribe each user to their own window
+myself->GetVideoCanvas()->subscribeWithView(selfVideoWindow, ...);
+user1->GetVideoCanvas()->subscribeWithView(user1Window, ...);
+user2->GetVideoCanvas()->subscribeWithView(user2Window, ...);
+```
+
+**Layout Strategies**:
+- Grid layout (2x2, 3x3)
+- Gallery view (scrollable)
+- Active speaker (large) + thumbnails
+- Picture-in-picture
+
+### Common Video Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Video not showing | Not calling `startVideo()` | Call `videoHelper->startVideo()` in `onSessionJoin` |
+| Artifacts/tearing | Using Raw Data Pipe | Switch to Canvas API |
+| Poor performance | YUV conversion on UI thread | Use Canvas API or move conversion to worker thread |
+| Video freezes | Not processing Windows messages | Add message pump to main loop |
+| Can't see self | Subscribing to wrong user | Use `session->getMyself()` for self video |
+| Seeing self in remote list | Not excluding self | Check `if (user != myself)` before subscribing |
+
 ## Resources
 
 - **Official Docs**: https://developers.zoom.us/docs/video-sdk/windows/
