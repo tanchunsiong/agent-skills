@@ -89,12 +89,15 @@ agent-skills/
 │   ├── SKILL.md
 │   └── references/
 │
-├── zoom-meeting-sdk/            # SPOKE - Meeting SDK (Web)
+├── zoom-meeting-sdk/            # SPOKE - Meeting SDK (Web, Linux)
 │   ├── SKILL.md
+│   ├── linux.md                  # Linux headless bot guide
 │   └── references/
+│       └── linux-reference.md    # Linux dependencies, Docker, troubleshooting
 │
-├── zoom-video-sdk/              # SPOKE - Video SDK (Web)
+├── zoom-video-sdk/              # SPOKE - Video SDK (Web, Linux)
 │   ├── SKILL.md
+│   ├── linux.md                  # Linux headless bot guide
 │   └── references/
 │
 ├── zoom-apps-sdk/               # SPOKE - Apps SDK
@@ -165,8 +168,8 @@ skill-name/           # Level 1
 | **zoom-rest-api** | REST API | 600+ endpoints, rate limits, pagination |
 | **zoom-webhooks** | Events (HTTP) | Event types, verification, subscriptions |
 | **zoom-websockets** | Events (WebSocket) | Persistent connection, low-latency, S2S OAuth |
-| **zoom-meeting-sdk** | Embed meetings (Web) | Component View, Client View, signatures |
-| **zoom-video-sdk** | Custom video (Web) | Sessions, raw media, UI customization |
+| **zoom-meeting-sdk** | Embed meetings (Web, Linux) | Component View, Client View, signatures, headless bots |
+| **zoom-video-sdk** | Custom video (Web, Linux) | Sessions, raw media, UI customization, headless bots |
 | **zoom-apps-sdk** | In-client apps | APIs, events, layers, OAuth |
 | **zoom-rtms** | Live media | Audio, video, transcripts via WebSocket |
 | **zoom-team-chat** | Team Chat | Channels, messages, chatbots |
@@ -184,6 +187,7 @@ skill-name/           # Level 1
 | Real-Time AI Integration | zoom-rtms |
 | Team Chat Bots | zoom-team-chat |
 | Custom Video Apps | zoom-video-sdk + zoom-ui-toolkit |
+| Linux Headless Bots | zoom-meeting-sdk (linux.md) or zoom-video-sdk (linux.md) |
 | In-Meeting Apps | zoom-apps-sdk |
 | Low-Latency Events | zoom-websockets |
 

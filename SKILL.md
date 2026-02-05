@@ -18,8 +18,8 @@ This repository contains skills for building with Zoom APIs and SDKs, focused on
 | **zoom-rest-api** | REST API calls (600+ endpoints) |
 | **zoom-webhooks** | Real-time event notifications (HTTP) |
 | **zoom-websockets** | Real-time event notifications (WebSocket) |
-| **zoom-meeting-sdk** | Embed Zoom meetings in your app (Web) |
-| **zoom-video-sdk** | Custom video experiences (Web) |
+| **zoom-meeting-sdk** | Embed Zoom meetings in your app (Web, Linux) |
+| **zoom-video-sdk** | Custom video experiences (Web, Linux) |
 | **zoom-apps-sdk** | Apps that run inside the Zoom client |
 | **zoom-rtms** | Real-Time Media Streams (live audio/video/transcripts) |
 | **zoom-team-chat** | Team Chat messaging and channels |

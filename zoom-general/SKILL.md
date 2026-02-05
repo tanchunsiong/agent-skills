@@ -19,7 +19,7 @@ Entry point for building with Zoom. This skill helps you choose the right SDK or
 | Receive event notifications (HTTP push) | **zoom-webhooks** |
 | Receive event notifications (WebSocket, low-latency) | **zoom-websockets** |
 | Embed Zoom meetings in my app | **zoom-meeting-sdk** |
-| Build custom video experiences (not Zoom meetings) | **zoom-video-sdk** |
+| Build custom video experiences (Web or Linux headless) | **zoom-video-sdk** |
 | Build an app that runs inside Zoom client | **zoom-apps-sdk** |
 | Access live audio/video/transcripts from meetings | **zoom-rtms** |
 | Enable collaborative browsing for support | **zoom-cobrowse-sdk** |

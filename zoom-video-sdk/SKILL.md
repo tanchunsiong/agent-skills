@@ -288,9 +288,11 @@ See **[use-cases/byos-storage.md](use-cases/byos-storage.md)** for complete setu
 ### UI & Components
 - **[references/ui-toolkit.md](references/ui-toolkit.md)** - Pre-built UI components (Web)
 
-### Platform Guide
+### Platform Guides
 - **[references/authorization.md](references/authorization.md)** - Video SDK JWT generation
 - **[references/web.md](references/web.md)** - Web Video SDK
+- **[linux.md](linux.md)** - Linux C++ SDK (headless bots, raw media capture/injection)
+- **[references/linux-reference.md](references/linux-reference.md)** - Linux API Reference
 - **[references/troubleshooting.md](references/troubleshooting.md)** - Common issues and solutions
 
 ## Sample Repositories
@@ -306,6 +308,7 @@ See **[use-cases/byos-storage.md](use-cases/byos-storage.md)** for complete setu
 | UI Toolkit React | [videosdk-ui-toolkit-react-sample](https://github.com/zoom/videosdk-ui-toolkit-react-sample) | 17 |
 | Next.js | [videosdk-nextjs-quickstart](https://github.com/zoom/videosdk-nextjs-quickstart) | 16 |
 | Telehealth | [VideoSDK-Web-Telehealth](https://github.com/zoom/VideoSDK-Web-Telehealth) | 11 |
+| Linux | [videosdk-linux-raw-recording-sample](https://github.com/zoom/videosdk-linux-raw-recording-sample) | - |
 
 **Full list**: See [zoom-general/references/community-repos.md](../zoom-general/references/community-repos.md)
 

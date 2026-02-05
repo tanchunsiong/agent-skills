@@ -133,18 +133,17 @@ pRawDataHelper->subscribe(new AudioRawDataDelegate());
 class VideoRawDataDelegate : public IZoomSDKRendererDelegate {
 public:
     void onRawDataFrameReceived(YUVRawDataI420 *data) override {
-        // Format: I420 (YUV 4:2:0)
+        // Format: I420 (YUV 4:2:0) - contiguous planar data
+        int width = data->GetStreamWidth();
+        int height = data->GetStreamHeight();
         
-        // Convert to OpenCV for processing
-        cv::Mat I420(data->GetStreamHeight() * 3/2, 
-                   data->GetStreamWidth(), 
-                   CV_8UC1, 
-                   data->GetBuffer());
-        cv::Mat colorFrame;
-        cv::cvtColor(I420, colorFrame, cv::COLOR_YUV2BGR_I420);
+        // Option 1: Save raw YUV for later processing
+        yuvFile.write(data->GetYBuffer(), width * height);
+        yuvFile.write(data->GetUBuffer(), (width/2) * (height/2));
+        yuvFile.write(data->GetVBuffer(), (width/2) * (height/2));
         
-        // Process: face detection, emotion analysis, etc.
-        processFrame(colorFrame);
+        // Option 2: Convert to OpenCV for real-time processing
+        // (requires copying planes into contiguous buffer first)
     }
 };
 
@@ -220,8 +219,25 @@ void onMeetingStatusChanged(MeetingStatus status, int iResult) {
 | **Queue management** | Use message queue (Redis, RabbitMQ) for bot assignments |
 | **Health monitoring** | Implement heartbeat checks for bot instances |
 
+## Meeting SDK vs Video SDK for Bots
+
+| Aspect | Meeting SDK | Video SDK |
+|--------|-------------|-----------|
+| Joins | Zoom meetings | Video SDK sessions |
+| Features | Full meeting features | Core video features |
+| Use case | Meeting bots, recording | Custom video apps, telehealth |
+
+**Choose Meeting SDK** for: Joining existing Zoom meetings, transcription bots
+**Choose Video SDK** for: Custom video sessions you control, BYOS recording
+
+## Detailed Platform Guides
+
+- **[Meeting SDK Linux Guide](../../zoom-meeting-sdk/linux.md)** - Join Zoom meetings as a bot
+- **[Video SDK Linux Guide](../../zoom-video-sdk/linux.md)** - Custom video sessions with raw media
+
 ## Resources
 
 - **Meeting SDK Linux**: https://developers.zoom.us/docs/meeting-sdk/linux/
+- **Video SDK Linux**: https://developers.zoom.us/docs/video-sdk/linux/
 - **Headless Sample**: https://github.com/zoom/meetingsdk-headless-linux-sample
 - **RTMS**: https://developers.zoom.us/docs/rtms/

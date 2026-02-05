@@ -36,13 +36,14 @@ public:
 class VideoRawDataDelegate : public IZoomSDKRendererDelegate {
 public:
     void onRawDataFrameReceived(YUVRawDataI420 *data) override {
-        // Format: I420 (YUV 4:2:0)
-        // Convert to BGR for OpenCV processing
-        cv::Mat I420(data->GetStreamHeight() * 3/2, 
-                   data->GetStreamWidth(), CV_8UC1, data->GetBuffer());
-        cv::Mat colorFrame;
-        cv::cvtColor(I420, colorFrame, cv::COLOR_YUV2BGR_I420);
-        videoWriter.write(colorFrame);
+        // Format: I420 (YUV 4:2:0) - contiguous planar data
+        int width = data->GetStreamWidth();
+        int height = data->GetStreamHeight();
+        
+        // Write raw YUV to file (can convert with ffmpeg later)
+        yuvFile.write(data->GetYBuffer(), width * height);
+        yuvFile.write(data->GetUBuffer(), (width/2) * (height/2));
+        yuvFile.write(data->GetVBuffer(), (width/2) * (height/2));
     }
 };
 
@@ -53,6 +54,23 @@ recCtl->StartRawRecording();
 // Subscribe
 GetAudioRawdataHelper()->subscribe(new AudioRawDataDelegate());
 GetRawdataRendererHelper()->subscribe(userId, RAW_DATA_TYPE_VIDEO, new VideoRawDataDelegate());
+```
+
+**Playing/Converting Raw Files:**
+```bash
+# Play raw YUV video (adjust dimensions to match output)
+ffplay -video_size 640x360 -pixel_format yuv420p -f rawvideo video.yuv
+
+# Convert YUV to MP4
+ffmpeg -video_size 640x360 -pixel_format yuv420p -f rawvideo -i video.yuv -c:v libx264 output.mp4
+
+# Play raw PCM audio
+ffplay -f s16le -ar 32000 -ac 1 audio.pcm
+
+# Combine video + audio
+ffmpeg -video_size 640x360 -pixel_format yuv420p -f rawvideo -i video.yuv \
+       -f s16le -ar 32000 -ac 1 -i audio.pcm \
+       -c:v libx264 -c:a aac -shortest output.mp4
 ```
 
 ### Windows
@@ -142,6 +160,11 @@ There is no native SDK support for raw recording on Web. For browser-based recor
 - Custom recording pipelines
 - AI/ML processing (sentiment analysis, summarization)
 - Media archival solutions
+
+## Detailed Platform Guides
+
+- **[Video SDK Linux Guide](../../zoom-video-sdk/linux.md)** - Complete C++ implementation for headless bots
+- **[Meeting SDK Linux Guide](../../zoom-meeting-sdk/linux.md)** - Meeting SDK raw data capture
 
 ## Resources
 

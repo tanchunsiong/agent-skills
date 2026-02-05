@@ -42,6 +42,7 @@ Curated list of official repositories from Zoom for development. Organized by pr
 | [videosdk-ui-toolkit-vuejs-sample](https://github.com/zoom/videosdk-ui-toolkit-vuejs-sample) | 3 | UI Toolkit in Vue.js |
 | [videosdk-vue-nuxt-quickstart](https://github.com/zoom/videosdk-vue-nuxt-quickstart) | 1 | Vue/Nuxt quickstart |
 | [videosdk-electron-sample](https://github.com/zoom/videosdk-electron-sample) | 1 | Electron sample |
+| [videosdk-linux-raw-recording-sample](https://github.com/zoom/videosdk-linux-raw-recording-sample) | - | Linux headless raw data capture |
 
 ---
 

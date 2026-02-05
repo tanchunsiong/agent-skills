@@ -77,8 +77,8 @@ When your task requires multiple skills, the agent loads them as needed. For exa
 | [zoom-rest-api](zoom-rest-api/) | 600+ REST API endpoints, rate limits, pagination |
 | [zoom-webhooks](zoom-webhooks/) | Real-time event notifications |
 | [zoom-websockets](zoom-websockets/) | Real-time WebSocket event connections |
-| [zoom-meeting-sdk](zoom-meeting-sdk/) | Embed Zoom meetings (Web) |
-| [zoom-video-sdk](zoom-video-sdk/) | Custom video experiences (Web) |
+| [zoom-meeting-sdk](zoom-meeting-sdk/) | Embed Zoom meetings (Web, Linux headless bots) |
+| [zoom-video-sdk](zoom-video-sdk/) | Custom video experiences (Web, Linux headless bots) |
 | [zoom-apps-sdk](zoom-apps-sdk/) | Apps that run inside Zoom client |
 | [zoom-rtms](zoom-rtms/) | Real-time Media Streams (live audio/video/transcripts) |
 | [zoom-team-chat](zoom-team-chat/) | Team Chat APIs and integrations |

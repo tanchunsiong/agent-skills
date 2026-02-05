@@ -1,8 +1,9 @@
 ---
 name: zoom-meeting-sdk
 description: |
-  Zoom Meeting SDK for embedding Zoom meetings into your web application. 
+  Zoom Meeting SDK for embedding Zoom meetings into web and Linux applications. 
   Use when you want to integrate the full Zoom meeting experience into your app.
+  Supports Web (JavaScript), Linux (C++ headless bots), and native platforms.
 ---
 
 # Zoom Meeting SDK (Web)
@@ -161,7 +162,9 @@ Meeting SDK provides **Zoom's UI with customization options**:
 
 ## Detailed References
 
-### Platform Guide
+### Platform Guides
+- **[linux.md](linux.md)** - Linux SDK (C++ headless bots, raw media access)
+- **[references/linux-reference.md](references/linux-reference.md)** - Linux dependencies, Docker, troubleshooting
 - **[references/web.md](references/web.md)** - Web SDK (Component + Client View)
 - **[references/web-tracking-id.md](references/web-tracking-id.md)** - Tracking ID configuration
 
@@ -179,6 +182,8 @@ Meeting SDK provides **Zoom's UI with customization options**:
 
 | Type | Repository | Stars |
 |------|------------|-------|
+| Linux Headless | [meetingsdk-headless-linux-sample](https://github.com/zoom/meetingsdk-headless-linux-sample) | 4 |
+| Linux Raw Data | [meetingsdk-linux-raw-recording-sample](https://github.com/zoom/meetingsdk-linux-raw-recording-sample) | 0 |
 | Web | [meetingsdk-web-sample](https://github.com/zoom/meetingsdk-web-sample) | 643 |
 | Web NPM | [meetingsdk-web](https://github.com/zoom/meetingsdk-web) | 324 |
 | React | [meetingsdk-react-sample](https://github.com/zoom/meetingsdk-react-sample) | 177 |

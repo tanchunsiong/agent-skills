@@ -21,12 +21,13 @@ Use the Zoom Video SDK to create custom video applications with your own UI, bra
 
 ## Platform Options
 
-| Platform | Use Case |
-|----------|----------|
-| Web | Browser-based custom video |
-| iOS | Custom video on iPhone/iPad |
-| Android | Custom video on Android |
-| Desktop | Custom desktop video apps |
+| Platform | Use Case | Guide |
+|----------|----------|-------|
+| Web | Browser-based custom video | [zoom-video-sdk/SKILL.md](../../zoom-video-sdk/SKILL.md) |
+| Linux | Headless bots, raw media capture/injection | [zoom-video-sdk/linux.md](../../zoom-video-sdk/linux.md) |
+| iOS | Custom video on iPhone/iPad | - |
+| Android | Custom video on Android | - |
+| Desktop | Custom desktop video apps | - |
 
 ## Quick Start (Web)
 
