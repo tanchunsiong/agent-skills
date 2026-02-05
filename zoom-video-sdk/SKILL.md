@@ -290,9 +290,11 @@ See **[use-cases/byos-storage.md](use-cases/byos-storage.md)** for complete setu
 
 ### Platform Guides
 - **[references/authorization.md](references/authorization.md)** - Video SDK JWT generation
-- **[references/web.md](references/web.md)** - Web Video SDK
-- **[linux.md](linux.md)** - Linux C++ SDK (headless bots, raw media capture/injection)
-- **[references/linux-reference.md](references/linux-reference.md)** - Linux API Reference
+- **[web/references/web.md](web/references/web.md)** - Web Video SDK
+- **[linux/linux.md](linux/linux.md)** - Linux C++ SDK (headless bots, raw media capture/injection)
+- **[linux/references/linux-reference.md](linux/references/linux-reference.md)** - Linux API Reference
+- **[windows/windows.md](windows/windows.md)** - Windows C++ SDK (desktop applications, raw media capture/injection)
+- **[windows/references/windows-reference.md](windows/references/windows-reference.md)** - Windows API Reference
 - **[references/troubleshooting.md](references/troubleshooting.md)** - Common issues and solutions
 
 ## Sample Repositories
