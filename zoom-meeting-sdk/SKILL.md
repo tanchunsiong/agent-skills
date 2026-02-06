@@ -163,10 +163,12 @@ Meeting SDK provides **Zoom's UI with customization options**:
 ## Detailed References
 
 ### Platform Guides
-- **[linux.md](linux.md)** - Linux SDK (C++ headless bots, raw media access)
-- **[references/linux-reference.md](references/linux-reference.md)** - Linux dependencies, Docker, troubleshooting
-- **[references/web.md](references/web.md)** - Web SDK (Component + Client View)
-- **[references/web-tracking-id.md](references/web-tracking-id.md)** - Tracking ID configuration
+- **[linux/linux.md](linux/linux.md)** - Linux SDK (C++ headless bots, raw media access)
+- **[linux/references/linux-reference.md](linux/references/linux-reference.md)** - Linux dependencies, Docker, troubleshooting
+- **[windows/SKILL.md](windows/SKILL.md)** - Windows SDK (C++ desktop applications, raw media access)
+- **[windows/references/windows-reference.md](windows/references/windows-reference.md)** - Windows dependencies, Visual Studio setup, troubleshooting
+- **[web/references/web.md](web/references/web.md)** - Web SDK (Component + Client View)
+- **[web/references/web-tracking-id.md](web/references/web-tracking-id.md)** - Tracking ID configuration
 
 ### Features
 - **[references/authorization.md](references/authorization.md)** - SDK JWT generation

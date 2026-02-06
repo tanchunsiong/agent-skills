@@ -271,12 +271,12 @@ int main(int argc, char* argv[]) {
 - **[references/linux-reference.md](references/linux-reference.md)** - Dependencies, Docker setup, troubleshooting
 
 ### Authentication
-- **[references/authorization.md](references/authorization.md)** - SDK JWT generation
-- **[references/bot-authentication.md](references/bot-authentication.md)** - Bot token types (ZAK, OBF, JWT)
+- **[../references/authorization.md](../references/authorization.md)** - SDK JWT generation
+- **[../references/bot-authentication.md](../references/bot-authentication.md)** - Bot token types (ZAK, OBF, JWT)
 
 ### Features
-- **[references/breakout-rooms.md](references/breakout-rooms.md)** - Programmatic breakout room management
-- **[references/ai-companion.md](references/ai-companion.md)** - AI Companion controls
+- **[../references/breakout-rooms.md](../references/breakout-rooms.md)** - Programmatic breakout room management
+- **[../references/ai-companion.md](../references/ai-companion.md)** - AI Companion controls
 
 ## Sample Repositories
 

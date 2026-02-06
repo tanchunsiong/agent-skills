@@ -178,7 +178,7 @@ client.on('user-added', (payload) => { /* check bVideoOn */ });
 client.on('user-removed', (payload) => { stream.detachVideo(payload.userId); });
 ```
 
-See [references/web.md](references/web.md) for complete event handling patterns.
+See [web/references/web.md](web/references/web.md) for complete event handling patterns.
 
 ## Key Concepts
 

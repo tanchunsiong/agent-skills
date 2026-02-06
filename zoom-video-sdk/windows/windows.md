@@ -7,11 +7,11 @@ description: "Zoom Video SDK for Windows - C++ integration for video sessions, r
 
 Windows platform support for Zoom Video SDK. Build custom video applications with C++ or C#/.NET integration.
 
-For complete documentation, see **[windows/SKILL.md](windows/SKILL.md)**
+For complete documentation, see **[SKILL.md](SKILL.md)**
 
 ## Quick Links
 
-- **[Windows SDK Guide](windows/SKILL.md)** - Complete Windows development guide
+- **[Windows SDK Guide](SKILL.md)** - Complete Windows development guide
 - **[API Reference](references/windows-reference.md)** - Complete API documentation
 - **Official Docs**: https://developers.zoom.us/docs/video-sdk/windows/
 
