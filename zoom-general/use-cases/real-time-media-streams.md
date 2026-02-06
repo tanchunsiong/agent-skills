@@ -1,15 +1,24 @@
 # Real-Time Media Streams
 
-Access live audio, video, and transcripts from Zoom meetings via WebSocket.
+Access live audio, video, transcripts, chat, and screen share from Zoom meetings via WebSocket.
 
 ## Overview
 
-Zoom RTMS (Realtime Media Streams) provides WebSocket-based access to live meeting media for real-time AI processing, transcription, and analysis.
+Zoom RTMS (Realtime Media Streams) provides WebSocket-based access to live meeting media for real-time AI processing, transcription, analysis, and recording - **without meeting bots**.
+
+> **See the comprehensive RTMS skill**: [zoom-rtms/SKILL.md](../../zoom-rtms/SKILL.md)
 
 ## Skills Needed
 
-- **zoom-rtms** - Primary
-- **zoom-webhooks** - Receive RTMS start events
+- **[zoom-rtms](../../zoom-rtms/SKILL.md)** - Primary (comprehensive documentation)
+- **zoom-webhooks** - Receive RTMS start/stop events
+
+## Two Approaches
+
+| Approach | Best For | Documentation |
+|----------|----------|---------------|
+| **SDK** (`@zoom/rtms`) | Most use cases | [SDK Quickstart](../../zoom-rtms/examples/sdk-quickstart.md) |
+| **Manual WebSocket** | Full protocol control | [Manual WebSocket](../../zoom-rtms/examples/manual-websocket.md) |
 
 ## How It Works
 
@@ -19,9 +28,11 @@ RTMS Flow:
         ↓
 2. Webhook: meeting.rtms_started
         ↓
-3. Connect to WebSocket URL
+3. Connect to Signaling WebSocket
         ↓
-4. Receive live audio/video/transcript
+4. Connect to Media WebSocket
+        ↓
+5. Receive live audio/video/transcript/chat/share
 ```
 
 ## Media Types
