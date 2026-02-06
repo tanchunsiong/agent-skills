@@ -807,8 +807,8 @@ See: [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md)
 - **SDK download**: https://marketplace.zoom.us/
 
 **Raw Documentation (Crawled)**:
-- **Dev Docs**: `C:\Users\dreamtcs\agent-skills\raw-docs\developers.zoom.us\docs\meeting-sdk\windows\` (27 markdown files - conceptual guides)
-- **API Reference**: `C:\Users\dreamtcs\agent-skills\raw-docs\marketplacefront.zoom.us\sdk\meeting-sdk\windows\` (573 markdown files - class/method docs)
+- **Dev Docs**: `raw-docs/developers.zoom.us/docs/meeting-sdk/windows/` (27 markdown files - conceptual guides)
+- **API Reference**: `raw-docs/marketplacefront.zoom.us/sdk/meeting-sdk/windows/` (573 markdown files - class/method docs)
 
 ---
 

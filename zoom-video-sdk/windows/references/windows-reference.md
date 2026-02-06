@@ -3,8 +3,8 @@
 **Source**: https://marketplacefront.zoom.us/sdk/custom/windows/
 
 **Raw Documentation (Crawled)**:
-- **Dev Docs**: `C:\Users\dreamtcs\agent-skills\raw-docs\developers.zoom.us\docs\video-sdk\windows\` (20 markdown files)
-- **API Reference**: `C:\Users\dreamtcs\agent-skills\raw-docs\marketplacefront.zoom.us\sdk\video-sdk\windows\` (254 markdown files)
+- **Dev Docs**: `raw-docs/developers.zoom.us/docs/video-sdk/windows/` (20 markdown files)
+- **API Reference**: `raw-docs/marketplacefront.zoom.us/sdk/video-sdk/windows/` (254 markdown files)
 
 ---
 

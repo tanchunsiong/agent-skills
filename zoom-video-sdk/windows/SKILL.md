@@ -12,8 +12,8 @@ Expert guidance for developing with the Zoom Video SDK on Windows. This SDK enab
 **Sample Repository**: https://github.com/zoom/videosdk-windows-rawdata-sample
 
 **Raw Documentation (Crawled)**:
-- **Dev Docs**: `C:\Users\dreamtcs\agent-skills\raw-docs\developers.zoom.us\docs\video-sdk\windows\` (20 markdown files - conceptual guides)
-- **API Reference**: `C:\Users\dreamtcs\agent-skills\raw-docs\marketplacefront.zoom.us\sdk\video-sdk\windows\` (254 markdown files - class/method docs)
+- **Dev Docs**: `raw-docs/developers.zoom.us/docs/video-sdk/windows/` (20 markdown files - conceptual guides)
+- **API Reference**: `raw-docs/marketplacefront.zoom.us/sdk/video-sdk/windows/` (254 markdown files - class/method docs)
 
 ## Quick Links
 
