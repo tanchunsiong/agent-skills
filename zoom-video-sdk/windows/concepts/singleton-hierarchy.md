@@ -55,9 +55,14 @@ Level 0: Global Factory Function
     │   │
     │   ├── getShareHelper()             → IZoomVideoSDKShareHelper*
     │   │   ├── startShareScreen(monitorId)
-    │   │   ├── startShareWindow(hwnd)
+    │   │   ├── startShareView(hwnd)
+    │   │   ├── startShareComputerAudio()
+    │   │   ├── startSharingExternalSource(source)
     │   │   ├── stopShare()
-    │   │   └── isOtherSharing()
+    │   │   ├── isOtherSharing() / isSharingOut()
+    │   │   ├── lockShare(lock) / isShareLocked()
+    │   │   ├── enableMultiShare(enable)
+    │   │   └── getWhiteboardHelper()    → IZoomVideoSDKWhiteboardHelper*
     │   │
     │   ├── getChatHelper()              → IZoomVideoSDKChatHelper*
     │   │   ├── sendChatToAll(message)
@@ -71,9 +76,64 @@ Level 0: Global Factory Function
     │   │
     │   ├── getRecordingHelper()         → IZoomVideoSDKRecordingHelper*
     │   │
-    │   └── getCmdChannel()              → IZoomVideoSDKCmdChannel*
-    │       ├── sendCommand(user, cmd)
-    │       └── sendCommandToAll(cmd)
+    │   ├── getCmdChannel()              → IZoomVideoSDKCmdChannel*
+    │   │   ├── sendCommand(user, cmd)
+    │   │   └── sendCommandToAll(cmd)
+    │   │
+    │   ├── getLiveStreamHelper()        → IZoomVideoSDKLiveStreamHelper*
+    │   │
+    │   ├── getPhoneHelper()             → IZoomVideoSDKPhoneHelper*
+    │   │
+    │   └── getLiveTranscriptionHelper() → IZoomVideoSDKLiveTranscriptionHelper*
+    │
+    ├─► Level 1: Settings Helpers (Configure devices & behavior)
+    │   ├── getAudioSettingHelper()      → IZoomVideoSDKAudioSettingHelper*
+    │   │   ├── enableAutoAdjustMicVolume()
+    │   │   ├── enableStereoAudio()
+    │   │   └── setEchoCancellationLevel()
+    │   │
+    │   ├── GetAudioDeviceTestHelper()   → IZoomVideoSDKTestAudioDeviceHelper*
+    │   │   ├── startMicTest() / stopMicTest()
+    │   │   ├── startSpeakerTest() / stopSpeakerTest()
+    │   │   └── playMicTest()
+    │   │
+    │   ├── getVideoSettingHelper()      → IZoomVideoSDKVideoSettingHelper*
+    │   │   ├── enableHDVideo()
+    │   │   ├── enableMirrorEffect()
+    │   │   └── setVideoQualityPreference()
+    │   │
+    │   └── getShareSettingHelper()      → IZoomVideoSDKShareSettingHelper*
+    │       ├── enableGreenBorderWhenSharing()
+    │       └── setShareScreenSetting()
+    │
+    ├─► Level 1: Advanced Helpers (Special features)
+    │   ├── getNetworkConnectionHelper() → IZoomVideoSDKNetworkConnectionHelper*
+    │   │   └── getNetworkType()
+    │   │
+    │   ├── getCRCHelper()               → IZoomVideoSDKCRCHelper*
+    │   │   └── callCRCDevice(address, protocol)
+    │   │
+    │   ├── getSubSessionHelper()        → IZoomVideoSDKSubSessionHelper*
+    │   │   ├── createSubSession(name)
+    │   │   ├── joinSubSession(id)
+    │   │   ├── leaveSubSession()
+    │   │   └── getSubSessionList()
+    │   │
+    │   ├── getIncomingLiveStreamHelper()→ IZoomVideoSDKIncomingLiveStreamHelper*
+    │   │   ├── bindIncomingLiveStream(streamKeyId)
+    │   │   ├── unbindIncomingLiveStream(streamKeyId)
+    │   │   └── startIncomingLiveStream(streamKeyId)
+    │   │
+    │   ├── getBroadcastStreamingController() → IZoomVideoSDKBroadcastStreamingController*
+    │   │   ├── startBroadcast()
+    │   │   └── stopBroadcast()
+    │   │
+    │   ├── getBroadcastStreamingViewer()→ IZoomVideoSDKBroadcastStreamingViewer*
+    │   │   └── joinBroadcast(channelId)
+    │   │
+    │   └── getRealTimeMediaStreamsHelper() → IZoomVideoSDKRTMSHelper* (RTMS)
+    │       ├── startRealTimeMediaStream()
+    │       └── stopRealTimeMediaStream()
     │
     └─► Level 1: Session Object
         │
@@ -106,8 +166,17 @@ Level 0: Global Factory Function
             │       │           ├── onRawDataFrameReceived(YUVRawDataI420*)
             │       │           └── onRawDataStatusChanged(status)
             │       │
-            │       ├── GetShareCanvas()     → IZoomVideoSDKCanvas*
-            │       └── GetSharePipe()       → IZoomVideoSDKRawDataPipe*
+            │       ├── getShareActionList() → IVideoSDKVector<IZoomVideoSDKShareAction*>*
+            │       │   └─► Level 4: IZoomVideoSDKShareAction (for share subscription)
+            │       │       ├── getShareCanvas()        → IZoomVideoSDKCanvas*
+            │       │       ├── getSharePipe()          → IZoomVideoSDKRawDataPipe*
+            │       │       ├── getShareStatus()        → ZoomVideoSDKShareStatus
+            │       │       ├── getShareType()          → ZoomVideoSDKShareType
+            │       │       ├── getShareSourceId()
+            │       │       ├── isAnnotationPrivilegeEnabled()
+            │       │       └── getRemoteControlHelper() → IZoomVideoSDKRemoteControlHelper* (Win/Mac)
+            │       │
+            │       └── getRemoteCameraControlHelper() → IZoomVideoSDKRemoteCameraControlHelper*
             │
             └── getRemoteUsers()         → IVideoSDKVector<IZoomVideoSDKUser*>*
                 │
@@ -119,15 +188,31 @@ Level 0: Global Factory Function
     ┌─────────────────────────────────────────────────────────────────────────┐
     │  CALLBACK PATH (from IZoomVideoSDKDelegate)                             │
     │                                                                         │
-    │  onUserShareStatusChanged(helper, user, pShareAction)                   │
+    │  ⚠️ CRITICAL: Share subscription uses IZoomVideoSDKShareAction from     │
+    │  callback, NOT user->GetShareCanvas()!                                  │
+    │                                                                         │
+    │  onUserShareStatusChanged(pShareHelper, pUser, pShareAction)            │
     │      │                                                                  │
     │      └─► IZoomVideoSDKShareAction* (received in callback)               │
-    │          ├── subscribe() / unSubscribe()                                │
-    │          ├── subscribeWithView(hwnd, aspect)                            │
-    │          ├── unSubscribeWithView(hwnd)                                  │
     │          ├── getShareCanvas()      → IZoomVideoSDKCanvas*               │
+    │          │   └── subscribeWithView(hwnd, aspect)                        │
+    │          │   └── unSubscribeWithView(hwnd)                              │
     │          ├── getSharePipe()        → IZoomVideoSDKRawDataPipe*          │
-    │          └── getShareType()        → ZoomVideoSDKShareType              │
+    │          │   └── subscribe(resolution, delegate)                        │
+    │          │   └── unSubscribe(delegate)                                  │
+    │          ├── getShareStatus()      → ZoomVideoSDKShareStatus            │
+    │          ├── getShareType()        → ZoomVideoSDKShareType              │
+    │          ├── getShareSourceId()                                         │
+    │          ├── getShareSourceContentSize() → ZoomVideoSDKViewSize         │
+    │          ├── isAnnotationPrivilegeEnabled()                             │
+    │          └── getRemoteControlHelper() → IZoomVideoSDKRemoteControlHelper│
+    │                                                                         │
+    │  Pattern: Subscribe to share in onUserShareStatusChanged callback       │
+    │  void onUserShareStatusChanged(..., IZoomVideoSDKShareAction* action) { │
+    │      if (action->getShareStatus() == ZoomVideoSDKShareStatus_Start) {   │
+    │          action->getShareCanvas()->subscribeWithView(hwnd, aspect);     │
+    │      }                                                                  │
+    │  }                                                                      │
     └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -216,7 +301,7 @@ class MyDelegate : public IZoomVideoSDKDelegate {
     void onUserVideoStatusChanged(...) override {
         // React to video status changes
     }
-    // ... 60+ other callbacks
+    // ... all 80+ callbacks
 };
 
 // Step 2: Register
@@ -240,17 +325,23 @@ sdk->addListener(new MyDelegate());
 | **Start audio** | `sdk->getAudioHelper()->startAudio()` |
 | **Mic list** | `sdk->getAudioHelper()->getMicList()` |
 | **Speaker list** | `sdk->getAudioHelper()->getSpeakerList()` |
+| **Test mic** | `sdk->GetAudioDeviceTestHelper()->startMicTest()` |
+| **Test speaker** | `sdk->GetAudioDeviceTestHelper()->startSpeakerTest()` |
 | **Send chat** | `sdk->getChatHelper()->sendChatToAll(msg)` |
 | **Start share** | `sdk->getShareHelper()->startShareScreen(monitorId)` |
 | **Stop share** | `sdk->getShareHelper()->stopShare()` |
 | **Subscribe video** | `user->GetVideoCanvas()->subscribeWithView(hwnd, ...)` |
 | **Get raw frames** | `user->GetVideoPipe()->subscribe(res, delegate)` |
-| **Subscribe share** | `shareAction->subscribeWithView(hwnd, aspect)` (from callback) |
+| **Subscribe share** | `shareAction->getShareCanvas()->subscribeWithView(hwnd, aspect)` ⚠️ From callback! |
+| **Get raw share** | `shareAction->getSharePipe()->subscribe(res, delegate)` ⚠️ From callback! |
 | **Kick user** | `sdk->getUserHelper()->removeUser(user)` |
 | **Make host** | `sdk->getUserHelper()->makeHost(user)` |
 | **Send command** | `sdk->getCmdChannel()->sendCommandToAll(cmd)` |
 | **Get myself** | `sdk->getSessionInfo()->getMyself()` |
 | **Get remote users** | `sdk->getSessionInfo()->getRemoteUsers()` |
+| **Join subsession** | `sdk->getSubSessionHelper()->joinSubSession(id)` |
+| **Start broadcast** | `sdk->getBroadcastStreamingController()->startBroadcast()` |
+| **Transcription** | `sdk->getLiveTranscriptionHelper()->startLiveTranscription()` |
 
 ---
 
@@ -286,17 +377,45 @@ void onUserVideoStatusChanged(..., userList) {
 }
 ```
 
-### 3. ShareAction Comes from Callback
+### 3. ShareAction Comes from Callback (CRITICAL!)
+
+⚠️ **Share subscription is DIFFERENT from video subscription!**
 
 ```cpp
-// You don't navigate to ShareAction - it's given to you in the callback
-void onUserShareStatusChanged(IZoomVideoSDKShareHelper* helper,
-                               IZoomVideoSDKUser* user,
-                               IZoomVideoSDKShareAction* shareAction) {
-    // Subscribe to remote user's screen share
-    shareAction->subscribeWithView(shareHwnd, ZoomVideoSDKVideoAspect_Original);
+// WRONG - Don't use user->GetShareCanvas() for remote share!
+user->GetShareCanvas()->subscribeWithView(hwnd, ...);  // Won't work!
+
+// CORRECT - Use IZoomVideoSDKShareAction from the callback
+void onUserShareStatusChanged(IZoomVideoSDKShareHelper* pShareHelper,
+                               IZoomVideoSDKUser* pUser,
+                               IZoomVideoSDKShareAction* pShareAction) {
+    if (!pShareAction) return;
+    
+    ZoomVideoSDKShareStatus status = pShareAction->getShareStatus();
+    
+    if (status == ZoomVideoSDKShareStatus_Start || 
+        status == ZoomVideoSDKShareStatus_Resume) {
+        // Canvas API (SDK-rendered)
+        IZoomVideoSDKCanvas* shareCanvas = pShareAction->getShareCanvas();
+        if (shareCanvas) {
+            shareCanvas->subscribeWithView(shareHwnd, ZoomVideoSDKVideoAspect_Original);
+        }
+        
+        // OR Raw Data Pipe (self-rendered)
+        // IZoomVideoSDKRawDataPipe* sharePipe = pShareAction->getSharePipe();
+        // sharePipe->subscribe(ZoomVideoSDKResolution_720P, myDelegate);
+    }
+    else if (status == ZoomVideoSDKShareStatus_Stop) {
+        // Unsubscribe when share stops
+        IZoomVideoSDKCanvas* shareCanvas = pShareAction->getShareCanvas();
+        if (shareCanvas) {
+            shareCanvas->unSubscribeWithView(shareHwnd);
+        }
+    }
 }
 ```
+
+**Why?** The `IZoomVideoSDKShareAction` represents a specific share stream and is only valid within the callback context. You cannot navigate to it via user objects.
 
 ### 4. Check nullptr Before Use
 

@@ -96,14 +96,14 @@ public:
         shareAction->subscribeWithView(shareHwnd, ZoomVideoSDKVideoAspect_Original);
     }
     
-    // ... 60+ more callbacks (implement as empty if not needed)
+    // ... 80+ more callbacks (implement as empty if not needed)
     void onError(ZoomVideoSDKErrors errorCode, int detailErrorCode) override {}
     void onUserLeave(IZoomVideoSDKUserHelper*, IVideoSDKVector<IZoomVideoSDKUser*>*) override {}
     // etc.
 };
 ```
 
-**Key insight**: All 60+ methods must be implemented (even if empty).
+**Key insight**: All 80+ methods must be implemented (even if empty).
 
 ---
 
@@ -290,7 +290,7 @@ remoteUser->GetVideoCanvas()->subscribeWithView(hwnd, ...);
 
 - [Singleton Hierarchy](singleton-hierarchy.md) - Complete navigation tree
 - [Canvas vs Raw Data](canvas-vs-raw-data.md) - Choose rendering approach
-- [Delegate Methods](../references/delegate-methods.md) - All 60+ callbacks
+- [Delegate Methods](../references/delegate-methods.md) - All 80+ callbacks
 - [Session Join Pattern](../examples/session-join-pattern.md) - Working code
 
 ---

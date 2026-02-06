@@ -10,6 +10,9 @@ You want to...              You navigate to...
 Mute audio                  IMeetingService → IMeetingAudioController
 Create breakout rooms       IMeetingService → IMeetingBOController → IBOCreator
 Control remote camera       IMeetingService → IMeetingVideoController → IMeetingCameraHelper
+Start live stream           IMeetingService → IMeetingLiveStreamController
+Add Q&A questions           IMeetingService → IMeetingQAController
+Enable interpretation       IMeetingService → IMeetingInterpretationController
 Batch invite contacts       IAuthService → INotificationServiceHelper → IPresenceHelper → IBatchRequestContactHelper
 ```
 
@@ -28,8 +31,14 @@ Level 0: Global Factory Functions (zoom_sdk.h)
 │
 ├─► Level 1: IMeetingService
 │   │
+│   │   ══════════════════════════════════════════════════════════════
+│   │   CROSS-PLATFORM CONTROLLERS (All platforms)
+│   │   ══════════════════════════════════════════════════════════════
+│   │
 │   ├─► Level 2: IMeetingVideoController
-│   │   └─► Level 3: IMeetingCameraHelper                               [LEAF]
+│   │   ├─► Level 3: IMeetingCameraHelper                               [LEAF]
+│   │   ├─► Level 3: ISetVideoOrderHelper                               [LEAF - Windows]
+│   │   └─► Level 3: ICameraController                                  [LEAF - Windows]
 │   │
 │   ├─► Level 2: IMeetingAudioController                                [LEAF]
 │   ├─► Level 2: IMeetingShareController                                [LEAF]
@@ -42,6 +51,7 @@ Level 0: Global Factory Functions (zoom_sdk.h)
 │   ├─► Level 2: IMeetingReminderController                             [LEAF]
 │   ├─► Level 2: IMeetingEncryptionController                           [LEAF]
 │   ├─► Level 2: IMeetingConfiguration                                  [LEAF]
+│   ├─► Level 2: IListFactory                                           [LEAF - utility]
 │   │
 │   ├─► Level 2: IMeetingBOController (Breakout Rooms)
 │   │   ├─► Level 3: IBOCreator
@@ -52,8 +62,36 @@ Level 0: Global Factory Functions (zoom_sdk.h)
 │   │   └─► Level 3: IBOData                                            [LEAF]
 │   │
 │   ├─► Level 2: IMeetingAICompanionController
+│   │   ├─► Level 3: IMeetingSmartSummaryHelper                         [LEAF - DEPRECATED]
 │   │   ├─► Level 3: IMeetingAICompanionSmartSummaryHelper              [LEAF]
 │   │   └─► Level 3: IMeetingAICompanionQueryHelper                     [LEAF]
+│   │
+│   │   ══════════════════════════════════════════════════════════════
+│   │   WINDOWS-ONLY CONTROLLERS (#if defined(WIN32))
+│   │   ══════════════════════════════════════════════════════════════
+│   │
+│   ├─► Level 2: IMeetingUIController                                   [LEAF - Windows]
+│   │
+│   ├─► Level 2: IAnnotationController
+│   │   └─► Level 3: ICustomizedAnnotationController                    [LEAF - Custom UI]
+│   │
+│   ├─► Level 2: IMeetingRemoteController                               [LEAF - Windows]
+│   ├─► Level 2: IMeetingH323Helper                                     [LEAF - Windows]
+│   ├─► Level 2: IMeetingPhoneHelper                                    [LEAF - Windows]
+│   ├─► Level 2: IMeetingLiveStreamController                           [LEAF - Windows]
+│   ├─► Level 2: IClosedCaptionController                               [LEAF - Windows]
+│   ├─► Level 2: IZoomRealNameAuthMeetingHelper                         [LEAF - Windows]
+│   ├─► Level 2: IMeetingQAController                                   [LEAF - Windows]
+│   ├─► Level 2: IMeetingInterpretationController                       [LEAF - Windows]
+│   ├─► Level 2: IMeetingSignInterpretationController                   [LEAF - Windows]
+│   ├─► Level 2: IEmojiReactionController                               [LEAF - Windows]
+│   ├─► Level 2: IMeetingAANController                                  [LEAF - Windows]
+│   ├─► Level 2: IMeetingWhiteboardController                           [LEAF - Windows]
+│   ├─► Level 2: IMeetingDocsController                                 [LEAF - Windows]
+│   ├─► Level 2: IMeetingPollingController                              [LEAF - Windows]
+│   ├─► Level 2: IMeetingRemoteSupportController                        [LEAF - Windows]
+│   ├─► Level 2: IMeetingIndicatorController                            [LEAF - Windows]
+│   ├─► Level 2: IMeetingProductionStudioController                     [LEAF - Windows]
 │   │
 │   └─► Level 2: ICustomImmersiveController
 │       └─► Level 3: ICustomImmersivePreLayoutHelper                    [LEAF]
@@ -74,6 +112,55 @@ Level 0: Global Factory Functions (zoom_sdk.h)
     ├─► Level 2: ICustomizedShareRender (factory-created)
     └─► Level 2: ICustomizedImmersiveContainer (factory-created)
 ```
+
+---
+
+## Controller Reference by Feature Domain
+
+### Cross-Platform Controllers
+
+| Controller | Getter Method | Purpose |
+|------------|---------------|---------|
+| `IMeetingVideoController` | `GetMeetingVideoController()` | Video on/off, spotlight, pin, virtual background |
+| `IMeetingAudioController` | `GetMeetingAudioController()` | Mute/unmute, VoIP, audio device selection |
+| `IMeetingShareController` | `GetMeetingShareController()` | Screen/app sharing, share settings |
+| `IMeetingChatController` | `GetMeetingChatController()` | In-meeting chat, file transfer |
+| `IMeetingRecordingController` | `GetMeetingRecordingController()` | Local/cloud recording control |
+| `IMeetingParticipantsController` | `GetMeetingParticipantsController()` | User list, rename, remove, roles |
+| `IMeetingWaitingRoomController` | `GetMeetingWaitingRoomController()` | Admit/deny users, waiting room settings |
+| `IMeetingWebinarController` | `GetMeetingWebinarController()` | Webinar-specific controls, panelists |
+| `IMeetingRawArchivingController` | `GetMeetingRawArchivingController()` | Raw archiving for compliance |
+| `IMeetingReminderController` | `GetMeetingReminderController()` | Meeting reminders and notifications |
+| `IMeetingEncryptionController` | `GetInMeetingEncryptionController()` | E2E encryption status |
+| `IMeetingConfiguration` | `GetMeetingConfiguration()` | Meeting behavior configuration |
+| `IMeetingBOController` | `GetMeetingBOController()` | Breakout rooms (has Level 3 helpers) |
+| `IMeetingAICompanionController` | `GetMeetingAICompanionController()` | AI Companion features (has Level 3 helpers) |
+| `IListFactory` | `GetListFactory()` | Factory for creating SDK list objects |
+
+### Windows-Only Controllers
+
+| Controller | Getter Method | Purpose |
+|------------|---------------|---------|
+| `IMeetingUIController` | `GetUIController()` | SDK UI window control, toolbar customization |
+| `IAnnotationController` | `GetAnnotationController()` | Drawing/annotation on shared content |
+| `IMeetingRemoteController` | `GetMeetingRemoteController()` | Remote control of shared content |
+| `IMeetingH323Helper` | `GetH323Helper()` | H.323/SIP room system integration |
+| `IMeetingPhoneHelper` | `GetMeetingPhoneHelper()` | PSTN dial-in/dial-out |
+| `IMeetingLiveStreamController` | `GetMeetingLiveStreamController()` | YouTube/Facebook/custom RTMP streaming |
+| `IClosedCaptionController` | `GetMeetingClosedCaptionController()` | Closed captions, live transcription |
+| `IZoomRealNameAuthMeetingHelper` | `GetMeetingRealNameAuthController()` | China real-name authentication |
+| `IMeetingQAController` | `GetMeetingQAController()` | Webinar Q&A feature |
+| `IMeetingInterpretationController` | `GetMeetingInterpretationController()` | Language interpretation channels |
+| `IMeetingSignInterpretationController` | `GetMeetingSignInterpretationController()` | Sign language interpretation |
+| `IEmojiReactionController` | `GetMeetingEmojiReactionController()` | Emoji reactions (👍 🎉 etc.) |
+| `IMeetingAANController` | `GetMeetingAANController()` | Advanced Audio Networking |
+| `ICustomImmersiveController` | `GetMeetingImmersiveController()` | Immersive view/scenes (has Level 3 helper) |
+| `IMeetingWhiteboardController` | `GetMeetingWhiteboardController()` | Collaborative whiteboard |
+| `IMeetingDocsController` | `GetMeetingDocsController()` | In-meeting document sharing |
+| `IMeetingPollingController` | `GetMeetingPollingController()` | Polls and quizzes |
+| `IMeetingRemoteSupportController` | `GetMeetingRemoteSupportController()` | Remote support features |
+| `IMeetingIndicatorController` | `GetMeetingIndicatorController()` | UI indicators and status |
+| `IMeetingProductionStudioController` | `GetMeetingProductionStudioController()` | Production studio/broadcast features |
 
 ---
 
@@ -228,6 +315,8 @@ batch->CreateBoTransactionCommit();
 
 ## Quick Reference: Common Navigation Paths
 
+### Core Meeting Features
+
 | Feature | Navigation Path |
 |---------|-----------------|
 | Audio control | `IMeetingService` → `GetMeetingAudioController()` |
@@ -239,10 +328,63 @@ batch->CreateBoTransactionCommit();
 | Waiting room | `IMeetingService` → `GetMeetingWaitingRoomController()` |
 | Breakout rooms | `IMeetingService` → `GetMeetingBOController()` → `GetBO*Helper()` |
 | AI Companion | `IMeetingService` → `GetMeetingAICompanionController()` |
+| AI Smart Summary | `IMeetingService` → `GetMeetingAICompanionController()` → `GetMeetingAICompanionSmartSummaryHelper()` |
+| AI Query | `IMeetingService` → `GetMeetingAICompanionController()` → `GetMeetingAICompanionQueryHelper()` |
 | Remote camera | `IMeetingService` → `GetMeetingVideoController()` → `GetMeetingCameraHelper()` |
+| Video order (gallery) | `IMeetingService` → `GetMeetingVideoController()` → `GetSetVideoOrderHelper()` |
+| Local camera device | `IMeetingService` → `GetMeetingVideoController()` → `GetMyCameraController()` |
+
+### Windows-Only Features
+
+| Feature | Navigation Path |
+|---------|-----------------|
+| Live streaming | `IMeetingService` → `GetMeetingLiveStreamController()` |
+| Q&A (webinars) | `IMeetingService` → `GetMeetingQAController()` |
+| Interpretation | `IMeetingService` → `GetMeetingInterpretationController()` |
+| Sign language | `IMeetingService` → `GetMeetingSignInterpretationController()` |
+| Closed captions | `IMeetingService` → `GetMeetingClosedCaptionController()` |
+| Annotations | `IMeetingService` → `GetAnnotationController()` |
+| Annotations (Custom UI) | `IMeetingService` → `GetAnnotationController()` → `GetCustomizedAnnotationController()` |
+| Emoji reactions | `IMeetingService` → `GetMeetingEmojiReactionController()` |
+| Polling | `IMeetingService` → `GetMeetingPollingController()` |
+| Whiteboard | `IMeetingService` → `GetMeetingWhiteboardController()` |
+| Docs | `IMeetingService` → `GetMeetingDocsController()` |
+| H.323/SIP | `IMeetingService` → `GetH323Helper()` |
+| Phone dial-in/out | `IMeetingService` → `GetMeetingPhoneHelper()` |
+| Remote control | `IMeetingService` → `GetMeetingRemoteController()` |
+| Immersive view | `IMeetingService` → `GetMeetingImmersiveController()` |
+| UI control | `IMeetingService` → `GetUIController()` |
+
+### Settings & Pre-Meeting
+
+| Feature | Navigation Path |
+|---------|-----------------|
 | Audio settings | `ISettingService` → `GetAudioSettings()` |
 | Video settings | `ISettingService` → `GetVideoSettings()` |
+| Recording settings | `ISettingService` → `GetRecordingSettings()` |
+| Share settings | `ISettingService` → `GetShareSettings()` |
 | Presence/contacts | `IAuthService` → `GetNotificationServiceHelper()` → `GetPresenceHelper()` |
+
+---
+
+## Deprecated Controllers & Helpers
+
+| Deprecated | Replacement |
+|------------|-------------|
+| `IMeetingSmartSummaryController` | Use `IMeetingAICompanionController` |
+| `IMeetingSmartSummaryHelper` | Use `IMeetingAICompanionSmartSummaryHelper` via `GetMeetingAICompanionSmartSummaryHelper()` |
+
+---
+
+## Platform Availability Summary
+
+| Category | Count | Platform |
+|----------|-------|----------|
+| Cross-platform controllers | 15 | Windows, macOS, Linux |
+| Windows-only controllers | 20 | Windows only (`#if defined(WIN32)`) |
+| **Total** | **35** | — |
+
+> **Note**: When developing cross-platform apps, use `#if defined(WIN32)` guards around Windows-only controller access.
 
 ---
 
@@ -251,7 +393,12 @@ batch->CreateBoTransactionCommit();
 - [SDK Architecture Pattern](sdk-architecture-pattern.md) - The universal 3-step pattern
 - [Custom UI Architecture](custom-ui-architecture.md) - Custom UI specific hierarchy
 - [Breakout Rooms Example](../examples/breakout-rooms.md) - Level 3 helpers in action
+- [Chat Example](../examples/chat.md) - IMeetingChatController usage
+- [Captions/Transcription Example](../examples/captions-transcription.md) - IClosedCaptionController usage
+- [Local Recording Example](../examples/local-recording.md) - IMeetingRecordingController usage
+- [Video Advanced Example](../examples/video-advanced.md) - Camera control, video order (Level 3 helpers)
+- [AI Companion Example](../examples/ai-companion.md) - Smart Summary, AI Query (Level 3 helpers)
 
 ---
 
-**TL;DR**: The hierarchy is your navigation map. Start at a service, drill down to the feature you need, then call methods. Deeper levels = more specialized operations.
+**TL;DR**: The hierarchy is your navigation map. Start at a service, drill down to the feature you need, then call methods. Deeper levels = more specialized operations. Windows has 20 additional controllers not available on other platforms.

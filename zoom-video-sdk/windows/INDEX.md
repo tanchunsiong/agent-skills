@@ -42,7 +42,18 @@ zoom-video-sdk/windows/
 ├── examples/                          # Complete working code
 │   ├── session-join-pattern.md       # JWT auth + session join
 │   ├── video-rendering.md            # Canvas API video display
-│   └── raw-video-capture.md          # YUV420 raw frame capture
+│   ├── screen-share-subscription.md  # View remote screen shares
+│   ├── raw-video-capture.md          # YUV420 raw frame capture
+│   ├── raw-audio-capture.md          # PCM audio capture
+│   ├── send-raw-video.md             # Virtual camera (inject video)
+│   ├── send-raw-audio.md             # Virtual mic (inject audio)
+│   ├── cloud-recording.md            # Cloud recording control
+│   ├── command-channel.md            # Custom command messaging
+│   ├── transcription.md              # Live transcription/captions
+│   └── dotnet-winforms/              # UI Framework integration
+│       └── README.md                 # Win32, WinForms, WPF patterns
+│                                     # C++/CLI wrapper patterns
+│                                     # Production quality guidelines
 │
 ├── troubleshooting/                   # Problem solving guides
 │   ├── windows-message-loop.md       # CRITICAL - Why callbacks fail
@@ -51,7 +62,8 @@ zoom-video-sdk/windows/
 │
 └── references/                        # Reference documentation
     ├── windows-reference.md           # API hierarchy, methods, error codes
-    └── delegate-methods.md            # All 60+ callback methods
+    ├── delegate-methods.md            # All 80+ callback methods
+    └── samples.md                     # Official samples guide
 ```
 
 ---
@@ -73,10 +85,60 @@ zoom-video-sdk/windows/
 1. [Windows Message Loop](troubleshooting/windows-message-loop.md) - Callbacks not firing
 2. [Common Issues](troubleshooting/common-issues.md) - Error code tables
 
+### I want to view screen shares
+1. [Screen Share Subscription](examples/screen-share-subscription.md) - **DIFFERENT from video!**
+2. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - Event-driven pattern
+3. [Video Rendering](examples/video-rendering.md) - Compare with video subscription
+
 ### I want to capture raw video/audio
 1. [Canvas vs Raw Data](concepts/canvas-vs-raw-data.md) - Choose your approach
 2. [Raw Video Capture](examples/raw-video-capture.md) - YUV420 frame capture
-3. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - Subscription pattern
+3. [Raw Audio Capture](examples/raw-audio-capture.md) - PCM audio capture
+4. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - Subscription pattern
+
+### I want to send custom video/audio (virtual camera/mic)
+1. [Send Raw Video](examples/send-raw-video.md) - Inject custom video frames
+2. [Send Raw Audio](examples/send-raw-audio.md) - Inject custom audio
+3. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - External source pattern
+
+### I want to record sessions
+1. [Cloud Recording](examples/cloud-recording.md) - Start/stop cloud recording
+2. [API Reference](references/windows-reference.md) - Recording helper methods
+
+### I want to use live transcription
+1. [Transcription](examples/transcription.md) - Enable live captions
+2. [Delegate Methods](references/delegate-methods.md) - Transcription callbacks
+
+### I want custom messaging between participants
+1. [Command Channel](examples/command-channel.md) - Send custom commands
+2. [API Reference](references/windows-reference.md) - Command channel methods
+
+### I want to build a Win32 native app
+1. [Win32 Integration](examples/dotnet-winforms/README.md#option-1-win32-native-c---direct-sdk) - Direct SDK + Canvas API
+2. [Video Rendering](examples/video-rendering.md) - Canvas API patterns
+3. [Production Guidelines](examples/dotnet-winforms/README.md#production-quality-review) - Best practices
+
+### I want to build a WinForms (.NET) app
+1. [WinForms Integration](examples/dotnet-winforms/README.md#option-2-winforms-c--ccli-wrapper) - C++/CLI wrapper + Raw Data
+2. [C++/CLI Patterns](examples/dotnet-winforms/README.md#ccli-wrapper-patterns-for-net-integration) - gcroot, Finalizer, LockBits
+3. [Production Guidelines](examples/dotnet-winforms/README.md#production-quality-review) - IDisposable, thread safety
+
+### I want to build a WPF (.NET) app
+1. [WPF Integration](examples/dotnet-winforms/README.md#option-3-wpf-c--ccli-wrapper) - C++/CLI + BitmapSource
+2. [Bitmap Conversion](examples/dotnet-winforms/README.md#2-bitmap--bitmapsource-conversion) - Freeze(), Dispatcher
+3. [Production Guidelines](examples/dotnet-winforms/README.md#production-quality-review) - Performance optimization
+
+### I want to use C# / .NET Framework (general)
+1. [.NET Integration Overview](examples/dotnet-winforms/README.md) - **Complete C++/CLI wrapper guide**
+2. [Raw Video Capture](examples/raw-video-capture.md) - YUV→RGB conversion patterns
+3. [Session Join Pattern](examples/session-join-pattern.md) - SDK initialization flow
+
+### I want to wrap ANY native C++ library for .NET
+1. [C++/CLI Wrapper Patterns](examples/dotnet-winforms/README.md#ccli-wrapper-patterns-for-net-integration) - **Complete 8-pattern guide**
+2. [Pattern 1: Basic Structure](examples/dotnet-winforms/README.md#pattern-1-basic-wrapper-structure) - Project setup + class layout
+3. [Pattern 3: gcroot Callbacks](examples/dotnet-winforms/README.md#pattern-3-gcrootT-for-nativemanaged-callbacks) - Native→Managed events
+4. [Pattern 4: IDisposable](examples/dotnet-winforms/README.md#pattern-4-destructor--finalizer-idisposable) - Cleanup pattern
+5. [Common Errors](examples/dotnet-winforms/README.md#common-wrapper-errors) - Troubleshooting
 
 ### I want to implement a specific feature
 1. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - **START HERE!**
@@ -130,6 +192,26 @@ The universal 3-step pattern:
    - `videoHelper->startVideo()` starts YOUR camera
    - To see others, subscribe to their Canvas/Pipe
    - See: [Singleton Hierarchy](concepts/singleton-hierarchy.md)
+
+5. **UI Framework Integration Differs by Platform**
+   - **Win32**: Direct SDK, Canvas API (SDK renders to HWND) - best performance
+   - **WinForms**: C++/CLI wrapper, Raw Data Pipe, YUV→Bitmap, InvokeRequired
+   - **WPF**: Same wrapper + Bitmap→BitmapSource, Dispatcher, Freeze()
+   - See: [UI Framework Integration](examples/dotnet-winforms/README.md)
+
+6. **C++/CLI Wrapper Patterns (for ANY native library → .NET)**
+   - `void*` pointers - hide native types from managed headers
+   - `gcroot<T^>` - prevent GC from collecting managed references in native code
+   - Finalizer + Destructor - `~Class()` and `!Class()` for IDisposable cleanup
+   - `pin_ptr` + `Marshal::Copy` - array/buffer conversion
+   - `LockBits` - 100x faster than SetPixel for image manipulation
+   - Thread marshaling - InvokeRequired (WinForms) / Dispatcher (WPF)
+   - See: [C++/CLI Wrapper Guide](examples/dotnet-winforms/README.md#ccli-wrapper-patterns-for-net-integration)
+
+7. **Audio Connection Timing**
+   - Set `audioOption.connect = false` during join
+   - Call `startAudio()` in `onSessionJoin` callback
+   - See: [Production Guidelines](examples/dotnet-winforms/README.md#production-quality-review)
 
 ---
 

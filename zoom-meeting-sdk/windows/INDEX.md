@@ -57,8 +57,18 @@ zoom-meeting-sdk/windows/
 │   │                                  # Recording vs Streaming, permissions
 │   ├── custom-ui-video-rendering.md  # Custom UI with video container
 │   │                                  # Active speaker + gallery layout
-│   └── breakout-rooms.md             # Complete breakout room guide
-│                                      # 5 roles, create/manage/join
+│   ├── breakout-rooms.md             # Complete breakout room guide
+│   │                                  # 5 roles, create/manage/join
+│   ├── chat.md                       # Send/receive chat messages
+│   │                                  # Rich text, threading, file transfer
+│   ├── captions-transcription.md     # Live transcription & closed captions
+│   │                                  # Multi-language translation
+│   ├── local-recording.md            # Local MP4 recording
+│   │                                  # Permission flow, encoder monitoring
+│   ├── share-raw-data-capture.md     # Screen share raw data capture
+│   │                                  # YUV420 frames from shared content
+│   └── send-raw-data.md              # Virtual camera/mic/share
+│                                      # Send custom video/audio/share
 │
 ├── troubleshooting/                   # Problem solving guides
 │   ├── windows-message-loop.md       # CRITICAL - Why callbacks fail
@@ -107,14 +117,35 @@ zoom-meeting-sdk/windows/
    - Recording vs Streaming approaches
    - Permission requirements (host, OAuth tokens)
    - Audio PCM capture
-2. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - Controller pattern
-3. [Common Issues](troubleshooting/common-issues.md) - No frames received
+2. [Share Raw Data Capture](examples/share-raw-data-capture.md) - Screen share capture
+   - Subscribe to RAW_DATA_TYPE_SHARE
+   - Handle dynamic resolution
+3. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - Controller pattern
+4. [Common Issues](troubleshooting/common-issues.md) - No frames received
 
 ### I want to use breakout rooms
 1. [Breakout Rooms Guide](examples/breakout-rooms.md) - Complete breakout room workflow
    - 5 roles: Creator, Admin, Data, Assistant, Attendee
    - Create, configure, manage, join/leave rooms
 2. [Common Issues](troubleshooting/common-issues.md) - Breakout room error codes
+
+### I want to implement chat
+1. [Chat Guide](examples/chat.md) - Send/receive messages
+   - Rich text formatting (bold, italic, links)
+   - Private messages and threading
+   - File transfer events
+
+### I want to use live transcription
+1. [Captions & Transcription Guide](examples/captions-transcription.md) - Live transcription
+   - Automatic speech-to-text
+   - Multi-language translation
+   - Manual closed captions (host feature)
+
+### I want to record meetings
+1. [Local Recording Guide](examples/local-recording.md) - Local MP4 recording
+   - Permission request workflow
+   - zTscoder.exe encoder monitoring
+   - Gallery view vs active speaker
 
 ### I want to implement a specific feature
 1. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - **START HERE!**
@@ -180,6 +211,11 @@ SDK headers have dependency bugs that cause build errors. This document provides
 - [Raw Video Capture](examples/raw-video-capture.md) - Video capture with YUV420, recording vs streaming
 - [Custom UI Video Rendering](examples/custom-ui-video-rendering.md) - SDK-rendered video containers
 - [Breakout Rooms](examples/breakout-rooms.md) - Create, manage, join breakout rooms
+- [Chat](examples/chat.md) - Send/receive messages with rich formatting
+- [Captions & Transcription](examples/captions-transcription.md) - Live transcription and closed captions
+- [Local Recording](examples/local-recording.md) - Local MP4 recording with permission flow
+- [Share Raw Data Capture](examples/share-raw-data-capture.md) - Screen share raw data capture
+- [Send Raw Data](examples/send-raw-data.md) - Virtual camera, microphone, and share
 
 ### Troubleshooting (Problem Solving)
 - [Windows Message Loop](troubleshooting/windows-message-loop.md) - Callback issues
@@ -288,6 +324,18 @@ These documents were created from actual debugging of a non-functional Zoom SDK 
 
 ### "How do I navigate to a specific controller/feature?"
 → [Singleton Hierarchy](concepts/singleton-hierarchy.md)
+
+### "How do I send/receive chat messages?"
+→ [Chat Guide](examples/chat.md)
+
+### "How do I use live transcription?"
+→ [Captions & Transcription Guide](examples/captions-transcription.md)
+
+### "How do I record locally?"
+→ [Local Recording Guide](examples/local-recording.md)
+
+### "How do I capture screen share?"
+→ [Share Raw Data Capture](examples/share-raw-data-capture.md)
 
 ---
 

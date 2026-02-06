@@ -198,13 +198,13 @@ void onUserAudioStatusChanged(...) override {
 
 **Cause**: Not all delegate methods implemented
 
-**Fix**: Implement ALL 60+ methods:
+**Fix**: Implement ALL 80+ methods:
 ```cpp
 class MyDelegate : public IZoomVideoSDKDelegate {
     void onSessionJoin() override { }
     void onSessionLeave() override { }
     void onError(ZoomVideoSDKErrors, int) override { }
-    // ... all 60+ methods
+    // ... all 80+ methods
 };
 ```
 
@@ -286,4 +286,4 @@ Logs are written to: `%APPDATA%\ZoomVideoSDK\logs\`
 1. Callbacks don't fire → Add message loop
 2. Error 2 → Subscribe in `onUserVideoStatusChanged`
 3. Error 8 → Add `Sleep(200)` between calls
-4. Abstract class → Implement all 60+ delegate methods
+4. Abstract class → Implement all 80+ delegate methods

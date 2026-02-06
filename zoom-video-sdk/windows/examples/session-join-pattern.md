@@ -400,14 +400,14 @@ while (!g_exit) {
 
 ### 4. Implement ALL Delegate Methods
 
-The `IZoomVideoSDKDelegate` interface has 60+ pure virtual methods. **All must be implemented**, even if empty.
+The `IZoomVideoSDKDelegate` interface has 80+ pure virtual methods. **All must be implemented**, even if empty.
 
 ---
 
 ## Related Documentation
 
 - [Windows Message Loop](../troubleshooting/windows-message-loop.md) - Why message loop is critical
-- [Delegate Methods](../references/delegate-methods.md) - All 60+ callback methods
+- [Delegate Methods](../references/delegate-methods.md) - All 80+ callback methods
 - [Video Rendering](video-rendering.md) - Subscribe to video after join
 - [SDK Architecture Pattern](../concepts/sdk-architecture-pattern.md) - Universal pattern
 

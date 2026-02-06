@@ -27,7 +27,8 @@ Expert guidance for developing with the Zoom Video SDK on Windows. This SDK enab
 **Reference:**
 - **[Singleton Hierarchy](concepts/singleton-hierarchy.md)** - 5-level SDK navigation map
 - **[API Reference](references/windows-reference.md)** - Methods, error codes, timing rules
-- **[Delegate Methods](references/delegate-methods.md)** - All 60+ callback methods
+- **[Delegate Methods](references/delegate-methods.md)** - All 80+ callback methods
+- **[Sample Applications](references/samples.md)** - Official samples guide
 - **[INDEX.md](INDEX.md)** - Complete documentation navigation
 
 **Having issues?**
@@ -161,10 +162,20 @@ sdkManager.JoinSession("my-session", "jwt-token", "User Name", "");
 
 ## Sample Applications
 
-Located in local codebase:
-- `C:\tempsdk\Zoom_VideoSDK_Windows_RawDataDemos\` - C++ raw data demos
-- `C:\tempsdk\videosdk-windows-dotnet-desktop-framework-quickstart\` - C# integration demos
-- `C:\tempsdk\sdksamples\zoom-video-sdk-windows-2.4.12\` - Official SDK 2.4.12 samples
+**Official Repository**: https://github.com/zoom/videosdk-windows-rawdata-sample
+
+| Sample | Description |
+|--------|-------------|
+| VSDK_SkeletonDemo | Minimal session join - **start here** |
+| VSDK_getRawVideo | Capture YUV420 video frames |
+| VSDK_getRawAudio | Capture PCM audio |
+| VSDK_sendRawVideo | Inject custom video (virtual camera) |
+| VSDK_sendRawAudio | Inject custom audio (virtual mic) |
+| VSDK_CloudRecording | Cloud recording control |
+| VSDK_CommandChannel | Custom command messaging |
+| VSDK_TranscriptionAndTranslation | Live captions |
+
+**See complete guide**: [Sample Applications Reference](references/samples.md)
 
 ## Critical Gotchas and Best Practices
 
@@ -588,6 +599,48 @@ private:
 - ✅ Clean up all subscriptions on onSessionLeave
 - ✅ Track subscriptions in a map for lifecycle management
 
+### ⚠️ Screen Share Subscription (DIFFERENT from Video!)
+
+**CRITICAL**: Screen share subscription uses `IZoomVideoSDKShareAction` from the callback, NOT `user->GetShareCanvas()`!
+
+```cpp
+// WRONG - This won't work for remote screen shares!
+user->GetShareCanvas()->subscribeWithView(hwnd, ...);
+
+// CORRECT - Use IZoomVideoSDKShareAction from onUserShareStatusChanged callback
+void onUserShareStatusChanged(IZoomVideoSDKShareHelper* pShareHelper,
+                               IZoomVideoSDKUser* pUser,
+                               IZoomVideoSDKShareAction* pShareAction) {
+    if (!pShareAction) return;
+    
+    ZoomVideoSDKShareStatus status = pShareAction->getShareStatus();
+    
+    if (status == ZoomVideoSDKShareStatus_Start || 
+        status == ZoomVideoSDKShareStatus_Resume) {
+        // Subscribe to the share using Canvas API
+        IZoomVideoSDKCanvas* shareCanvas = pShareAction->getShareCanvas();
+        if (shareCanvas) {
+            shareCanvas->subscribeWithView(shareWindow_, 
+                ZoomVideoSDKVideoAspect_Original);
+        }
+    }
+    else if (status == ZoomVideoSDKShareStatus_Stop) {
+        // Unsubscribe when share stops
+        IZoomVideoSDKCanvas* shareCanvas = pShareAction->getShareCanvas();
+        if (shareCanvas) {
+            shareCanvas->unSubscribeWithView(shareWindow_);
+        }
+    }
+}
+```
+
+**Why is share different from video?**
+- **Video**: Each user has one video stream → use `user->GetVideoCanvas()`
+- **Share**: A user can have multiple share actions (multi-share) → use `IZoomVideoSDKShareAction*` from callback
+- The `IZoomVideoSDKShareAction` object represents a specific share stream and contains the share status, type, and rendering interfaces
+
+**See also**: [Screen Share Subscription Example](examples/screen-share-subscription.md)
+
 ### Multi-User Video Layout
 
 For multiple participants, you need **one HWND per user**:
@@ -633,7 +686,32 @@ This skill includes comprehensive guides organized by category:
 ### Complete Examples
 - **[Session Join Pattern](examples/session-join-pattern.md)** - JWT auth + session join with full code
 - **[Video Rendering](examples/video-rendering.md)** - Canvas API video display
+- **[Screen Share Subscription](examples/screen-share-subscription.md)** - View remote screen shares (DIFFERENT from video!)
 - **[Raw Video Capture](examples/raw-video-capture.md)** - YUV420 frame capture
+- **[Raw Audio Capture](examples/raw-audio-capture.md)** - PCM audio capture
+- **[Send Raw Video](examples/send-raw-video.md)** - Virtual camera (inject custom video)
+- **[Send Raw Audio](examples/send-raw-audio.md)** - Virtual mic (inject custom audio)
+- **[Cloud Recording](examples/cloud-recording.md)** - Cloud recording control
+- **[Command Channel](examples/command-channel.md)** - Custom command messaging
+- **[Transcription](examples/transcription.md)** - Live transcription/captions
+
+### UI Framework Integration
+- **[Win32 Native](examples/dotnet-winforms/README.md#option-1-win32-native-c---direct-sdk)** - Direct SDK usage with Canvas API (best performance)
+- **[WinForms (.NET)](examples/dotnet-winforms/README.md#option-2-winforms-c--ccli-wrapper)** - C++/CLI wrapper + Raw Data Pipe
+- **[WPF (.NET)](examples/dotnet-winforms/README.md#option-3-wpf-c--ccli-wrapper)** - C++/CLI wrapper + BitmapSource conversion
+- **[Production Quality Guidelines](examples/dotnet-winforms/README.md#production-quality-review)** - Checklist and common issues
+
+### C++/CLI Wrapper Patterns (Wrapping ANY Native Library)
+- **[Complete Guide](examples/dotnet-winforms/README.md#ccli-wrapper-patterns-for-net-integration)** - 8 patterns for native→.NET interop
+- **[Pattern 1: Basic Structure](examples/dotnet-winforms/README.md#pattern-1-basic-wrapper-structure)** - Project setup, class layout
+- **[Pattern 2: void* Pointers](examples/dotnet-winforms/README.md#pattern-2-opaque-void-pointers)** - Hide native types
+- **[Pattern 3: gcroot Callbacks](examples/dotnet-winforms/README.md#pattern-3-gcrootT-for-nativemanaged-callbacks)** - Native→Managed events
+- **[Pattern 4: IDisposable](examples/dotnet-winforms/README.md#pattern-4-destructor--finalizer-idisposable)** - Cleanup pattern
+- **[Pattern 5: Strings](examples/dotnet-winforms/README.md#pattern-5-string-conversion)** - String^ ↔ wstring/string
+- **[Pattern 6: Arrays](examples/dotnet-winforms/README.md#pattern-6-arraybuffer-conversion)** - pin_ptr, Marshal::Copy
+- **[Pattern 7: Threading](examples/dotnet-winforms/README.md#pattern-7-thread-marshaling-native-thread--ui-thread)** - UI thread dispatch
+- **[Pattern 8: LockBits](examples/dotnet-winforms/README.md#pattern-8-lockbits-for-fast-image-manipulation)** - Fast image conversion
+- **[Common Errors](examples/dotnet-winforms/README.md#common-wrapper-errors)** - Troubleshooting
 
 ### Troubleshooting
 - **[Windows Message Loop](troubleshooting/windows-message-loop.md)** - **CRITICAL**: Why callbacks don't fire
@@ -642,7 +720,7 @@ This skill includes comprehensive guides organized by category:
 
 ### References
 - **[API Reference](references/windows-reference.md)** - 5-level API hierarchy, methods, error codes
-- **[Delegate Methods](references/delegate-methods.md)** - All 60+ callback methods
+- **[Delegate Methods](references/delegate-methods.md)** - All 80+ callback methods
 - **[INDEX.md](INDEX.md)** - Complete navigation guide
 
 ### Most Critical Issues (From Real Debugging)

@@ -173,7 +173,7 @@ Not all pure virtual methods implemented in your delegate class.
 
 ### Fix
 
-Implement ALL 60+ methods in `IZoomVideoSDKDelegate`. Even unused methods need empty implementations:
+Implement ALL 80+ methods in `IZoomVideoSDKDelegate`. Even unused methods need empty implementations:
 
 ```cpp
 class MyDelegate : public IZoomVideoSDKDelegate {
@@ -183,7 +183,7 @@ public:
     void onSessionLeave() override {}
     void onError(ZoomVideoSDKErrors, int) override {}
     void onUserJoin(IZoomVideoSDKUserHelper*, IVideoSDKVector<IZoomVideoSDKUser*>*) override {}
-    // ... all 60+ methods
+    // ... all 80+ methods
 };
 ```
 
@@ -318,4 +318,4 @@ YourProject/
 
 ---
 
-**TL;DR**: Include `<windows.h>` first, then `<cstdint>`, then SDK headers. Link `sdk.lib`. Copy DLLs to output. Implement all 60+ delegate methods.
+**TL;DR**: Include `<windows.h>` first, then `<cstdint>`, then SDK headers. Link `sdk.lib`. Copy DLLs to output. Implement all 80+ delegate methods.

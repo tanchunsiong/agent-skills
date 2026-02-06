@@ -12,12 +12,39 @@ Authentication is the first required step before joining meetings. The SDK uses 
 
 ```
 1. Initialize SDK (InitSDK)
-2. Create Auth Service (CreateAuthService)
-3. Set Event Listener (SetEvent)
-4. Call SDKAuth with JWT token
-5. Process Windows messages (CRITICAL!)
-6. Wait for onAuthenticationReturn callback
-7. Proceed to join meeting
+2. [OPTIONAL] Register Network Connection Handler for proxy detection
+   2a. Wait for onProxyDetectComplete() callback
+3. Create Auth Service (CreateAuthService)
+4. Set Event Listener (SetEvent)
+5. Call SDKAuth with JWT token
+6. Process Windows messages (CRITICAL!)
+7. Wait for onAuthenticationReturn callback
+8. Create Meeting Service (CreateMeetingService)
+9. Join/Start meeting
+10. Wait for MEETING_STATUS_INMEETING callback
+11. NOW safe to use controllers (GetMeetingAudioController, etc.)
+```
+
+### State Machine
+
+```
+┌──────────────┐    InitSDK()     ┌──────────────┐
+│   UNINITIALIZED  │ ─────────────► │  INITIALIZED   │
+└──────────────┘                 └───────┬──────┘
+                                         │
+                                         │ CreateAuthService() + SDKAuth()
+                                         ▼
+┌──────────────┐  onAuthenticationReturn ┌──────────────┐
+│    MEETING      │ ◄─────────────────── │ AUTHENTICATING │
+│    READY        │   (AUTHRET_SUCCESS)  └──────────────┘
+└───────┬──────┘
+        │
+        │ Join() or Start()
+        ▼
+┌──────────────┐  onMeetingStatusChanged ┌──────────────┐
+│   IN MEETING    │ ◄─────────────────── │   JOINING     │
+│ (Controllers OK)│ (MEETING_STATUS_     └──────────────┘
+└──────────────┘   INMEETING)
 ```
 
 ---
@@ -218,6 +245,60 @@ int main() {
     return 0;
 }
 ```
+
+---
+
+## Optional: Network/Proxy Detection
+
+If your app needs to work behind corporate proxies, register the network connection handler **after InitSDK** but **before authentication**:
+
+```cpp
+#include <network_connection_handler_interface.h>
+
+class MyNetworkHandler : public INetworkConnectionHandler {
+public:
+    void onProxyDetectComplete() override {
+        std::cout << "[NETWORK] Proxy detection complete" << std::endl;
+        // NOW safe to proceed with authentication
+        g_proxyDetected = true;
+    }
+    
+    void onProxySettingNotification(IProxySettingHandler* handler) override {
+        // Handle proxy settings if needed
+        std::cout << "[NETWORK] Proxy settings notification" << std::endl;
+    }
+    
+    void onSSLCertVerifyNotification(ISSLCertVerificationHandler* handler) override {
+        // Handle SSL cert verification if needed
+        std::cout << "[NETWORK] SSL cert verification" << std::endl;
+    }
+};
+
+bool WaitForProxyDetection() {
+    // Create network helper
+    INetworkConnectionHelper* networkHelper = nullptr;
+    CreateNetworkConnectionHelper(&networkHelper);
+    
+    if (networkHelper) {
+        networkHelper->RegisterNetworkConnectionHandler(new MyNetworkHandler());
+        
+        // Wait for onProxyDetectComplete callback
+        while (!g_proxyDetected) {
+            MSG msg;
+            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        
+        return true;
+    }
+    return false;
+}
+```
+
+> **When to use**: Only needed if you're behind a corporate proxy or need SSL certificate handling. Most apps can skip this step.
 
 ---
 
@@ -443,6 +524,126 @@ int main() {
     return 0;
 }
 ```
+
+---
+
+## After Authentication: Join/Start Meeting
+
+Once authenticated, create the meeting service and join:
+
+```cpp
+#include <meeting_service_interface.h>
+
+IMeetingService* g_meetingService = nullptr;
+bool g_inMeeting = false;
+
+class MyMeetingListener : public IMeetingServiceEvent {
+public:
+    void onMeetingStatusChanged(MeetingStatus status, int iResult) override {
+        std::cout << "[MEETING] Status changed: " << status << std::endl;
+        
+        switch (status) {
+        case MEETING_STATUS_IDLE:
+            std::cout << "[MEETING] Idle" << std::endl;
+            break;
+        case MEETING_STATUS_CONNECTING:
+            std::cout << "[MEETING] Connecting..." << std::endl;
+            break;
+        case MEETING_STATUS_WAITINGFORHOST:
+            std::cout << "[MEETING] Waiting for host..." << std::endl;
+            break;
+        case MEETING_STATUS_INMEETING:
+            std::cout << "[MEETING] IN MEETING - Controllers now available!" << std::endl;
+            g_inMeeting = true;
+            SetupControllers();  // NOW safe to get controllers
+            break;
+        case MEETING_STATUS_DISCONNECTING:
+            std::cout << "[MEETING] Disconnecting..." << std::endl;
+            break;
+        case MEETING_STATUS_ENDED:
+            std::cout << "[MEETING] Ended" << std::endl;
+            g_inMeeting = false;
+            break;
+        case MEETING_STATUS_FAILED:
+            std::cerr << "[MEETING] FAILED - Error: " << iResult << std::endl;
+            break;
+        }
+    }
+    
+    void onMeetingStatisticsWarningNotification(StatisticsWarningType type) override {}
+    void onMeetingParameterNotification(const MeetingParameter* param) override {}
+    void onSuspendParticipantsActivities() override {}
+    void onAICompanionActiveChangeNotice(bool active) override {}
+    void onMeetingTopicChanged(const zchar_t* topic) override {}
+    void onMeetingFullToWatchLiveStream(const zchar_t* url) override {}
+    void onUserNetworkStatusChanged(MeetingComponentType type, ConnectionQuality quality, 
+                                     unsigned int userId, bool uplink) override {}
+#if defined(WIN32)
+    void onAppSignalPanelUpdated(IMeetingAppSignalHandler* handler) override {}
+#endif
+};
+
+bool CreateAndJoinMeeting(UINT64 meetingNumber, const wchar_t* passcode, const wchar_t* userName) {
+    // Step 1: Create meeting service
+    SDKError err = CreateMeetingService(&g_meetingService);
+    if (err != SDKERR_SUCCESS || !g_meetingService) {
+        std::cerr << "ERROR: CreateMeetingService failed: " << err << std::endl;
+        return false;
+    }
+    
+    // Step 2: Set event listener
+    g_meetingService->SetEvent(new MyMeetingListener());
+    
+    // Step 3: Prepare join parameters
+    JoinParam joinParam;
+    joinParam.userType = SDK_UT_WITHOUT_LOGIN;
+    
+    JoinParam4WithoutLogin& param = joinParam.param.withoutloginuserJoin;
+    param.meetingNumber = meetingNumber;
+    param.userName = userName;
+    param.psw = passcode;
+    param.isVideoOff = true;   // Bot typically joins with video off
+    param.isAudioOff = false;  // But audio on to hear
+    
+    // Step 4: Join!
+    err = g_meetingService->Join(joinParam);
+    if (err != SDKERR_SUCCESS) {
+        std::cerr << "ERROR: Join failed: " << err << std::endl;
+        return false;
+    }
+    
+    std::cout << "Join() called, waiting for MEETING_STATUS_INMEETING..." << std::endl;
+    return true;
+}
+
+// Call this ONLY after MEETING_STATUS_INMEETING
+void SetupControllers() {
+    // Audio
+    IMeetingAudioController* audioCtrl = g_meetingService->GetMeetingAudioController();
+    if (audioCtrl) {
+        audioCtrl->JoinVoip();
+        audioCtrl->MuteAudio(0, true);  // Mute self
+    }
+    
+    // Video
+    IMeetingVideoController* videoCtrl = g_meetingService->GetMeetingVideoController();
+    // ...
+    
+    // Chat
+    IMeetingChatController* chatCtrl = g_meetingService->GetMeetingChatController();
+    // ...
+}
+```
+
+### CRITICAL: Controller Availability
+
+| When | Controllers Available? |
+|------|----------------------|
+| Before `MEETING_STATUS_INMEETING` | **NO** - Returns `nullptr` |
+| After `MEETING_STATUS_INMEETING` | **YES** - Safe to use |
+| After `MEETING_STATUS_ENDED` | **NO** - Pointers invalid |
+
+**Common mistake**: Getting controllers before joining. ALWAYS wait for the `MEETING_STATUS_INMEETING` callback!
 
 ---
 

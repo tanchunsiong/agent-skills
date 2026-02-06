@@ -1,6 +1,8 @@
 # Delegate Methods Reference
 
-Complete list of all `IZoomVideoSDKDelegate` callback methods. **All 60+ methods must be implemented**, even if empty.
+Complete list of all `IZoomVideoSDKDelegate` callback methods. **All 80+ methods must be implemented**, even if empty.
+
+> **Note**: The callback count has grown significantly in SDK v2.4.x with additions for subsessions (breakout rooms), broadcast streaming, whiteboard, RTMS, and enhanced annotation support.
 
 ---
 
@@ -399,12 +401,161 @@ public:
     }
     
     // ═══════════════════════════════════════════════════════════════════════
+    // SHARE SETTING & CONTENT EVENTS
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    void onShareSettingChanged(ZoomVideoSDKShareSetting setting) override {
+        // Called when share settings change
+    }
+    
+    void onUnsharingWindowsChanged(IVideoSDKVector<void*>* windowsList,
+                                   IZoomVideoSDKShareHelper* pShareHelper,
+                                   IZoomVideoSDKUser* pUser,
+                                   IZoomVideoSDKShareAction* pShareAction) override {
+        // Called when list of unsharing windows changes (macOS only)
+    }
+    
+    void onSharingActiveMonitorChanged(IVideoSDKVector<void*>* monitorIDs,
+                                       IZoomVideoSDKShareHelper* pShareHelper,
+                                       IZoomVideoSDKUser* pUser,
+                                       IZoomVideoSDKShareAction* pShareAction) override {
+        // Called when active monitors displaying share changes
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════
+    // AUDIO LEVEL & NETWORK EVENTS (NEW)
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    void onAudioLevelChanged(unsigned int level, bool bAudioSharing,
+                            IZoomVideoSDKUser* pUser) override {
+        // Called when audio level changes (range 0-9)
+    }
+    
+    void onUserNetworkStatusChanged(ZoomVideoSDKDataType type,
+                                    ZoomVideoSDKNetworkStatus level,
+                                    IZoomVideoSDKUser* pUser) override {
+        // Called when network status changes for specific data type
+    }
+    
+    void onUserOverallNetworkStatusChanged(ZoomVideoSDKNetworkStatus level,
+                                           IZoomVideoSDKUser* pUser) override {
+        // Called when overall network status changes
+    }
+    
+    void onShareNetworkStatusChanged(ZoomVideoSDKNetworkStatus shareNetworkStatus,
+                                     bool isSendingShare) override {
+        // Called when share network status changes (deprecated)
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════
+    // LIVE TRANSCRIPTION EVENTS (ADDITIONAL)
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    void onSpokenLanguageChanged(ILiveTranscriptionLanguage* spokenLanguage) override {
+        // Called when spoken language changes
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════
+    // ANNOTATION EVENTS (ADDITIONAL)
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    void onAnnotationToolTypeChanged(IZoomVideoSDKAnnotationHelper* helper,
+                                     void* handle,
+                                     ZoomVideoSDKAnnotationToolType toolType) override {
+        // Called when annotation tool type changes
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════
     // WHITEBOARD EVENTS
     // ═══════════════════════════════════════════════════════════════════════
     
     void onUserWhiteboardShareStatusChanged(IZoomVideoSDKUser* user,
                                             IZoomVideoSDKWhiteboardHelper* helper) override {
         // Called when whiteboard share status changes
+    }
+    
+    void onWhiteboardExported(ZoomVideoSDKExportFormat format,
+                              unsigned char* data, long length) override {
+        // Called when whiteboard export completes
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════
+    // SUBSESSION (BREAKOUT ROOM) EVENTS
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    void onSubSessionStatusChanged(ZoomVideoSDKSubSessionStatus status,
+                                   IVideoSDKVector<ISubSessionKit*>* pSubSessionKitList) override {
+        // Called when subsession status changes
+    }
+    
+    void onSubSessionManagerHandle(IZoomVideoSDKSubSessionManager* pManager) override {
+        // Called when user gains subsession manager privilege
+    }
+    
+    void onSubSessionParticipantHandle(IZoomVideoSDKSubSessionParticipant* pParticipant) override {
+        // Called when user gains/loses subsession participant privileges
+    }
+    
+    void onSubSessionUsersUpdate(ISubSessionKit* pSubSessionKit) override {
+        // Called when subsession users are updated
+    }
+    
+    void onBroadcastMessageFromMainSession(const zchar_t* sMessage,
+                                           const zchar_t* sUserName) override {
+        // Called when receiving broadcast message from main session
+    }
+    
+    void onSubSessionUserHelpRequest(ISubSessionUserHelpRequestHandler* pHandler) override {
+        // Called when receiving help request from subsession
+    }
+    
+    void onSubSessionUserHelpRequestResult(ZoomVideoSDKUserHelpRequestResult eResult) override {
+        // Called with help request result
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════
+    // BROADCAST STREAMING EVENTS
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    void onStartBroadcastResponse(bool bSuccess, const zchar_t* channelID) override {
+        // Called when start broadcast response received
+    }
+    
+    void onStopBroadcastResponse(bool bSuccess) override {
+        // Called when stop broadcast response received
+    }
+    
+    void onGetBroadcastControlStatus(bool bSuccess,
+                                     ZoomVideoSDKBroadcastControlStatus status) override {
+        // Called when get broadcast status response received
+    }
+    
+    void onStreamingJoinStatusChanged(ZoomVideoSDKStreamingJoinStatus status) override {
+        // Called when viewer's join status changes
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════
+    // RTMS (REAL-TIME MEDIA STREAMS) EVENTS
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    void onRealTimeMediaStreamsStatus(RealTimeMediaStreamsStatus status) override {
+        // Called when RTMS status changes
+    }
+    
+    void onRealTimeMediaStreamsFail(RealTimeMediaStreamsFailReason failReason) override {
+        // Called when RTMS fails
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════
+    // CANVAS SNAPSHOT EVENTS
+    // ═══════════════════════════════════════════════════════════════════════
+    
+    void onCanvasSnapshotTaken(IZoomVideoSDKUser* pUser, bool isShare) override {
+        // Called when canvas snapshot is taken successfully
+    }
+    
+    void onCanvasSnapshotIncompatible(IZoomVideoSDKUser* pUser) override {
+        // Called when snapshot cannot be taken due to compatibility
     }
 };
 ```

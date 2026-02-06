@@ -21,8 +21,21 @@ For complete documentation, see **[SKILL.md](SKILL.md)**
 - Raw audio/video capture (PCM, YUV I420)
 - Raw media injection (virtual audio/video)
 - Cloud recording & live streaming
-- C# integration via C++/CLI wrapper
 - Multi-platform support (x64, x86, ARM64)
+
+## UI Framework Integration
+
+| Framework | Approach | Guide |
+|-----------|----------|-------|
+| **Win32** | Direct SDK + Canvas API | [Win32 Guide](examples/dotnet-winforms/README.md#option-1-win32-native-c---direct-sdk) |
+| **WinForms** | C++/CLI wrapper + Raw Data | [WinForms Guide](examples/dotnet-winforms/README.md#option-2-winforms-c--ccli-wrapper) |
+| **WPF** | C++/CLI wrapper + BitmapSource | [WPF Guide](examples/dotnet-winforms/README.md#option-3-wpf-c--ccli-wrapper) |
+
+## C++/CLI Wrapper Patterns (Any Native Library → .NET)
+
+Complete 8-pattern guide for wrapping native C++ libraries:
+- [Full Guide](examples/dotnet-winforms/README.md#ccli-wrapper-patterns-for-net-integration)
+- Patterns: void*, gcroot<T^>, Finalizer, Strings, Arrays, Threading, LockBits
 
 ## Sample Repositories
 
