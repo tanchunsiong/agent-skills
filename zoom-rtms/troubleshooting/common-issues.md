@@ -313,6 +313,45 @@ try {
 
 See [Data Types](../references/data-types.md) for complete list.
 
+## Product-Specific Issues
+
+### Video SDK Issues
+
+**Problem**: Signature validation fails for Video SDK sessions
+
+**Cause**: Using OAuth Client ID/Secret instead of SDK Key/Secret, or using `meeting_uuid` instead of `session_id`.
+
+**Solution**:
+- Video SDK apps use **SDK Key** (as `clientId`) and **SDK Secret** (as `clientSecret`).
+- Video SDK webhook payloads contain `session_id`, NOT `meeting_uuid`.
+- The HMAC signature must use `session_id`: `HMAC-SHA256(sdkSecret, "sdkKey,sessionId,streamId")`
+
+```javascript
+// Extract the correct ID based on product
+const idValue = payload.meeting_uuid || payload.session_id;
+const signature = generateSignature(clientId, idValue, streamId, clientSecret);
+```
+
+### Webinar Issues
+
+**Problem**: Looking for `webinar_uuid` in the payload
+
+**Cause**: Expecting a webinar-specific UUID field.
+
+**Solution**: Webinar RTMS payloads still use `meeting_uuid` (NOT `webinar_uuid`). This is a common gotcha. The signature, connection flow, and protocol are identical to meetings.
+
+**Problem**: Missing attendee streams in webinars
+
+**Cause**: Webinar attendees are view-only participants.
+
+**Solution**: Only **panelist** audio/video streams are confirmed to be available via RTMS. Attendee streams may not be available individually. Design your application to work with panelist streams only.
+
+**Problem**: Practice session not triggering RTMS
+
+**Cause**: Practice sessions are not documented for RTMS support.
+
+**Solution**: RTMS events are expected when the webinar goes live to attendees, not during practice sessions. Q&A and Polls data are also not exposed via RTMS.
+
 ## Getting Help
 
 1. **Developer Forum**: https://devforum.zoom.us/

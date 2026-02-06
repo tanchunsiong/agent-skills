@@ -1,6 +1,6 @@
 # AI Integration Patterns
 
-Patterns for integrating RTMS with AI services for transcription, analysis, and meeting assistants.
+Patterns for integrating RTMS with AI services for transcription, analysis, and meeting assistants. These examples work with meetings, webinars, and Video SDK sessions.
 
 ## Audio Transcription with External Services
 
@@ -10,10 +10,11 @@ Patterns for integrating RTMS with AI services for transcription, analysis, and 
 import rtms from "@zoom/rtms";
 import { createClient } from "@deepgram/sdk";
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
 const deepgram = createClient(process.env.DEEPGRAM_API_KEY);
 
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   const client = new rtms.Client();
   
@@ -59,10 +60,11 @@ rtms.onWebhookEvent(({ event, payload }) => {
 import rtms from "@zoom/rtms";
 import { AssemblyAI } from "assemblyai";
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
 const aai = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });
 
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   const client = new rtms.Client();
   
@@ -102,13 +104,14 @@ rtms.onWebhookEvent(({ event, payload }) => {
 import rtms from "@zoom/rtms";
 import { Whisper } from "whisper-node";
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
 const whisper = new Whisper("base.en");
 
 let audioBuffer = Buffer.alloc(0);
 const BUFFER_SIZE = 16000 * 10; // 10 seconds at 16kHz
 
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   const client = new rtms.Client();
   
@@ -142,13 +145,14 @@ rtms.onWebhookEvent(({ event, payload }) => {
 import rtms from "@zoom/rtms";
 import OpenAI from "openai";
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const transcripts = [];
 let summaryInterval;
 
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   const client = new rtms.Client();
 
@@ -245,8 +249,10 @@ async function analyzeSentiment(text) {
   return data.choices[0].message.content;
 }
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
+
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   const client = new rtms.Client();
   let recentTranscripts = [];
@@ -276,6 +282,7 @@ For continuous playback, fill audio gaps with silence:
 import rtms from "@zoom/rtms";
 import fs from 'fs';
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
 const SAMPLE_RATE = 16000;
 const BYTES_PER_SAMPLE = 2; // 16-bit
 const MS_PER_FRAME = 20;
@@ -287,7 +294,7 @@ function generateSilentFrame(durationMs) {
 }
 
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   const client = new rtms.Client();
   const streamId = payload.rtms_stream_id;
@@ -339,6 +346,8 @@ Generate VTT, SRT, and TXT simultaneously:
 import rtms from "@zoom/rtms";
 import fs from 'fs';
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
+
 function formatVttTimestamp(ms) {
   const s = Math.floor(ms / 1000);
   const m = Math.floor(s / 60);
@@ -352,7 +361,7 @@ function formatSrtTimestamp(ms) {
 }
 
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   const client = new rtms.Client();
   const streamId = payload.rtms_stream_id;

@@ -17,14 +17,26 @@ ZM_RTMS_CLIENT=your_client_id
 ZM_RTMS_SECRET=your_client_secret
 ```
 
+## Multi-Product Support
+
+The SDK accepts both `meeting_uuid` (meetings/webinars) and `session_id` (Video SDK) via `client.join(payload)` transparently. You only need to handle the different webhook event names -- the rest of the protocol is identical.
+
+```javascript
+// These constants cover all RTMS products
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
+const RTMS_STOP_EVENTS = ["meeting.rtms_stopped", "webinar.rtms_stopped", "session.rtms_stopped"];
+```
+
 ## Minimal Example
 
 ```javascript
 import rtms from "@zoom/rtms";
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
+
 // Handle webhook events - SDK starts webhook server automatically
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   const client = new rtms.Client();
 
@@ -34,6 +46,7 @@ rtms.onWebhookEvent(({ event, payload }) => {
   });
 
   // SDK handles all WebSocket complexity
+  // Accepts both meeting_uuid and session_id transparently
   client.join(payload);
 });
 ```
@@ -44,13 +57,16 @@ rtms.onWebhookEvent(({ event, payload }) => {
 import rtms from "@zoom/rtms";
 import fs from 'fs';
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
+const RTMS_STOP_EVENTS = ["meeting.rtms_stopped", "webinar.rtms_stopped", "session.rtms_stopped"];
+
 const clients = new Map();
 
 rtms.onWebhookEvent(({ event, payload }) => {
   const streamId = payload?.rtms_stream_id;
 
-  // Handle session end
-  if (event === "meeting.rtms_stopped") {
+  // Handle session end (meetings, webinars, and Video SDK)
+  if (RTMS_STOP_EVENTS.includes(event)) {
     const client = clients.get(streamId);
     if (client) {
       client.leave();
@@ -59,7 +75,7 @@ rtms.onWebhookEvent(({ event, payload }) => {
     return;
   }
 
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   // Prevent duplicate connections
   if (clients.has(streamId)) {
@@ -194,9 +210,11 @@ import express from "express";
 const app = express();
 app.use(express.json());
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
+
 // Use SDK's webhook handler
 app.post('/webhook', rtms.createWebhookHandler(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
   
   const client = new rtms.Client();
   
@@ -270,6 +288,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+RTMS_EVENTS = ['meeting.rtms_started', 'webinar.rtms_started', 'session.rtms_started']
+RTMS_STOP_EVENTS = ['meeting.rtms_stopped', 'webinar.rtms_stopped', 'session.rtms_stopped']
+
 clients = {}
 
 @rtms.onWebhookEvent
@@ -278,13 +299,13 @@ def handle_webhook(webhook):
     payload = webhook.get('payload', {})
     stream_id = payload.get('rtms_stream_id')
 
-    if event == 'meeting.rtms_stopped':
+    if event in RTMS_STOP_EVENTS:
         if stream_id in clients:
             clients[stream_id].leave()
             del clients[stream_id]
         return
 
-    if event != 'meeting.rtms_started':
+    if event not in RTMS_EVENTS:
         return
 
     client = rtms.Client()
@@ -303,12 +324,8 @@ def handle_webhook(webhook):
     def on_leave(reason):
         print(f'Left: {reason}')
 
-    client.join(
-        meeting_uuid=payload.get('meeting_uuid'),
-        rtms_stream_id=payload.get('rtms_stream_id'),
-        server_urls=payload.get('server_urls'),
-        signature=payload.get('signature')
-    )
+    # SDK accepts both meeting_uuid and session_id transparently
+    client.join(payload)
 
 # Main loop
 if __name__ == '__main__':

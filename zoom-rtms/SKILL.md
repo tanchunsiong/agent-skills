@@ -2,13 +2,14 @@
 name: zoom-rtms
 description: |
   Zoom Realtime Media Streams (RTMS) for accessing live audio, video, transcript, chat, and 
-  screen share from Zoom meetings. WebSocket-based protocol using open web standards. Use when 
-  building AI/ML applications, live transcription, recording, streaming, or real-time meeting analysis.
+  screen share from Zoom meetings, webinars, and Video SDK sessions. WebSocket-based protocol 
+  using open web standards. Use when building AI/ML applications, live transcription, recording, 
+  streaming, or real-time meeting/webinar/session analysis.
 ---
 
 # Zoom Realtime Media Streams (RTMS)
 
-Expert guidance for accessing live audio, video, transcript, chat, and screen share data from Zoom meetings in real-time. RTMS uses WebSocket-based protocol with open standards - no meeting bots required.
+Expert guidance for accessing live audio, video, transcript, chat, and screen share data from Zoom meetings, webinars, and Video SDK sessions in real-time. RTMS uses WebSocket-based protocol with open standards - no meeting bots required.
 
 **Official Documentation**: https://developers.zoom.us/docs/rtms/
 **SDK Reference (JS)**: https://zoom.github.io/rtms/js/
@@ -35,9 +36,19 @@ Expert guidance for accessing live audio, video, transcript, chat, and screen sh
 - Duplicate connections -> [Webhook Gotchas](troubleshooting/common-issues.md#webhook-response-timing)
 - No audio/video -> [Media Configuration](references/media-types.md)
 
+## Supported Products
+
+| Product | Webhook Event | Payload ID | App Type |
+|---------|--------------|------------|----------|
+| **Meetings** | `meeting.rtms_started` / `meeting.rtms_stopped` | `meeting_uuid` | General App |
+| **Webinars** | `webinar.rtms_started` / `webinar.rtms_stopped` | `meeting_uuid` (same!) | General App |
+| **Video SDK** | `session.rtms_started` / `session.rtms_stopped` | `session_id` | Video SDK App |
+
+Once connected, the WebSocket protocol, media types, and streaming behavior are **identical** across all products.
+
 ## RTMS Overview
 
-RTMS is a data pipeline that gives your app access to live media from Zoom meetings **without participant bots**. Instead of having automated clients join meetings, use RTMS to collect media data directly from Zoom's infrastructure.
+RTMS is a data pipeline that gives your app access to live media from Zoom meetings, webinars, and Video SDK sessions **without participant bots**. Instead of having automated clients join meetings, use RTMS to collect media data directly from Zoom's infrastructure.
 
 ### What RTMS Provides
 
@@ -60,7 +71,7 @@ RTMS is a data pipeline that gives your app access to live media from Zoom meeti
 
 - **Node.js 20.3.0+** (24 LTS recommended) for JavaScript SDK
 - **Python 3.10+** for Python SDK
-- Zoom General App with RTMS feature enabled
+- Zoom General App (for meetings/webinars) or Video SDK App (for Video SDK) with RTMS feature enabled
 - Webhook endpoint for RTMS events
 - Server to receive WebSocket streams
 
@@ -71,9 +82,12 @@ RTMS is a data pipeline that gives your app access to live media from Zoom meeti
 ```javascript
 import rtms from "@zoom/rtms";
 
+// All RTMS start/stop events across products
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
+
 // Handle webhook events
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
 
   const client = new rtms.Client();
 
@@ -87,10 +101,11 @@ rtms.onWebhookEvent(({ event, payload }) => {
   });
 
   client.onJoinConfirm((reason) => {
-    console.log(`Joined meeting: ${reason}`);
+    console.log(`Joined session: ${reason}`);
   });
 
   // SDK handles all WebSocket connections automatically
+  // Accepts both meeting_uuid and session_id transparently
   client.join(payload);
 });
 ```
@@ -103,9 +118,12 @@ For full control or non-SDK languages, implement the two-phase WebSocket protoco
 const WebSocket = require('ws');
 const crypto = require('crypto');
 
+const RTMS_EVENTS = ['meeting.rtms_started', 'webinar.rtms_started', 'session.rtms_started'];
+
 // 1. Generate signature
-function generateSignature(clientId, meetingUuid, streamId, clientSecret) {
-  const message = `${clientId},${meetingUuid},${streamId}`;
+// For meetings/webinars: uses meeting_uuid. For Video SDK: uses session_id.
+function generateSignature(clientId, idValue, streamId, clientSecret) {
+  const message = `${clientId},${idValue},${streamId}`;
   return crypto.createHmac('sha256', clientSecret).update(message).digest('hex');
 }
 
@@ -114,15 +132,17 @@ app.post('/webhook', (req, res) => {
   res.status(200).send();  // CRITICAL: Respond immediately!
   
   const { event, payload } = req.body;
-  if (event === 'meeting.rtms_started') {
+  if (RTMS_EVENTS.includes(event)) {
     connectToRTMS(payload);
   }
 });
 
 // 3. Connect to signaling WebSocket
 function connectToRTMS(payload) {
-  const { server_urls, rtms_stream_id, meeting_uuid } = payload;
-  const signature = generateSignature(CLIENT_ID, meeting_uuid, rtms_stream_id, CLIENT_SECRET);
+  const { server_urls, rtms_stream_id } = payload;
+  // meeting_uuid for meetings/webinars, session_id for Video SDK
+  const idValue = payload.meeting_uuid || payload.session_id;
+  const signature = generateSignature(CLIENT_ID, idValue, rtms_stream_id, CLIENT_SECRET);
   
   const signalingWs = new WebSocket(server_urls);
   
@@ -130,7 +150,7 @@ function connectToRTMS(payload) {
     signalingWs.send(JSON.stringify({
       msg_type: 1,  // Handshake request
       protocol_version: 1,
-      meeting_uuid,
+      meeting_uuid: idValue,
       rtms_stream_id,
       signature,
       media_type: 9  // AUDIO(1) | TRANSCRIPT(8)
@@ -197,17 +217,34 @@ ZOOM_SECRET_TOKEN=your_webhook_token   # For webhook validation
 
 ## Zoom App Setup
 
+### For Meetings and Webinars (General App)
+
 1. Go to [marketplace.zoom.us](https://marketplace.zoom.us) -> Develop -> Build App
 2. Choose **General App** -> **User-Managed**
 3. Features -> Access -> **Enable Event Subscription**
 4. Add Events -> Search "rtms" -> Select:
    - `meeting.rtms_started`
    - `meeting.rtms_stopped`
+   - `webinar.rtms_started` (if using webinars)
+   - `webinar.rtms_stopped` (if using webinars)
 5. Scopes -> Add Scopes -> Search "rtms" -> Add:
    - `meeting:read:meeting_audio`
    - `meeting:read:meeting_video`
    - `meeting:read:meeting_transcript`
    - `meeting:read:meeting_chat`
+   - `webinar:read:webinar_audio` (if using webinars)
+   - `webinar:read:webinar_video` (if using webinars)
+   - `webinar:read:webinar_transcript` (if using webinars)
+   - `webinar:read:webinar_chat` (if using webinars)
+
+### For Video SDK (Video SDK App)
+
+1. Go to [marketplace.zoom.us](https://marketplace.zoom.us) -> Develop -> Build App
+2. Choose **Video SDK App**
+3. Use your SDK Key and SDK Secret (not OAuth Client ID/Secret)
+4. Add Events:
+   - `session.rtms_started`
+   - `session.rtms_stopped`
 
 ## Sample Repositories
 

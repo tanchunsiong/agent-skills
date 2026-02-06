@@ -90,6 +90,95 @@ Sent when RTMS stream ends.
 }
 ```
 
+### webinar.rtms_started
+
+Sent when RTMS stream is ready for a webinar.
+
+```json
+{
+  "event": "webinar.rtms_started",
+  "payload": {
+    "account_id": "account_id",
+    "object": {
+      "meeting_id": "meeting_id",
+      "meeting_uuid": "meeting_uuid",
+      "host_id": "host_user_id",
+      "rtms_stream_id": "stream_id",
+      "server_urls": "wss://rtms-sjc1.zoom.us/...",
+      "signature": "auth_signature"
+    }
+  }
+}
+```
+
+> **Important**: Webinar payloads use `meeting_uuid`, NOT `webinar_uuid`. The signature and connection flow are identical to meetings.
+
+**Webinar-specific considerations:**
+- **Panelists**: Full audio/video streams are available for panelists.
+- **Attendees**: View-only participants; individual streams may not be available.
+- **Practice sessions**: Not documented for RTMS.
+- **Q&A/Polls**: Not exposed via RTMS.
+
+### webinar.rtms_stopped
+
+Sent when RTMS stream ends for a webinar.
+
+```json
+{
+  "event": "webinar.rtms_stopped",
+  "payload": {
+    "account_id": "account_id",
+    "object": {
+      "meeting_id": "meeting_id",
+      "rtms_stream_id": "stream_id"
+    }
+  }
+}
+```
+
+### session.rtms_started
+
+Sent when RTMS stream is ready for a Video SDK session.
+
+```json
+{
+  "event": "session.rtms_started",
+  "payload": {
+    "account_id": "account_id",
+    "object": {
+      "session_id": "session_id",
+      "rtms_stream_id": "stream_id",
+      "server_urls": "wss://rtms-sjc1.zoom.us/...",
+      "signature": "auth_signature"
+    }
+  }
+}
+```
+
+> **Important**: Video SDK payloads use `session_id` instead of `meeting_uuid`. The HMAC signature must use `session_id` in place of `meeting_uuid`.
+
+**Video SDK-specific considerations:**
+- Uses **SDK Key/Secret** (not OAuth Client ID/Secret) for authentication.
+- Requires a **Video SDK App** (not a General App) in Zoom Marketplace.
+- Once connected, the WebSocket protocol is identical to meetings.
+
+### session.rtms_stopped
+
+Sent when RTMS stream ends for a Video SDK session.
+
+```json
+{
+  "event": "session.rtms_stopped",
+  "payload": {
+    "account_id": "account_id",
+    "object": {
+      "session_id": "session_id",
+      "rtms_stream_id": "stream_id"
+    }
+  }
+}
+```
+
 ### Screen Share Events (via msg_type 5)
 
 Subscribe to receive `SHARING_START` and `SHARING_STOP` events when participants start/stop screen sharing.
@@ -125,7 +214,7 @@ const region = hostname.split('-')[1].replace(/[0-9]/g, '');  // sjc
 
 ## Subscribing to RTMS Events
 
-### In Zoom Marketplace
+### In Zoom Marketplace (General App - Meetings and Webinars)
 
 1. Go to your app settings
 2. Navigate to **Features** → **Access**
@@ -135,11 +224,20 @@ const region = hostname.split('-')[1].replace(/[0-9]/g, '');  // sjc
 6. Search "rtms" and select:
    - `meeting.rtms_started`
    - `meeting.rtms_stopped`
+   - `webinar.rtms_started` (if using webinars)
+   - `webinar.rtms_stopped` (if using webinars)
 7. Click **Done** then **Save**
+
+### In Zoom Marketplace (Video SDK App)
+
+1. Go to your Video SDK app settings
+2. Add Event Subscription:
+   - `session.rtms_started`
+   - `session.rtms_stopped`
 
 ### Required Scopes
 
-Add these scopes (Features → Scopes → Add Scopes → search "rtms"):
+**For Meetings** (Features → Scopes → Add Scopes → search "rtms"):
 
 | Scope | Purpose |
 |-------|---------|
@@ -148,15 +246,28 @@ Add these scopes (Features → Scopes → Add Scopes → search "rtms"):
 | `meeting:read:meeting_transcript` | Access transcripts |
 | `meeting:read:meeting_chat` | Access chat messages |
 
+**For Webinars** (add these in addition to meeting scopes):
+
+| Scope | Purpose |
+|-------|---------|
+| `webinar:read:webinar_audio` | Access webinar audio |
+| `webinar:read:webinar_video` | Access webinar video |
+| `webinar:read:webinar_transcript` | Access webinar transcripts |
+| `webinar:read:webinar_chat` | Access webinar chat messages |
+
+**For Video SDK**: Uses SDK Key/Secret credentials instead of OAuth scopes.
+
 ## Products Supporting RTMS
 
-| Product | Webhook Event Prefix |
-|---------|---------------------|
-| Zoom Meetings | `meeting.rtms_*` |
-| Zoom Webinars | `webinar.rtms_*` |
-| Zoom Video SDK | `videosdk.rtms_*` |
-| Zoom Contact Center | `contactcenter.rtms_*` |
-| Zoom Phone | `phone.rtms_*` |
+| Product | Start Event | Stop Event | Payload ID | App Type |
+|---------|-------------|------------|------------|----------|
+| **Zoom Meetings** | `meeting.rtms_started` | `meeting.rtms_stopped` | `meeting_uuid` | General App |
+| **Zoom Webinars** | `webinar.rtms_started` | `webinar.rtms_stopped` | `meeting_uuid` (not webinar_uuid!) | General App |
+| **Zoom Video SDK** | `session.rtms_started` | `session.rtms_stopped` | `session_id` | Video SDK App |
+| Zoom Contact Center | `contactcenter.rtms_*` | `contactcenter.rtms_*` | See Zoom docs | Contact Center App |
+| Zoom Phone | `phone.rtms_*` | `phone.rtms_*` | See Zoom docs | General App |
+
+> **Key differences**: Meetings and webinars use a General App with OAuth credentials. Video SDK uses a Video SDK App with SDK Key/Secret. Once connected, the WebSocket protocol is identical across all products.
 
 ## Resources
 

@@ -1,21 +1,22 @@
 # RTMS Lifecycle Flow
 
-Complete flow from meeting start to media streaming.
+Complete flow from meeting/webinar/session start to media streaming.
 
 ## High-Level Flow
 
 ```
-┌──────────────────┐
-│  Meeting Starts  │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Zoom sends      │
-│  webhook event   │
-│  meeting.rtms_   │
-│  started         │
-└────────┬─────────┘
+┌─────────────────────────────┐
+│  Meeting/Webinar/Session    │
+│  Starts                     │
+└────────────┬────────────────┘
+             │
+             ▼
+┌─────────────────────────────┐
+│  Zoom sends webhook event   │
+│  meeting.rtms_started  OR   │
+│  webinar.rtms_started  OR   │
+│  session.rtms_started       │
+└────────────┬────────────────┘
          │
          ▼
 ┌──────────────────┐
@@ -89,21 +90,22 @@ Complete flow from meeting start to media streaming.
 └────────┬─────────┘
          │
          ▼
-┌──────────────────┐
-│  meeting.rtms_   │
-│  stopped         │
-│                  │
-│  Close sockets   │
-│  Cleanup         │
-└──────────────────┘
+┌─────────────────────────────┐
+│  meeting/webinar/session    │
+│  .rtms_stopped              │
+│                             │
+│  Close sockets              │
+│  Cleanup                    │
+└─────────────────────────────┘
 ```
 
 ## Detailed Steps
 
 ### Step 1: Receive Webhook
 
-When RTMS starts, Zoom sends a webhook:
+When RTMS starts, Zoom sends a webhook. The event name and payload differ by product:
 
+**Meeting RTMS:**
 ```json
 {
   "event": "meeting.rtms_started",
@@ -121,14 +123,66 @@ When RTMS starts, Zoom sends a webhook:
 }
 ```
 
+**Webinar RTMS:**
+```json
+{
+  "event": "webinar.rtms_started",
+  "payload": {
+    "account_id": "abc123",
+    "object": {
+      "meeting_id": "123456789",
+      "meeting_uuid": "AbC123...",
+      "host_id": "user123",
+      "rtms_stream_id": "stream123==",
+      "server_urls": "wss://rtms-sjc1.zoom.us/...",
+      "signature": "pre_computed_signature"
+    }
+  }
+}
+```
+
+> **Note**: Webinar payloads use `meeting_uuid`, NOT `webinar_uuid`.
+
+**Video SDK RTMS:**
+```json
+{
+  "event": "session.rtms_started",
+  "payload": {
+    "account_id": "abc123",
+    "object": {
+      "session_id": "SessionABC...",
+      "rtms_stream_id": "stream123==",
+      "server_urls": "wss://rtms-sjc1.zoom.us/...",
+      "signature": "pre_computed_signature"
+    }
+  }
+}
+```
+
+> **Note**: Video SDK payloads use `session_id` instead of `meeting_uuid`.
+
+### Product Differences
+
+| Aspect | Meetings | Webinars | Video SDK |
+|--------|----------|----------|-----------|
+| Webhook event | `meeting.rtms_started` | `webinar.rtms_started` | `session.rtms_started` |
+| Payload ID field | `meeting_uuid` | `meeting_uuid` (same!) | `session_id` |
+| App type | General App (OAuth) | General App (OAuth) | Video SDK App (SDK Key/Secret) |
+| Participants | All participants | Panelists have full streams; attendees may not | All participants |
+| Protocol after connect | Identical | Identical | Identical |
+
 **CRITICAL**: Respond with HTTP 200 **IMMEDIATELY** before any processing!
 
 ```javascript
+const RTMS_EVENTS = ['meeting.rtms_started', 'webinar.rtms_started', 'session.rtms_started'];
+
 app.post('/webhook', (req, res) => {
   res.status(200).send();  // FIRST!
   
-  // Then process async
-  handleRTMSStarted(req.body.payload);
+  const { event, payload } = req.body;
+  if (RTMS_EVENTS.includes(event)) {
+    handleRTMSStarted(payload);
+  }
 });
 ```
 
@@ -139,10 +193,13 @@ app.post('/webhook', (req, res) => {
 ```javascript
 const signalingWs = new WebSocket(payload.server_urls);
 
+// Use meeting_uuid for meetings/webinars, session_id for Video SDK
+const idValue = payload.meeting_uuid || payload.session_id;
+
 signalingWs.on('open', () => {
   const signature = generateSignature(
     CLIENT_ID, 
-    payload.meeting_uuid, 
+    idValue, 
     payload.rtms_stream_id, 
     CLIENT_SECRET
   );
@@ -150,7 +207,7 @@ signalingWs.on('open', () => {
   signalingWs.send(JSON.stringify({
     msg_type: 1,                    // Handshake request
     protocol_version: 1,
-    meeting_uuid: payload.meeting_uuid,
+    meeting_uuid: idValue,
     rtms_stream_id: payload.rtms_stream_id,
     signature: signature,
     media_type: 9                   // Audio(1) + Transcript(8)
@@ -195,7 +252,7 @@ function connectToMediaServer(mediaUrl) {
     mediaWs.send(JSON.stringify({
       msg_type: 3,                  // Media handshake request
       protocol_version: 1,
-      meeting_uuid: meetingUuid,
+      meeting_uuid: idValue,        // meeting_uuid or session_id
       rtms_stream_id: streamId,
       signature: signature,
       media_type: 9,                // Audio + Transcript
@@ -280,13 +337,15 @@ mediaWs.on('message', (data) => {
 ### Step 7: Handle Session End
 
 ```javascript
+const RTMS_STOP_EVENTS = ['meeting.rtms_stopped', 'webinar.rtms_stopped', 'session.rtms_stopped'];
+
 // Via webhook
 app.post('/webhook', (req, res) => {
   res.status(200).send();
   
   const { event, payload } = req.body;
   
-  if (event === 'meeting.rtms_stopped') {
+  if (RTMS_STOP_EVENTS.includes(event)) {
     const streamId = payload.rtms_stream_id;
     
     // Close connections
@@ -322,10 +381,10 @@ function handleRTMSStarted(payload) {
     return;
   }
   
-  // Mark as active
+  // Mark as active (meeting_uuid for meetings/webinars, session_id for Video SDK)
   activeSessions.set(streamId, {
     startTime: Date.now(),
-    meetingUuid: payload.meeting_uuid
+    idValue: payload.meeting_uuid || payload.session_id
   });
   
   // Connect

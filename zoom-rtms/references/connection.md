@@ -5,11 +5,11 @@ WebSocket connection protocol details.
 ## Connection Flow
 
 ```
-1. Receive meeting.rtms_started webhook
+1. Receive meeting/webinar/session.rtms_started webhook
            ↓
-2. Extract server_urls, stream_id, meeting_uuid
+2. Extract server_urls, stream_id, and meeting_uuid or session_id
            ↓
-3. Generate signature (HMAC-SHA256)
+3. Generate signature (HMAC-SHA256) using meeting_uuid or session_id
            ↓
 4. Connect to signaling WebSocket
            ↓
@@ -35,10 +35,16 @@ WebSocket connection protocol details.
 ```javascript
 const crypto = require('crypto');
 
-function generateSignature(clientId, meetingUuid, streamId, clientSecret) {
-  const message = `${clientId},${meetingUuid},${streamId}`;
+// For meetings and webinars: use meeting_uuid
+// For Video SDK: use session_id
+// Webinars still use meeting_uuid (NOT webinar_uuid)
+function generateSignature(clientId, idValue, streamId, clientSecret) {
+  const message = `${clientId},${idValue},${streamId}`;
   return crypto.createHmac('sha256', clientSecret).update(message).digest('hex');
 }
+
+// Extract the correct ID from any product's webhook payload
+const idValue = payload.meeting_uuid || payload.session_id;
 ```
 
 ## Signaling Message Types
@@ -127,12 +133,14 @@ const WebSocket = require('ws');
 const crypto = require('crypto');
 
 async function connectRTMS(webhookPayload) {
-  const { server_urls, rtms_stream_id, meeting_uuid } = webhookPayload;
+  const { server_urls, rtms_stream_id } = webhookPayload;
+  // meeting_uuid for meetings/webinars, session_id for Video SDK
+  const idValue = webhookPayload.meeting_uuid || webhookPayload.session_id;
   
   // Generate signature
   const signature = crypto
     .createHmac('sha256', process.env.ZOOM_CLIENT_SECRET)
-    .update(`${process.env.ZOOM_CLIENT_ID},${meeting_uuid},${rtms_stream_id}`)
+    .update(`${process.env.ZOOM_CLIENT_ID},${idValue},${rtms_stream_id}`)
     .digest('hex');
   
   // Connect to signaling server
@@ -149,7 +157,7 @@ async function connectRTMS(webhookPayload) {
       msg_type: 1,
       protocol_version: 1,
       client_id: process.env.ZOOM_CLIENT_ID,
-      meeting_uuid: meeting_uuid,
+      meeting_uuid: idValue,          // Works for both meeting_uuid and session_id
       stream_id: rtms_stream_id,
       signature: signature,
       media_type: 9  // AUDIO(1) | TRANSCRIPT(8)

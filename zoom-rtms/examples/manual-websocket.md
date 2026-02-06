@@ -33,10 +33,11 @@ const activeSessions = new Map();
 
 // ============================================
 // SIGNATURE GENERATION
+// Uses meeting_uuid for meetings/webinars, session_id for Video SDK
 // ============================================
 
-function generateSignature(clientId, meetingUuid, streamId, clientSecret) {
-  const message = `${clientId},${meetingUuid},${streamId}`;
+function generateSignature(clientId, idValue, streamId, clientSecret) {
+  const message = `${clientId},${idValue},${streamId}`;
   return crypto.createHmac('sha256', clientSecret)
     .update(message)
     .digest('hex');
@@ -45,6 +46,9 @@ function generateSignature(clientId, meetingUuid, streamId, clientSecret) {
 // ============================================
 // WEBHOOK HANDLER
 // ============================================
+
+const RTMS_EVENTS = ['meeting.rtms_started', 'webinar.rtms_started', 'session.rtms_started'];
+const RTMS_STOP_EVENTS = ['meeting.rtms_stopped', 'webinar.rtms_stopped', 'session.rtms_stopped'];
 
 app.post('/webhook', (req, res) => {
   // CRITICAL: Respond 200 IMMEDIATELY before any processing!
@@ -64,10 +68,10 @@ app.post('/webhook', (req, res) => {
     });
   }
   
-  // Handle RTMS events
-  if (event === 'meeting.rtms_started') {
+  // Handle RTMS events (meetings, webinars, and Video SDK)
+  if (RTMS_EVENTS.includes(event)) {
     handleRTMSStarted(payload.object);
-  } else if (event === 'meeting.rtms_stopped') {
+  } else if (RTMS_STOP_EVENTS.includes(event)) {
     handleRTMSStopped(payload.object);
   }
 });
@@ -77,7 +81,9 @@ app.post('/webhook', (req, res) => {
 // ============================================
 
 function handleRTMSStarted(payload) {
-  const { meeting_uuid, rtms_stream_id, server_urls } = payload;
+  const { rtms_stream_id, server_urls } = payload;
+  // meeting_uuid for meetings/webinars, session_id for Video SDK
+  const idValue = payload.meeting_uuid || payload.session_id;
   
   // Prevent duplicate connections
   if (activeSessions.has(rtms_stream_id)) {
@@ -86,21 +92,21 @@ function handleRTMSStarted(payload) {
   }
   
   activeSessions.set(rtms_stream_id, {
-    meetingUuid: meeting_uuid,
+    idValue: idValue,
     startTime: Date.now()
   });
   
-  connectToSignaling(meeting_uuid, rtms_stream_id, server_urls);
+  connectToSignaling(idValue, rtms_stream_id, server_urls);
 }
 
 // ============================================
 // SIGNALING WEBSOCKET
 // ============================================
 
-function connectToSignaling(meetingUuid, streamId, serverUrl) {
+function connectToSignaling(idValue, streamId, serverUrl) {
   console.log('Connecting to signaling:', serverUrl);
   
-  const signature = generateSignature(CLIENT_ID, meetingUuid, streamId, CLIENT_SECRET);
+  const signature = generateSignature(CLIENT_ID, idValue, streamId, CLIENT_SECRET);
   const ws = new WebSocket(serverUrl);
   
   signalingConnections.set(streamId, ws);
@@ -111,7 +117,7 @@ function connectToSignaling(meetingUuid, streamId, serverUrl) {
     ws.send(JSON.stringify({
       msg_type: 1,                    // SIGNALING_HAND_SHAKE_REQ
       protocol_version: 1,
-      meeting_uuid: meetingUuid,
+      meeting_uuid: idValue,          // Works for both meeting_uuid and session_id
       rtms_stream_id: streamId,
       sequence: Math.floor(Math.random() * 1000000),
       signature: signature,
@@ -121,7 +127,7 @@ function connectToSignaling(meetingUuid, streamId, serverUrl) {
   
   ws.on('message', (data) => {
     const msg = JSON.parse(data.toString());
-    handleSignalingMessage(msg, meetingUuid, streamId);
+    handleSignalingMessage(msg, idValue, streamId);
   });
   
   ws.on('close', (code, reason) => {
@@ -135,7 +141,7 @@ function connectToSignaling(meetingUuid, streamId, serverUrl) {
   });
 }
 
-function handleSignalingMessage(msg, meetingUuid, streamId) {
+function handleSignalingMessage(msg, idValue, streamId) {
   switch (msg.msg_type) {
     case 2:  // SIGNALING_HAND_SHAKE_RESP
       if (msg.status_code === 0) {
@@ -143,7 +149,7 @@ function handleSignalingMessage(msg, meetingUuid, streamId) {
         
         // Extract media server URL and connect
         const mediaUrl = msg.media_server.server_urls.all;
-        connectToMedia(meetingUuid, streamId, mediaUrl);
+        connectToMedia(idValue, streamId, mediaUrl);
       } else {
         console.error('Signaling handshake failed:', msg.status_code);
       }
@@ -197,10 +203,10 @@ function handleEventUpdate(msg) {
 // MEDIA WEBSOCKET
 // ============================================
 
-function connectToMedia(meetingUuid, streamId, mediaUrl) {
+function connectToMedia(idValue, streamId, mediaUrl) {
   console.log('Connecting to media:', mediaUrl);
   
-  const signature = generateSignature(CLIENT_ID, meetingUuid, streamId, CLIENT_SECRET);
+  const signature = generateSignature(CLIENT_ID, idValue, streamId, CLIENT_SECRET);
   const ws = new WebSocket(mediaUrl);
   
   mediaConnections.set(streamId, ws);
@@ -211,7 +217,7 @@ function connectToMedia(meetingUuid, streamId, mediaUrl) {
     ws.send(JSON.stringify({
       msg_type: 3,                    // DATA_HAND_SHAKE_REQ
       protocol_version: 1,
-      meeting_uuid: meetingUuid,
+      meeting_uuid: idValue,          // Works for both meeting_uuid and session_id
       rtms_stream_id: streamId,
       signature: signature,
       media_type: 9,                  // AUDIO(1) | TRANSCRIPT(8)

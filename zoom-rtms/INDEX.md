@@ -1,5 +1,7 @@
 # Zoom RTMS - Complete Documentation Index
 
+RTMS provides real-time access to live audio, video, transcript, chat, and screen share from Zoom meetings, webinars, and Video SDK sessions.
+
 ## Quick Start Path
 
 **If you're new to RTMS, follow this order:**
@@ -86,6 +88,25 @@ zoom-rtms/
 
 ---
 
+## By Product
+
+### I'm building for Zoom Meetings
+- Standard RTMS setup. Webhook event: `meeting.rtms_started`. Uses General App with OAuth.
+- Start with [SDK Quickstart](examples/sdk-quickstart.md) or [Manual WebSocket](examples/manual-websocket.md).
+
+### I'm building for Zoom Webinars
+- Same as meetings, but webhook event is `webinar.rtms_started`. Payload still uses `meeting_uuid` (NOT `webinar_uuid`).
+- Add webinar scopes and event subscriptions. See [Webhooks](references/webhooks.md).
+- Only **panelist** streams are confirmed available. Attendee streams may not be individual.
+
+### I'm building for Zoom Video SDK
+- Webhook event: `session.rtms_started`. Payload uses `session_id` (NOT `meeting_uuid`).
+- Requires a **Video SDK App** with SDK Key/Secret (not OAuth Client ID/Secret).
+- Once connected, the protocol is **identical** to meetings.
+- See [Webhooks](references/webhooks.md) for payload details.
+
+---
+
 ## Key Documents
 
 ### 1. Connection Architecture (CRITICAL)
@@ -137,6 +158,8 @@ RTMS uses **two separate WebSocket connections**:
 
 4. **Signature Generation**
    - Format: `HMAC-SHA256(clientSecret, "clientId,meetingUuid,streamId")`
+   - For Video SDK, use `session_id` in place of `meetingUuid`
+   - Webinars still use `meeting_uuid` (not `webinar_uuid`)
    - Required for both signaling and media handshakes
    - See: [Manual WebSocket](examples/manual-websocket.md#signature-generation)
 

@@ -161,11 +161,33 @@ Server URLs contain region codes (sjc, sin, iad, fra, syd). Route to nearest wor
 
 ## Future Improvements
 
-1. [ ] Add support for Video SDK RTMS (session.rtms_started)
-2. [ ] Add examples for other products (webinars, contact center, phone)
+1. [x] Add support for Video SDK RTMS (session.rtms_started)
+2. [x] Add examples for webinars (webinar.rtms_started)
 3. [ ] Add production scaling patterns (when requested)
 4. [ ] Add Windows platform manual WebSocket examples
 5. [ ] Add more AI integration patterns (Azure, Google, etc.)
+
+## Video SDK and Webinar Discoveries
+
+### Webinar RTMS
+- Webinar webhook payload still uses `meeting_uuid` (NOT `webinar_uuid`) -- this is a common gotcha.
+- Signature generation and connection flow are identical to meetings.
+- Only **panelist** audio/video streams are confirmed available via RTMS.
+- **Attendee** streams may not be available individually (attendees are view-only).
+- Practice sessions are not documented for RTMS.
+- Q&A and Polls data are not exposed via RTMS.
+
+### Video SDK RTMS
+- Video SDK webhook uses `session.rtms_started` / `session.rtms_stopped`.
+- Payload uses `session_id` field instead of `meeting_uuid`.
+- The HMAC signature must use `session_id`: `HMAC-SHA256(sdkSecret, "sdkKey,sessionId,streamId")`.
+- SDK `client.join(payload)` accepts either `meeting_uuid` or `session_id` transparently.
+- Requires a **Video SDK App** (not General App) with SDK Key/Secret credentials.
+
+### Cross-Product Protocol
+- The WebSocket protocol (signaling + media) is 100% identical after the initial webhook.
+- Media types, bitmasks, message types, heartbeat, and reconnection all work the same.
+- The only differences are: webhook event name, payload ID field, and app type/credentials.
 
 ## Questions for Review
 

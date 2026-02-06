@@ -5,7 +5,7 @@ Get started with Zoom Realtime Media Streams.
 ## Prerequisites
 
 1. **Node.js 20.3.0+** (24 LTS recommended)
-2. Zoom General App with RTMS feature enabled
+2. Zoom General App (for meetings/webinars) or Video SDK App (for Video SDK) with RTMS feature enabled
 3. Webhook endpoint configured
 4. Server to handle WebSocket connections
 
@@ -99,8 +99,10 @@ npm install @zoom/rtms express
 ```javascript
 import rtms from "@zoom/rtms";
 
+const RTMS_EVENTS = ["meeting.rtms_started", "webinar.rtms_started", "session.rtms_started"];
+
 rtms.onWebhookEvent(({ event, payload }) => {
-  if (event !== "meeting.rtms_started") return;
+  if (!RTMS_EVENTS.includes(event)) return;
   
   const client = new rtms.Client();
   
@@ -120,11 +122,14 @@ rtms.onWebhookEvent(({ event, payload }) => {
     console.log(`Screen share from ${metadata.userName}`);
   });
   
+  // SDK accepts both meeting_uuid and session_id transparently
   client.join(payload);
 });
 ```
 
 ## Zoom App Setup Steps
+
+### For Meetings and Webinars (General App)
 
 1. Go to [marketplace.zoom.us](https://marketplace.zoom.us)
 2. Click **Develop** → **Build App**
@@ -133,19 +138,39 @@ rtms.onWebhookEvent(({ event, payload }) => {
 5. Add Events → Search "rtms" → Select RTMS endpoints:
    - `meeting.rtms_started`
    - `meeting.rtms_stopped`
-6. Scopes → Add Scopes → Search "rtms" → Add for both "Meetings" and "Rtms":
+   - `webinar.rtms_started` (if using webinars)
+   - `webinar.rtms_stopped` (if using webinars)
+6. Scopes → Add Scopes → Search "rtms" → Add:
    - `meeting:read:meeting_audio`
    - `meeting:read:meeting_video`
-   - etc.
+   - `meeting:read:meeting_transcript`
+   - `meeting:read:meeting_chat`
+   - `webinar:read:webinar_audio` (if using webinars)
+   - `webinar:read:webinar_video` (if using webinars)
+   - `webinar:read:webinar_transcript` (if using webinars)
+   - `webinar:read:webinar_chat` (if using webinars)
+
+### For Video SDK (Video SDK App)
+
+1. Go to [marketplace.zoom.us](https://marketplace.zoom.us)
+2. Click **Develop** → **Build App**
+3. Choose **Video SDK App**
+4. Add Events:
+   - `session.rtms_started`
+   - `session.rtms_stopped`
+5. Use SDK Key and SDK Secret for authentication (not OAuth credentials)
 
 ## How to Start RTMS
 
-RTMS must be started for each meeting. Options:
+RTMS must be started for each meeting/webinar/session. Options:
 
-| Product | How to Start |
-|---------|--------------|
-| Meeting/Webinar | Zoom client, REST API, Zoom App SDK, or **autostart** (zoom.us settings) |
-| Video SDK | Video SDK client or REST API |
+| Product | How to Start | Webhook Event |
+|---------|--------------|---------------|
+| Meeting | Zoom client, REST API, Zoom App SDK, or **autostart** (zoom.us settings) | `meeting.rtms_started` |
+| Webinar | Zoom client, REST API, Zoom App SDK, or **autostart** (zoom.us settings) | `webinar.rtms_started` |
+| Video SDK | Video SDK client or REST API | `session.rtms_started` |
+
+> **Webinar note**: Panelists have full audio/video streams. Attendee streams may not be available individually.
 
 ## Deployment with Reverse Proxy
 

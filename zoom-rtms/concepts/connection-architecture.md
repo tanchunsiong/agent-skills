@@ -4,6 +4,8 @@ RTMS uses a **two-phase WebSocket design** to separate control plane from data p
 
 ## Overview
 
+> **Multi-Product Note**: The two-phase WebSocket design described here is **identical** for all RTMS products (meetings, webinars, and Video SDK sessions). The only difference is the initial webhook event name and payload ID field. Once connected, the signaling and media protocols are the same.
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Zoom Meeting                              │
@@ -134,17 +136,26 @@ Signaling WS ─────> Media WS (all types)
 Both signaling and media handshakes require HMAC-SHA256 signature:
 
 ```javascript
+// For meetings and webinars: use meeting_uuid
 const message = `${clientId},${meetingUuid},${streamId}`;
+// For Video SDK: use session_id
+const message = `${clientId},${sessionId},${streamId}`;
+
+// Generic approach: use whichever ID is present
+const idValue = payload.meeting_uuid || payload.session_id;
+const message = `${clientId},${idValue},${streamId}`;
 const signature = crypto.createHmac('sha256', clientSecret)
   .update(message)
   .digest('hex');
 ```
 
+> **Important**: Webinars use `meeting_uuid` (not `webinar_uuid`). Video SDK uses `session_id`.
+
 **Components**:
-- `clientId`: OAuth Client ID from Zoom Marketplace
-- `meetingUuid`: From webhook payload
+- `clientId`: OAuth Client ID (General App) or SDK Key (Video SDK App)
+- `meetingUuid` / `sessionId`: From webhook payload (`meeting_uuid` for meetings/webinars, `session_id` for Video SDK)
 - `streamId`: From webhook payload (`rtms_stream_id`)
-- `clientSecret`: OAuth Client Secret
+- `clientSecret`: OAuth Client Secret (General App) or SDK Secret (Video SDK App)
 
 ## Heartbeat Protocol
 
