@@ -346,6 +346,108 @@ void onNotificationServiceStatus(...) override;
 
 ---
 
+---
+
+## Custom UI Interfaces
+
+These interfaces are required when using Custom UI mode (`ENABLE_CUSTOMIZED_UI_FLAG`).
+
+### ICustomizedUIMgrEvent (3 methods required)
+
+**File**: `SDK/x64/h/customized_ui/customized_ui_mgr.h`
+
+```cpp
+class CustomUIMgrEventListener : public ICustomizedUIMgrEvent {
+public:
+    // Method 1: Video container destroyed by SDK (e.g., meeting ended)
+    void onVideoContainerDestroyed(ICustomizedVideoContainer* pContainer) override;
+    
+    // Method 2: Share render destroyed by SDK
+    void onShareRenderDestroyed(ICustomizedShareRender* pRender) override;
+    
+    // Method 3: Immersive container destroyed by SDK
+    void onImmersiveContainerDestroyed() override;
+};
+```
+
+**Important notes**:
+- These fire when the SDK destroys containers on its own (e.g., meeting ends)
+- You MUST null out your pointers in these callbacks to avoid dangling references
+- All 3 are always required
+
+---
+
+### ICustomizedVideoContainerEvent (6 methods required)
+
+**File**: `SDK/x64/h/customized_ui/customized_video_container.h`
+
+```cpp
+class VideoContainerEventListener : public ICustomizedVideoContainerEvent {
+public:
+    // Method 1: User changed for a video render element
+    void onRenderUserChanged(IVideoRenderElement* pElement, unsigned int userid) override;
+    
+    // Method 2: Data type changed (video, avatar, screen name)
+    void onRenderDataTypeChanged(IVideoRenderElement* pElement, VideoRenderDataType dataType) override;
+    
+    // Method 3: Layout notification — container resized, recompute element positions
+    void onLayoutNotification(RECT wnd_client_rect) override;
+    
+    // Method 4: A video render element was destroyed
+    void onVideoRenderElementDestroyed(IVideoRenderElement* pElement) override;
+    
+    // Method 5: Window messages from SDK child HWND (mouse, keyboard)
+    void onWindowMsgNotification(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+    
+    // Method 6: Video subscription failed for an element
+    void onSubscribeUserFail(ZoomSDKVideoSubscribeFailReason fail_reason, IVideoRenderElement* pElement) override;
+};
+```
+
+**Important notes**:
+- `onLayoutNotification` is where you re-layout video elements after container resize
+- `onWindowMsgNotification` forwards input from SDK's child HWND (see [Custom UI Architecture](../concepts/custom-ui-architecture.md))
+- `VideoRenderDataType` values: `VideoRenderData_Video`, `VideoRenderData_Avatar`, `VideoRenderData_ScreenName`
+- `ZoomSDKVideoSubscribeFailReason` values: `ViewOnly`, `NotInMeeting`, `HasSubscribe1080POr720`, `HasSubscribeTwo720P`, `HasSubscribeExceededLimit`, `TooFrequentCall`
+
+---
+
+### ICustomizedShareRenderEvent (3 methods required)
+
+**File**: `SDK/x64/h/customized_ui/customized_share_render.h`
+
+```cpp
+class ShareRenderEventListener : public ICustomizedShareRenderEvent {
+public:
+    // Method 1: Started receiving shared content
+    void onSharingContentStartReceiving() override;
+    
+    // Method 2: Share source changed or sharing closed
+    void onSharingSourceNotification(unsigned int nShareSourceID) override;
+    
+    // Method 3: Window messages from share render's child HWND
+    void onWindowMsgNotification(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+};
+```
+
+**Important notes**:
+- When `onSharingSourceNotification` fires with a new ID, call `SetShareSourceID(nShareSourceID)` and `Show()`
+- When sharing stops, `nShareSourceID` will be 0 — call `Hide()`
+
+---
+
+### Quick Reference: Custom UI Method Counts
+
+| Interface | Methods | File |
+|-----------|---------|------|
+| `ICustomizedUIMgrEvent` | 3 | `customized_ui/customized_ui_mgr.h` |
+| `ICustomizedVideoContainerEvent` | 6 | `customized_ui/customized_video_container.h` |
+| `ICustomizedShareRenderEvent` | 3 | `customized_ui/customized_share_render.h` |
+| `ICustomizedImmersiveContainerEvent` | 1 | `customized_ui/customized_immersive_container.h` |
+| **Total Custom UI methods** | **13** | |
+
+---
+
 ## SDK Version Differences
 
 Different SDK versions may have different required methods. This guide is for **SDK v6.7.2.26830**.

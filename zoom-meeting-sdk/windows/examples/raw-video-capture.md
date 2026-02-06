@@ -2,7 +2,61 @@
 
 ## Overview
 
-This guide shows how to capture raw video data from Zoom meetings using the Windows Meeting SDK. Raw video data is provided in **YUV420 (I420) format**, which is the industry standard for video processing.
+This guide shows how to capture raw video data from Zoom meetings using the Windows Meeting SDK. Raw video data is provided in **YUV420 (I420) format** for video and **PCM format** for audio.
+
+---
+
+## Raw Recording vs Raw Streaming
+
+There are **two ways** to access raw data in the Zoom SDK:
+
+| Method | Permission Source | How to Get Permission | Use Case |
+|--------|-------------------|----------------------|----------|
+| **Raw Recording** | Local recording permission | Host/co-host OR request from host | Capture data with "recording" consent dialog |
+| **Raw Streaming** | Live streaming permission | Must be licensed Pro/Business/Education/Enterprise | Capture data with "streaming" consent dialog |
+
+**Key differences**:
+- **Raw Recording**: Disables local recording (`.mp4`) for the SDK user. Host can still cloud record.
+- **Raw Streaming**: Other participants see "live streaming" notification instead of "recording".
+- Both give you the same raw data access (YUV420 video, PCM audio).
+
+**SDK Version Requirements**:
+- Raw recording: SDK 5.9.0+
+- Raw streaming by host: SDK 5.11.0+
+- Raw streaming by non-host: SDK 5.12.8+
+- Request local recording permission: SDK 5.13.5+
+
+---
+
+## Permission Requirements
+
+### For Raw Recording
+
+The meeting must have **local recording enabled**, AND you must meet **one** of:
+- You are the meeting host or co-host
+- You have been granted local recording permission by the host
+- You joined with an OAuth app privilege token (see below)
+
+### For Raw Streaming
+
+You must meet **all** of:
+- Current user has raw live streaming permission
+- Meeting host has a Pro, Business, Education, or Enterprise account
+- Meeting host is licensed for live streaming
+
+### OAuth App Privilege Token (Advanced)
+
+You can skip the "request permission from host" step by using OAuth tokens:
+
+**For recording**:
+1. OAuth app requests `Meeting_token:read:admin:local_recording` (admin) or `Meeting_token:read:local_recording` (user)
+2. Call REST API: `GET /meetings/{meetingId}/jointoken/local_recording`
+3. Pass token to SDK via `app_privilege_token` join parameter
+
+**For streaming**:
+1. OAuth app requests `Meeting_token:read:admin:live_streaming` (admin) or `Meeting_token:read:live_streaming` (user)
+2. Call REST API: `GET /meetings/{meetingId}/jointoken/live_streaming`
+3. Pass token to SDK via `app_privilege_token` join parameter
 
 ---
 
@@ -19,7 +73,7 @@ See [Authentication Pattern](authentication-pattern.md) for this setup.
 
 ---
 
-### Step 2: Start Raw Recording
+### Step 2: Start Raw Recording (or Streaming)
 
 **CRITICAL**: You MUST call `StartRawRecording()` before you can capture video data.
 
@@ -64,6 +118,30 @@ void OnInMeeting() {
 - It only enables raw data capture via SDK callbacks
 - You need host/co-host permissions OR special SDK app privileges
 - If you get `SDKERR_WRONG_USAGE`, you may lack permissions
+
+**Alternative: Use Raw Streaming instead**:
+```cpp
+// If you have streaming permission instead of recording permission
+IMeetingLiveStreamController* streamCtrl = meetingService->GetMeetingLiveStreamController();
+
+SDKError err = streamCtrl->StartRawLiveStream();
+if (err != SDKERR_SUCCESS) {
+    std::cerr << "[VIDEO] StartRawLiveStream failed: " << err << std::endl;
+    return;
+}
+
+std::cout << "[VIDEO] Raw streaming started!" << std::endl;
+// Same subscription process applies after this
+```
+
+**Requesting permission at runtime**:
+```cpp
+// If you're not the host, request permission
+IMeetingLiveStreamController* streamCtrl = meetingService->GetMeetingLiveStreamController();
+streamCtrl->RequestRawLiveStream(L"My AI Bot", L"https://example.com/description");
+
+// Listen for onRawLiveStreamPrivilegeChanged callback to know when granted
+```
 
 ---
 
@@ -516,17 +594,173 @@ videoDelegate = nullptr;
 
 ---
 
+## Audio Raw Data
+
+Audio is available in **PCM format** through separate callbacks:
+
+### Set Up Audio Raw Data
+
+```cpp
+class ZoomAudioRawDataDelegate : public IZoomSDKAudioRawDataDelegate {
+public:
+    // Called for each participant's audio (no support for telephone participants)
+    void onOneWayAudioRawDataReceived(AudioRawData* data_, uint32_t node_id) override {
+        // Process individual participant's audio
+        std::cout << "[AUDIO] Received audio from user: " << node_id << std::endl;
+    }
+    
+    // Called for mixed meeting audio (what all participants hear)
+    void onMixedAudioRawDataReceived(AudioRawData* data_) override {
+        // Process mixed audio from all participants
+        SavePCMData(data_);
+    }
+};
+
+// Subscribe to audio
+IZoomSDKAudioRawDataHelper* audioHelper = GetAudioRawdataHelper();
+ZoomAudioRawDataDelegate* audioDelegate = new ZoomAudioRawDataDelegate();
+audioHelper->subscribe(audioDelegate);
+```
+
+**Two audio callbacks**:
+- `onOneWayAudioRawDataReceived`: Individual participant audio (excludes phone participants)
+- `onMixedAudioRawDataReceived`: Combined meeting audio (what you'd hear in the meeting)
+
+---
+
+## Screen Share Raw Data
+
+You can also capture screen share data (separate from video):
+
+```cpp
+// Subscribe to share data instead of video
+videoHelper->subscribe(userId, RAW_DATA_TYPE_SHARE);
+```
+
+The same `IZoomSDKRendererDelegate::onRawDataFrameReceived()` callback is used, but you'll receive share content instead of camera video.
+
+---
+
+## Alpha Channel Mode (Background Removal)
+
+Meeting hosts with a raw streaming token can enable **alpha channel mode**, which provides a mask to remove participant backgrounds. This is useful for rendering meeting participants in custom virtual environments.
+
+### Requirements
+- Must be meeting host with raw streaming token
+- Used with raw data capture
+
+### Check and Enable Alpha Channel
+
+```cpp
+IMeetingVideoController* videoCtrl = meetingService->GetMeetingVideoController();
+
+// Check if alpha channel mode can be enabled
+if (videoCtrl->CanEnableAlphaChannelMode()) {
+    // Enable alpha channel mode
+    SDKError err = videoCtrl->EnableAlphaChannelMode(true);
+    if (err == SDKERR_SUCCESS) {
+        std::cout << "[ALPHA] Alpha channel mode enabled" << std::endl;
+    }
+}
+
+// Check if currently enabled
+bool isEnabled = videoCtrl->IsAlphaChannelModeEnabled();
+std::cout << "[ALPHA] Alpha mode active: " << (isEnabled ? "yes" : "no") << std::endl;
+```
+
+### Listen for Alpha Mode Changes
+
+Implement `IMeetingVideoCtrlEvent` callback:
+
+```cpp
+class VideoCtrlEventListener : public IMeetingVideoCtrlEvent {
+public:
+    void onVideoAlphaChannelStatusChanged(bool isAlphaModeOn) override {
+        std::cout << "[ALPHA] Alpha channel mode: " 
+                  << (isAlphaModeOn ? "ON" : "OFF") << std::endl;
+    }
+    
+    // ... other IMeetingVideoCtrlEvent methods
+};
+```
+
+### Access Alpha Data in Raw Frames
+
+When alpha channel mode is enabled, `YUVRawDataI420` has additional methods:
+
+```cpp
+void onRawDataFrameReceived(YUVRawDataI420* data) override {
+    // Get standard YUV data
+    char* yBuffer = data->GetYBuffer();
+    char* uBuffer = data->GetUBuffer();
+    char* vBuffer = data->GetVBuffer();
+    
+    // Get alpha mask (only available when alpha mode is enabled)
+    char* alphaBuffer = data->GetAlphaBuffer();
+    unsigned int alphaLen = data->GetAlphaBufferLen();
+    
+    if (alphaBuffer != nullptr && alphaLen > 0) {
+        // Alpha mask is available!
+        // Use it to remove background from video frame
+        ProcessWithAlphaMask(data, alphaBuffer, alphaLen);
+    } else {
+        // No alpha data (alpha mode not enabled or not available)
+        ProcessNormalFrame(data);
+    }
+}
+```
+
+### Alpha Mask Format
+
+The alpha buffer contains a grayscale mask where:
+- **White (255)** = Foreground (participant's body)
+- **Black (0)** = Background (to be removed)
+- **Gray values** = Edge blending
+
+### Use Cases
+
+1. **Custom Virtual Backgrounds**: Replace participant backgrounds with custom scenes
+2. **Mixed Reality**: Render participants in 3D virtual environments
+3. **Green Screen Alternative**: Remove backgrounds without physical green screen
+4. **Video Compositing**: Layer participants over other content
+
+---
+
+## Important Performance Note
+
+From official documentation:
+> **Do not perform heavy operations from within the raw data callbacks.** This may cause delayed or lost data.
+
+**Recommended pattern**:
+```cpp
+void onRawDataFrameReceived(YUVRawDataI420* data) {
+    // Fast: Copy to queue and return immediately
+    Frame copy;
+    copy.width = data->GetStreamWidth();
+    copy.height = data->GetStreamHeight();
+    memcpy(copy.buffer, data->GetYBuffer(), data->GetBufferLen());
+    frameQueue.enqueue(copy);  // Let separate thread process
+    
+    // DON'T: Heavy processing here
+    // EncodeH264(data);  // Blocks callback!
+    // SaveToNetwork(data);  // Too slow!
+}
+```
+
+---
+
 ## Troubleshooting
 
 ### No Frames Received
 
 **Checklist**:
-- [ ] Called `StartRawRecording()` BEFORE subscribing
-- [ ] Waited ~500ms after `StartRawRecording()` before subscribing
+- [ ] Called `StartRawRecording()` or `StartRawLiveStream()` BEFORE subscribing
+- [ ] Waited ~500ms after starting before subscribing
 - [ ] User ID is valid (not 0, exists in participant list)
 - [ ] User has their video turned on
 - [ ] Subscribed to correct data type (`RAW_DATA_TYPE_VIDEO`)
 - [ ] Renderer delegate implements `onRawDataFrameReceived()` correctly
+- [ ] You have the required permissions (host/co-host or granted permission)
 
 **Test**: Subscribe to your own video stream first (easier to control)
 

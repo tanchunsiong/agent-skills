@@ -2,6 +2,10 @@
 
 Complete reference for Zoom Meeting SDK on Windows including dependencies, Visual Studio setup, and troubleshooting.
 
+**Raw Documentation (Crawled)**:
+- **Dev Docs**: `C:\Users\dreamtcs\agent-skills\raw-docs\developers.zoom.us\docs\meeting-sdk\windows\` (27 markdown files)
+- **API Reference**: `C:\Users\dreamtcs\agent-skills\raw-docs\marketplacefront.zoom.us\sdk\meeting-sdk\windows\` (573 markdown files)
+
 ## System Requirements
 
 - **OS**: Windows 10 or later, Windows Server 2016+

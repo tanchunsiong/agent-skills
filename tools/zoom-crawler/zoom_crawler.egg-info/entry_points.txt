@@ -1,0 +1,2 @@
+[console_scripts]
+zoom-crawler = zoom_crawler.cli:app

@@ -42,20 +42,32 @@ zoom-meeting-sdk/windows/
 ├── INDEX.md                           # This file - navigation guide
 │
 ├── concepts/                          # Core architectural patterns
-│   └── sdk-architecture-pattern.md   # ⭐ THE MOST IMPORTANT DOC
-│                                      # Universal formula for ANY feature
+│   ├── sdk-architecture-pattern.md   # THE MOST IMPORTANT DOC
+│   │                                  # Universal formula for ANY feature
+│   ├── singleton-hierarchy.md        # Navigation guide for SDK services
+│   │                                  # 4-level deep service tree, when/how
+│   ├── custom-ui-architecture.md     # How Custom UI rendering works
+│   │                                  # Child HWNDs, D3D, layout, events
+│   └── custom-ui-vs-raw-data.md      # SDK-rendered vs self-rendered
+│                                      # Decision guide for Custom UI approach
 │
 ├── examples/                          # Complete working code
 │   ├── authentication-pattern.md     # JWT auth with full code
-│   └── raw-video-capture.md          # Video capture with YUV420 details
+│   ├── raw-video-capture.md          # Video capture with YUV420 details
+│   │                                  # Recording vs Streaming, permissions
+│   ├── custom-ui-video-rendering.md  # Custom UI with video container
+│   │                                  # Active speaker + gallery layout
+│   └── breakout-rooms.md             # Complete breakout room guide
+│                                      # 5 roles, create/manage/join
 │
 ├── troubleshooting/                   # Problem solving guides
-│   ├── windows-message-loop.md       # ⚠️ CRITICAL - Why callbacks fail
-│   ├── build-errors.md               # Header dependency fixes
+│   ├── windows-message-loop.md       # CRITICAL - Why callbacks fail
+│   ├── build-errors.md               # Header dependency fixes + MSBuild
 │   └── common-issues.md              # Quick diagnostic workflow
 │
 └── references/                        # Reference documentation
     ├── interface-methods.md           # Required virtual methods
+    │                                  # Auth(6) + Meeting(9) + CustomUI(13)
     ├── windows-reference.md           # Platform setup
     ├── authorization.md               # JWT generation
     ├── bot-authentication.md          # Bot token types
@@ -83,10 +95,26 @@ zoom-meeting-sdk/windows/
 2. [Authentication Pattern](examples/authentication-pattern.md) - Auth timeout
 3. [Common Issues](troubleshooting/common-issues.md) - Error code tables
 
+### I want to build a Custom UI meeting app
+1. [Custom UI Architecture](concepts/custom-ui-architecture.md) - How SDK rendering works
+2. [SDK-Rendered vs Self-Rendered](concepts/custom-ui-vs-raw-data.md) - Choose your approach
+3. [Custom UI Video Rendering](examples/custom-ui-video-rendering.md) - Complete working code
+4. [Interface Methods](references/interface-methods.md) - 13 Custom UI virtual methods
+5. [Build Errors Guide](troubleshooting/build-errors.md) - MSBuild from git bash
+
 ### I want to capture video/audio
 1. [Raw Video Capture](examples/raw-video-capture.md) - Complete video workflow
+   - Recording vs Streaming approaches
+   - Permission requirements (host, OAuth tokens)
+   - Audio PCM capture
 2. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - Controller pattern
 3. [Common Issues](troubleshooting/common-issues.md) - No frames received
+
+### I want to use breakout rooms
+1. [Breakout Rooms Guide](examples/breakout-rooms.md) - Complete breakout room workflow
+   - 5 roles: Creator, Admin, Data, Assistant, Attendee
+   - Create, configure, manage, join/leave rooms
+2. [Common Issues](troubleshooting/common-issues.md) - Breakout room error codes
 
 ### I want to implement a specific feature
 1. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - **START HERE!**
@@ -96,8 +124,9 @@ zoom-meeting-sdk/windows/
 
 ### I want to understand the SDK architecture
 1. [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - Complete architecture overview
-2. [Interface Methods](references/interface-methods.md) - Event listener pattern
-3. [Authentication Pattern](examples/authentication-pattern.md) - Service pattern
+2. [Singleton Hierarchy](concepts/singleton-hierarchy.md) - Navigate the service tree (4 levels)
+3. [Interface Methods](references/interface-methods.md) - Event listener pattern
+4. [Authentication Pattern](examples/authentication-pattern.md) - Service pattern
 
 ---
 
@@ -144,10 +173,13 @@ SDK headers have dependency bugs that cause build errors. This document provides
 
 ### Concepts (Why and How)
 - [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md) - Universal implementation pattern
+- [Singleton Hierarchy](concepts/singleton-hierarchy.md) - Navigation guide for SDK services (4 levels deep)
 
 ### Examples (Complete Working Code)
 - [Authentication Pattern](examples/authentication-pattern.md) - JWT authentication
-- [Raw Video Capture](examples/raw-video-capture.md) - Video capture with YUV420
+- [Raw Video Capture](examples/raw-video-capture.md) - Video capture with YUV420, recording vs streaming
+- [Custom UI Video Rendering](examples/custom-ui-video-rendering.md) - SDK-rendered video containers
+- [Breakout Rooms](examples/breakout-rooms.md) - Create, manage, join breakout rooms
 
 ### Troubleshooting (Problem Solving)
 - [Windows Message Loop](troubleshooting/windows-message-loop.md) - Callback issues
@@ -246,10 +278,16 @@ These documents were created from actual debugging of a non-functional Zoom SDK 
 → [Raw Video Capture](examples/raw-video-capture.md)
 
 ### "What error code means what?"
-→ [Common Issues](troubleshooting/common-issues.md)
+→ [Common Issues](troubleshooting/common-issues.md) - Comprehensive error code tables (SDKERR, AUTHRET, Login, BO, Phone, OBF)
+
+### "How do I use breakout rooms?"
+→ [Breakout Rooms Guide](examples/breakout-rooms.md)
 
 ### "How does the SDK work?"
 → [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md)
+
+### "How do I navigate to a specific controller/feature?"
+→ [Singleton Hierarchy](concepts/singleton-hierarchy.md)
 
 ---
 

@@ -387,6 +387,172 @@ This guide is for **SDK v6.7.2.26830**.
 
 ---
 
+## Complete SDK Error Code Reference
+
+This section provides comprehensive error code tables from official Zoom documentation.
+
+### Global SDK Error Codes (SDKERR_*)
+
+| Code | Name | Description |
+|------|------|-------------|
+| 0 | `SDKERR_SUCCESS` | Success |
+| 1 | `SDKERR_NO_IMPL` | This feature is currently not available |
+| 2 | `SDKERR_WRONG_USEAGE` | Incorrect usage of the feature |
+| 3 | `SDKERR_INVALID_PARAMETER` | Wrong parameter |
+| 4 | `SDKERR_MODULE_LOAD_FAILED` | Loading module failed |
+| 5 | `SDKERR_MEMORY_FAILED` | No memory allocated |
+| 6 | `SDKERR_SERVICE_FAILED` | Internal service error |
+| 7 | `SDKERR_UNINITIALIZE` | SDK is not initialized before use |
+| 8 | `SDKERR_UNAUTHENTICATION` | SDK is not authorized before use |
+| 9 | `SDKERR_NORECORDINGINPROCESS` | No recording is in progress |
+| 10 | `SDKERR_TRANSCODER_NOFOUND` | Transcoder module is not found |
+| 11 | `SDKERR_VIDEO_NOTREADY` | The video service is not ready |
+| 12 | `SDKERR_NO_PERMISSION` | No permission |
+| 13 | `SDKERR_UNKNOWN` | Unknown error |
+| 14 | `SDKERR_OTHER_SDK_INSTANCE_RUNNING` | Another SDK instance is in progress |
+| 15 | `SDKERR_INTERNAL_ERROR` | SDK internal error |
+| 16 | `SDKERR_NO_AUDIODEVICE_ISFOUND` | No audio device is found |
+| 17 | `SDKERR_NO_VIDEODEVICE_ISFOUND` | No video device is found |
+| 18 | `SDKERR_TOO_FREQUENT_CALL` | API calls too frequent |
+| 19 | `SDKERR_FAIL_ASSIGN_USER_PRIVILEGE` | User cannot be assigned with the new privilege |
+| 20 | `SDKERR_MEETING_DONT_SUPPORT_FEATURE` | The current meeting does not support the request feature |
+| 21 | `SDKERR_MEETING_NOT_SHARE_SENDER` | The current user is not the presenter |
+| 22 | `SDKERR_MEETING_YOU_HAVE_NO_SHARE` | There is no sharing |
+| 23 | `SDKERR_MEETING_VIEWTYPE_PARAMETER_IS_WRONG` | Incorrect `ViewType` parameters |
+| 24 | `SDKERR_MEETING_ANNOTATION_IS_OFF` | Annotation is disabled |
+| 25 | `SDKERR_SETTING_OS_DONT_SUPPORT` | Current OS doesn't support the setting |
+| 26 | `SDKERR_EMAIL_LOGIN_IS_DISABLED` | Email login is disabled |
+| 27 | `SDKERR_HARDWARE_NOT_MEET_FOR_VB` | Computer doesn't meet minimum requirements for virtual background |
+| 28 | `SDKERR_NEED_USER_CONFIRM_RECORD_DISCLAIMER` | Need to process recording disclaimer |
+| 29 | `SDKERR_NO_SHARE_DATA` | There is no raw data from sharing |
+| 30 | `SDKERR_SHARE_CANNOT_SUBSCRIBE_MYSELF` | Cannot subscribe to my own stream |
+| 31 | `SDKERR_NOT_IN_MEETING` | Not in the meeting |
+
+### Authentication Error Codes (AUTHRET_*)
+
+| Code | Name | Description | Solution |
+|------|------|-------------|----------|
+| 0 | `AUTHRET_SUCCESS` | Authentication success | N/A |
+| 1 | `AUTHRET_KEYORSECRETEMPTY` | SDK key or secret is empty | Verify JWT token string is not empty |
+| 2 | `AUTHRET_KEYORSECRETWRONG` | SDK key or secret is incorrect | Check app credentials match |
+| 3 | `AUTHRET_ACCOUNTNOTSUPPORT` | Account does not support SDK | Verify account has SDK access |
+| 4 | `AUTHRET_ACCOUNTNOTENABLESDK` | Account does not have SDK enabled | Enable SDK for account |
+| 5 | `AUTHRET_UNKNOWN` | Unknown error | Check logs |
+| 6 | `AUTHRET_SERVICE_BUSY` | Service is busy | Retry later |
+| 7 | `AUTHRET_NONE` | Initial status | N/A |
+| 8 | `AUTHRET_OVERTIME` | Timeout | Check network, retry |
+| 9 | `AUTHRET_NETWORKISSUE` | Network issues | Check firewall/proxy |
+| 10 | `AUTHRET_CLIENT_INCOMPATIBLE` | Account does not support this SDK version | Update SDK |
+| 11 | `AUTHRET_JWTTOKENWRONG` | JWT token is wrong | Regenerate JWT with correct credentials |
+
+### Login Error Codes (LoginFail_*)
+
+| Code | Name | Description |
+|------|------|-------------|
+| 0 | `LoginFail_None` | Initial status |
+| 1 | `LoginFail_EmailLoginDisable` | Email login is disabled |
+| 2 | `LoginFail_UserNotExist` | User does not exist |
+| 3 | `LoginFail_WrongPassword` | Incorrect password |
+| 4 | `LoginFail_AccountLocked` | Account is locked |
+| 5 | `LoginFail_SDKNeedUpdate` | SDK version is unsupported |
+| 6 | `LoginFail_TooManyFailedAttempts` | Too many failed attempts |
+| 7 | `LoginFail_SMSCodeError` | SMS verification code error |
+| 8 | `LoginFail_SMSCodeExpired` | SMS verification code expired |
+| 9 | `LoginFail_PhoneNumberFormatInValid` | Phone number format invalid |
+| 10 | `LoginFail_LoginTokenInvalid` | Login token is invalid |
+| 11 | `LoginFail_UserDisagreeLoginDisclaimer` | User disagreed login disclaimer |
+| 12 | `LoginFail_Mfa_Required` | MFA is required |
+| 13 | `LoginFail_Need_Bitrthday_ask` | Need to provide DOB information |
+| 100 | `LoginFail_OtherIssue` | Other issue |
+
+### Breakout Room Error Codes (BOControllerError_*)
+
+| Code | Name | Description |
+|------|------|-------------|
+| 0 | `BOControllerError_NULL_POINTER` | BO controller is null, SDK not initialized |
+| 1 | `BOControllerError_WRONG_CURRENT_STATUS` | Incorrect current status |
+| 2 | `BOControllerError_TOKEN_NOT_READY` | Token is not ready |
+| 3 | `BOControllerError_NO_PRIVILEGE` | No privilege |
+| 4 | `BOControllerError_BO_LIST_IS_UPLOADING` | BO list is uploading |
+| 5 | `BOControllerError_UPLOAD_FAIL` | BO list upload failed |
+| 6 | `BOControllerError_NO_ONE_HAS_BEEN_ASSIGNED` | No user assigned to BO |
+| 100 | `BOControllerError_UNKNOWN` | Unknown error |
+
+### Phone Error Codes (PhoneFailedReason_*)
+
+| Code | Name | Description |
+|------|------|-------------|
+| 0 | `PhoneFailedReason_None` | Initial status |
+| 1 | `PhoneFailedReason_Busy` | Telephone service is busy |
+| 2 | `PhoneFailedReason_Not_Available` | Service not available |
+| 3 | `PhoneFailedReason_User_Hangup` | User hung up |
+| 4 | `PhoneFailedReason_Other_Fail` | Other failure |
+| 5 | `PhoneFailedReason_No_Answer` | No answer |
+| 6 | `PhoneFailedReason_Block_No_Host` | Call-out blocked before host joins |
+| 7 | `PhoneFailedReason_Block_High_Rate` | Blocked due to high cost |
+| 8 | `PhoneFailedReason_Block_Too_Frequent` | Blocked due to high frequency |
+
+### OBF/Anonymous Join Error Codes (2026 Enforcement)
+
+**Important Dates**:
+- **February 7, 2026**: OBF tokens must be valid (well-formed, not expired)
+- **March 2, 2026**: Anonymous joins no longer allowed - must provide valid OBF/ZAK token
+
+| Code | Name | Description |
+|------|------|-------------|
+| 503 | `MEETING_FAIL_USER_LEVEL_TOKEN_NOT_HAVE_HOST_ZAK_OBF` | To access raw data with privilege token, must also provide OBF token authorized by host |
+| 504 | `MEETING_FAIL_APP_CAN_NOT_ANONYMOUS_JOIN_MEETING` | Anonymous joins not allowed. Provide ZAK or OBF token |
+| 6603 | `RESULT_UNKNOWN_ERROR` | Account is blocking your Meeting SDK application |
+
+### General Network/Server Error Codes
+
+| Code | Description | Solution |
+|------|-------------|----------|
+| 5 | Failed to create data connection | Check network connection |
+| 15 | Failed to send create meeting command | Check HTTP request configuration |
+| 1002 | Wrong user password | Check password |
+| 1019 | Web login locked after 6 failed attempts | Contact support to reactivate |
+| 3023 | SDK authentication failure: invalid SDK key/secret | Check credentials |
+| 3024 | Account does not support using SDK | Verify license type |
+| 5003 | No response from server in 30 seconds | Retry later |
+| 4502 | Invalid recurring meeting - no meeting occurrence | Verify meeting recurrence |
+| 5004 | DNS resolve failure | Check network adaptor |
+| 102006 | Conference does not exist | Verify meeting number |
+| 102011 | Client version lower than minimum required | Download latest SDK |
+| 102012 | Client version higher than maximum allowed | Download latest SDK |
+| 102014 | Conference token expired | Get new token |
+| 103008 | Server is too busy | Retry later |
+| 103024 | Account does not support requested feature | Verify account features |
+| 103025 | Account does not support call out | Verify call out feature |
+| 103037 | Too many pending requests | Reduce request frequency |
+| 103039 | Account is in blacklist | Contact support |
+| 102004/103001 | Conference already exists | Use different meeting number |
+| 102010/103006 | Attendee limit reached | Contact sales for more attendees |
+| 102015/103011 | Conference is locked | Contact host to unlock |
+| 102016/103014 | Account restricted | Contact support |
+
+---
+
+## File Signing Error (105035)
+
+**Symptom**: Error Code `105035` when running the SDK
+
+**Root Cause**: Re-signing or adding new signatures to protected SDK files
+
+**Protected Files (DO NOT re-sign)**:
+- `CptControl.exe`
+- `CptHost.exe`
+- `CptInstall.exe`
+- `CptService.exe`
+- `CptShare.dll`
+- `zzhost.dll`
+- `zzplugin.dll`
+- `aomhost64.exe`
+
+**Solution**: Skip signing these files during your build/deployment process. If error persists without re-signing, visit the [Zoom Developer Forum](https://devforum.zoom.us/).
+
+---
+
 ## Still Having Issues?
 
 1. **Check SDK logs**: `%APPDATA%\Zoom\logs\`

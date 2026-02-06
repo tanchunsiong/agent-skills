@@ -1,0 +1,146 @@
+Metadata-Version: 2.4
+Name: zoom-crawler
+Version: 0.1.0
+Summary: Crawl Zoom developer docs and API references to markdown
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: playwright>=1.40.0
+Requires-Dist: beautifulsoup4>=4.12.0
+Requires-Dist: httpx>=0.25.0
+Requires-Dist: typer>=0.9.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: markdownify>=0.11.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+
+# Zoom Docs Crawler
+
+Crawl Zoom developer docs and API references to markdown files for building agent skills.
+
+## Installation
+
+```bash
+cd tools/zoom-crawler
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# OR
+.venv\Scripts\activate  # Windows
+
+# Install package
+pip install -e .
+
+# Install Playwright browsers
+playwright install chromium
+```
+
+## Usage
+
+### Crawl Developer Docs (Next.js sites)
+
+```bash
+# Crawl Windows Meeting SDK docs
+zoom-crawler docs https://developers.zoom.us/docs/meeting-sdk/windows/
+
+# With custom output and depth
+zoom-crawler docs https://developers.zoom.us/docs/meeting-sdk/windows/ \
+  --output ./my-docs \
+  --depth 5
+
+# With URL filters
+zoom-crawler docs https://developers.zoom.us/docs/meeting-sdk/windows/ \
+  --include "get-started,raw-data" \
+  --exclude "changelog"
+```
+
+### Crawl API Reference (Doxygen sites)
+
+```bash
+# Crawl Windows Meeting SDK API reference
+zoom-crawler reference https://marketplacefront.zoom.us/sdk/meeting/windows/
+
+# With custom settings
+zoom-crawler reference https://marketplacefront.zoom.us/sdk/meeting/windows/ \
+  --depth 3 \
+  --delay 2.0
+```
+
+## Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--output, -o` | Output directory | `agent-skills/raw-docs/` |
+| `--depth, -d` | Maximum crawl depth | 4 (docs), 3 (reference) |
+| `--delay` | Delay between requests (seconds) | 1.5 (docs), 1.0 (reference) |
+| `--include, -i` | URL patterns to include (comma-separated) | None |
+| `--exclude, -e` | URL patterns to exclude (comma-separated) | None |
+
+## Output Structure
+
+Output mirrors the URL path structure:
+
+```
+raw-docs/
+├── developers.zoom.us/
+│   └── docs/
+│       └── meeting-sdk/
+│           └── windows/
+│               ├── index.md
+│               ├── get-started.md
+│               └── ...
+└── marketplacefront.zoom.us/
+    └── sdk/
+        └── meeting/
+            └── windows/
+                ├── index.md
+                ├── class_i_auth_service.md
+                └── ...
+```
+
+## How It Works
+
+### Docs Crawler
+- Uses **Playwright** for full JavaScript rendering
+- Handles React/Next.js dynamic content
+- Extracts main content area, removes nav/header/footer
+- Converts HTML to clean Markdown
+
+### Reference Crawler
+- Uses **httpx** for static HTTP requests (faster)
+- Designed for Doxygen-generated API docs
+- Extracts class/interface documentation
+- Preserves code blocks as C++
+
+## Crawl Scope
+
+The crawler **only** follows links that match the provided URL prefix:
+
+```
+Input URL: https://developers.zoom.us/docs/meeting-sdk/windows/
+
+Crawled:
+  ✅ .../meeting-sdk/windows/
+  ✅ .../meeting-sdk/windows/get-started/
+  ✅ .../meeting-sdk/windows/raw-data/
+
+NOT crawled:
+  ❌ .../meeting-sdk/linux/      (different platform)
+  ❌ .../meeting-sdk/auth/       (parent level)
+  ❌ .../video-sdk/...           (different product)
+```
+
+## Development
+
+```bash
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Format code
+black zoom_crawler/
+
+# Lint
+ruff check zoom_crawler/
+```

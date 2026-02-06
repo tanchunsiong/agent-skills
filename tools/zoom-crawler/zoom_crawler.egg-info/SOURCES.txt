@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+zoom_crawler/__init__.py
+zoom_crawler/cli.py
+zoom_crawler/crawler.py
+zoom_crawler.egg-info/PKG-INFO
+zoom_crawler.egg-info/SOURCES.txt
+zoom_crawler.egg-info/dependency_links.txt
+zoom_crawler.egg-info/entry_points.txt
+zoom_crawler.egg-info/requires.txt
+zoom_crawler.egg-info/top_level.txt

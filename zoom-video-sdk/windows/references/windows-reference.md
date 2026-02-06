@@ -2,6 +2,354 @@
 
 **Source**: https://marketplacefront.zoom.us/sdk/custom/windows/
 
+**Raw Documentation (Crawled)**:
+- **Dev Docs**: `C:\Users\dreamtcs\agent-skills\raw-docs\developers.zoom.us\docs\video-sdk\windows\` (20 markdown files)
+- **API Reference**: `C:\Users\dreamtcs\agent-skills\raw-docs\marketplacefront.zoom.us\sdk\video-sdk\windows\` (254 markdown files)
+
+---
+
+## API Hierarchy (5 Levels Deep)
+
+Understanding the SDK requires navigating from the singleton entry point through 5 levels of objects. Start from `IZoomVideoSDK` and follow return types.
+
+### Level 1: Entry Point (Singleton)
+
+```
+CreateZoomVideoSDKObj() → IZoomVideoSDK*
+```
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `initialize(params)` | `ZoomVideoSDKErrors` | Initialize SDK (call once) |
+| `joinSession(context)` | `IZoomVideoSDKSession*` | Join and get session object |
+| `leaveSession(end)` | `ZoomVideoSDKErrors` | Leave or end session |
+| `addListener(delegate)` | `void` | Register event callbacks |
+| `getSessionInfo()` | `IZoomVideoSDKSession*` | Get current session |
+| `getVideoHelper()` | `IZoomVideoSDKVideoHelper*` | Camera/video control |
+| `getAudioHelper()` | `IZoomVideoSDKAudioHelper*` | Mic/speaker control |
+| `getShareHelper()` | `IZoomVideoSDKShareHelper*` | Screen sharing |
+| `getChatHelper()` | `IZoomVideoSDKChatHelper*` | Chat messaging |
+| `getUserHelper()` | `IZoomVideoSDKUserHelper*` | User management |
+| `getRecordingHelper()` | `IZoomVideoSDKRecordingHelper*` | Cloud recording |
+| `getCmdChannel()` | `IZoomVideoSDKCmdChannel*` | Custom signaling |
+
+### Level 2: Core Helpers & Session
+
+#### IZoomVideoSDKSession
+```cpp
+IZoomVideoSDKSession* session = sdk->getSessionInfo();
+```
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `getMyself()` | `IZoomVideoSDKUser*` | Current user object |
+| `getRemoteUsers()` | `IVideoSDKVector<IZoomVideoSDKUser*>*` | All remote users |
+| `getSessionName()` | `const zchar_t*` | Session name |
+| `getSessionID()` | `const zchar_t*` | Unique session ID |
+| `getSessionPassword()` | `const zchar_t*` | Session password |
+| `getSessionHost()` | `IZoomVideoSDKUser*` | Host user |
+
+#### IZoomVideoSDKVideoHelper
+Controls YOUR camera. Does NOT control remote users' video.
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `startVideo()` | `ZoomVideoSDKErrors` | Turn on your camera |
+| `stopVideo()` | `ZoomVideoSDKErrors` | Turn off your camera |
+| `rotateMyVideo(rotation)` | `bool` | Rotate camera output |
+| `switchCamera(deviceId)` | `bool` | Change camera device |
+| `getCameraList()` | `IVideoSDKVector<IZoomVideoSDKCameraDevice*>*` | Available cameras |
+| `getNumberOfCameras()` | `uint32_t` | Camera count |
+| `startVideoCanvasPreview(hwnd, aspect, resolution)` | `ZoomVideoSDKErrors` | Preview your video |
+| `stopVideoCanvasPreview(hwnd)` | `ZoomVideoSDKErrors` | Stop preview |
+
+#### IZoomVideoSDKAudioHelper
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `startAudio()` | `ZoomVideoSDKErrors` | Connect to audio |
+| `stopAudio()` | `ZoomVideoSDKErrors` | Disconnect audio |
+| `muteAudio(user)` | `ZoomVideoSDKErrors` | Mute a user |
+| `unmuteAudio(user)` | `ZoomVideoSDKErrors` | Unmute a user |
+| `getMicList()` | `IVideoSDKVector<IZoomVideoSDKMicDevice*>*` | Available mics |
+| `getSpeakerList()` | `IVideoSDKVector<IZoomVideoSDKSpeakerDevice*>*` | Available speakers |
+| `selectMic(deviceId, name)` | `ZoomVideoSDKErrors` | Select mic |
+| `selectSpeaker(deviceId, name)` | `ZoomVideoSDKErrors` | Select speaker |
+
+#### IZoomVideoSDKShareHelper
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `startShareScreen(monitorId)` | `ZoomVideoSDKErrors` | Share a monitor |
+| `startShareWindow(hwnd)` | `ZoomVideoSDKErrors` | Share a window |
+| `stopShare()` | `ZoomVideoSDKErrors` | Stop sharing |
+| `isShareLocked()` | `bool` | Check if locked |
+| `lockShare(lock)` | `ZoomVideoSDKErrors` | Lock sharing |
+| `isOtherSharing()` | `bool` | Someone else sharing? |
+
+### Level 3: User & Rendering Objects
+
+#### IZoomVideoSDKUser
+Represents a participant. Get from `session->getMyself()` or callbacks.
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `getUserID()` | `const zchar_t*` | Unique user ID |
+| `getUserName()` | `const zchar_t*` | Display name |
+| `isHost()` | `bool` | Is session host? |
+| `isManager()` | `bool` | Is manager? |
+| `GetVideoCanvas()` | `IZoomVideoSDKCanvas*` | **SDK-rendered video** |
+| `GetVideoPipe()` | `IZoomVideoSDKRawDataPipe*` | **Raw YUV frames** |
+| `GetShareCanvas()` | `IZoomVideoSDKCanvas*` | SDK-rendered share |
+| `GetSharePipe()` | `IZoomVideoSDKRawDataPipe*` | Raw share frames |
+| `getVideoStatus()` | `ZoomVideoSDKVideoStatus` | Video on/off state |
+| `getAudioStatus()` | `ZoomVideoSDKAudioStatus` | Audio mute state |
+
+#### IZoomVideoSDKCanvas (SDK Rendering)
+Let the SDK render video directly to your HWND. **Recommended for most apps.**
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `subscribeWithView(hwnd, aspect, resolution)` | `ZoomVideoSDKErrors` | Start rendering to HWND |
+| `unSubscribeWithView(hwnd)` | `ZoomVideoSDKErrors` | Stop rendering |
+| `setAspectMode(aspect)` | `ZoomVideoSDKErrors` | Change aspect ratio |
+| `setResolution(resolution)` | `ZoomVideoSDKErrors` | Change resolution |
+
+#### IZoomVideoSDKRawDataPipe (Raw YUV Access)
+Get raw YUV420 frames for custom processing.
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `subscribe(resolution, delegate)` | `ZoomVideoSDKErrors` | Start receiving frames |
+| `unSubscribe(delegate)` | `ZoomVideoSDKErrors` | Stop receiving |
+| `getVideoStatus()` | `ZoomVideoSDKVideoStatus` | Check if video is on |
+
+#### IZoomVideoSDKShareAction
+Received in `onUserShareStatusChanged` callback. Controls remote share subscription.
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `subscribe()` | `ZoomVideoSDKErrors` | Subscribe to share |
+| `unSubscribe()` | `ZoomVideoSDKErrors` | Unsubscribe |
+| `subscribeWithView(hwnd, aspect)` | `ZoomVideoSDKErrors` | Render share to HWND |
+| `unSubscribeWithView(hwnd)` | `ZoomVideoSDKErrors` | Stop rendering |
+| `getShareCanvas()` | `IZoomVideoSDKCanvas*` | Get share canvas |
+| `getSharePipe()` | `IZoomVideoSDKRawDataPipe*` | Get raw share pipe |
+| `getShareType()` | `ZoomVideoSDKShareType` | Screen/window/etc |
+
+### Level 4: Devices, Chat & Callbacks
+
+#### IZoomVideoSDKCameraDevice
+| Method | Returns |
+|--------|---------|
+| `getDeviceId()` | `const zchar_t*` |
+| `getDeviceName()` | `const zchar_t*` |
+| `isSelectedDevice()` | `bool` |
+
+#### IZoomVideoSDKMicDevice / IZoomVideoSDKSpeakerDevice
+| Method | Returns |
+|--------|---------|
+| `getDeviceId()` | `const zchar_t*` |
+| `getDeviceName()` | `const zchar_t*` |
+| `isSelectedDevice()` | `bool` |
+
+#### IZoomVideoSDKChatHelper
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `sendChatToAll(message)` | `ZoomVideoSDKErrors` | Broadcast message |
+| `sendChatToUser(user, message)` | `ZoomVideoSDKErrors` | Private message |
+| `canChatMessageBeDeleted(msgId)` | `bool` | Check delete permission |
+| `deleteChatMessage(msgId)` | `ZoomVideoSDKErrors` | Delete a message |
+
+#### IZoomVideoSDKChatMessage
+Received in `onChatNewMessageNotify` callback.
+
+| Method | Returns |
+|--------|---------|
+| `getMessageID()` | `const zchar_t*` |
+| `getSendUser()` | `IZoomVideoSDKUser*` |
+| `getReceiverUser()` | `IZoomVideoSDKUser*` |
+| `getContent()` | `const zchar_t*` |
+| `getTimeStamp()` | `time_t` |
+| `isChatToAll()` | `bool` |
+| `isSelfSend()` | `bool` |
+
+#### IZoomVideoSDKRawDataPipeDelegate
+Implement this to receive raw YUV frames.
+
+```cpp
+class MyVideoRenderer : public IZoomVideoSDKRawDataPipeDelegate {
+    void onRawDataFrameReceived(YUVRawDataI420* data) override {
+        // Process frame
+    }
+    void onRawDataStatusChanged(RawDataStatus status) override {
+        // Handle on/off
+    }
+};
+```
+
+### Level 5: Raw Data & Utilities
+
+#### YUVRawDataI420
+Video frame in YUV420 format (I420).
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `GetYBuffer()` | `char*` | Y plane (luminance) |
+| `GetUBuffer()` | `char*` | U plane (chrominance) |
+| `GetVBuffer()` | `char*` | V plane (chrominance) |
+| `GetStreamWidth()` | `unsigned int` | Frame width |
+| `GetStreamHeight()` | `unsigned int` | Frame height |
+| `GetRotation()` | `unsigned int` | 0, 90, 180, 270 |
+| `GetTimeStamp()` | `unsigned long long` | Frame timestamp |
+| `CanAddRef()` / `AddRef()` / `Release()` | - | Reference counting |
+
+#### AudioRawData
+PCM audio samples (16-bit signed).
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `GetBuffer()` | `char*` | PCM sample buffer |
+| `GetBufferLen()` | `unsigned int` | Buffer size (bytes) |
+| `GetSampleRate()` | `unsigned int` | Sample rate (Hz) |
+| `GetChannelNum()` | `unsigned int` | 1=mono, 2=stereo |
+
+#### IZoomVideoSDKUserHelper
+Admin actions on users.
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `removeUser(user)` | `bool` | Kick user from session |
+| `makeHost(user)` | `bool` | Transfer host role |
+| `makeManager(user)` | `bool` | Promote to manager |
+| `revokeManager(user)` | `bool` | Demote manager |
+| `changeName(user, name)` | `bool` | Rename user |
+
+#### IZoomVideoSDKCmdChannel
+Custom signaling (max 60 messages/second).
+
+| Method | Returns | Purpose |
+|--------|---------|---------|
+| `sendCommand(user, command)` | `ZoomVideoSDKErrors` | Send to one user |
+| `sendCommandToAll(command)` | `ZoomVideoSDKErrors` | Broadcast to all |
+
+#### IVirtualBackgroundItem
+| Method | Returns |
+|--------|---------|
+| `getImageFilePath()` | `const zchar_t*` |
+| `getImageName()` | `const zchar_t*` |
+| `getType()` | `ZoomVideoSDKVirtualBackgroundDataType` |
+| `isSelected()` | `bool` |
+
+---
+
+## Critical Timing Rules
+
+### ⚠️ CRITICAL: Subscribe in onUserVideoStatusChanged, NOT onUserJoin
+
+**WRONG** (causes Error 2 - Internal_Error):
+```cpp
+void onUserJoin(IZoomVideoSDKUserHelper* helper, IVideoSDKVector<IZoomVideoSDKUser*>* userList) {
+    for (int i = 0; i < userList->GetCount(); i++) {
+        IZoomVideoSDKUser* user = userList->GetItem(i);
+        // ERROR: Video may not be ready yet!
+        user->GetVideoCanvas()->subscribeWithView(hwnd, aspect, resolution);
+    }
+}
+```
+
+**CORRECT**:
+```cpp
+void onUserVideoStatusChanged(IZoomVideoSDKVideoHelper* helper, 
+                               IVideoSDKVector<IZoomVideoSDKUser*>* userList) {
+    IZoomVideoSDKUser* myself = sdk->getSessionInfo()->getMyself();
+    
+    for (int i = 0; i < userList->GetCount(); i++) {
+        IZoomVideoSDKUser* user = userList->GetItem(i);
+        if (user == myself) continue;  // Skip self
+        
+        // Check if video is actually on
+        IZoomVideoSDKRawDataPipe* pipe = user->GetVideoPipe();
+        if (pipe) {
+            ZoomVideoSDKVideoStatus status = pipe->getVideoStatus();
+            if (status.isOn) {
+                // NOW it's safe to subscribe
+                IZoomVideoSDKCanvas* canvas = user->GetVideoCanvas();
+                canvas->subscribeWithView(hwnd, aspect, resolution);
+            }
+        }
+    }
+}
+```
+
+### Video Status Structure
+
+```cpp
+struct ZoomVideoSDKVideoStatus {
+    bool isOn;      // true = video is transmitting
+    bool hasSource; // true = camera is available
+};
+```
+
+- `isOn == true` → Safe to subscribe
+- `isOn == false` → Unsubscribe or skip
+- `hasSource == false` → User has no camera
+
+### Subscribe Fail Reasons (onVideoCanvasSubscribeFail)
+
+```cpp
+enum ZoomVideoSDKSubscribeFailReason {
+    ZoomVideoSDKSubscribeFailReason_None = 0,
+    ZoomVideoSDKSubscribeFailReason_HasSubscribe1080POr720P = 1,
+    ZoomVideoSDKSubscribeFailReason_HasSubscribeTwo720P = 2,
+    ZoomVideoSDKSubscribeFailReason_HasSubscribeExceededLimit = 3,
+    ZoomVideoSDKSubscribeFailReason_HasSubscribeTwoShare = 4,
+    ZoomVideoSDKSubscribeFailReason_HasSubscribeVideo1080POr720PAndOneShare = 5,
+    ZoomVideoSDKSubscribeFailReason_TooFrequentCall = 6
+};
+```
+
+**Handling TooFrequentCall**: Add `Sleep(200)` between subscribe calls.
+
+### SDK Error Codes Quick Reference
+
+| Code | Name | Common Cause |
+|------|------|--------------|
+| 0 | Success | - |
+| 1 | Wrong_Usage | Calling method in wrong state |
+| 2 | Internal_Error | Video not ready, subscribe too early |
+| 7 | Invalid_Parameter | NULL pointer, bad HWND |
+| 8 | Call_Too_Frequently | Need Sleep() between calls |
+
+---
+
+## Two Rendering Approaches
+
+| Approach | Interface | When to Use |
+|----------|-----------|-------------|
+| **Canvas API** | `IZoomVideoSDKCanvas::subscribeWithView(HWND)` | Standard apps, best quality |
+| **Raw Data Pipe** | `IZoomVideoSDKRawDataPipe::subscribe(delegate)` | Custom processing, effects, recording |
+
+### Canvas API (Recommended)
+```cpp
+// SDK renders directly to your window - no YUV conversion needed
+IZoomVideoSDKCanvas* canvas = user->GetVideoCanvas();
+canvas->subscribeWithView(hwnd, ZoomVideoSDKVideoAspect_PanAndScan, ZoomVideoSDKResolution_Auto);
+```
+
+### Raw Data Pipe (Advanced)
+```cpp
+// You receive YUV420 frames and must render them yourself
+class MyRenderer : public IZoomVideoSDKRawDataPipeDelegate {
+    void onRawDataFrameReceived(YUVRawDataI420* data) override {
+        // Convert YUV to RGB, then render with GDI/DirectX/OpenGL
+    }
+};
+
+IZoomVideoSDKRawDataPipe* pipe = user->GetVideoPipe();
+pipe->subscribe(ZoomVideoSDKResolution_720P, myRenderer);
+```
+
+---
+
 ## Complete Class List
 
 ### Core SDK

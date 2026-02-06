@@ -375,8 +375,35 @@ grep "= 0" SDK/x64/h/meeting_service_interface.h
 
 ---
 
+---
+
+## MSBuild Command Pattern
+
+When building from git bash on Windows, use this invocation pattern:
+
+```bash
+# Git bash requires unix-style path for the exe and //p: (double slash) for switches
+"/c/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/MSBuild.exe" \
+  "C:\tempsdk\zoom-windows-sdk-sample\ZoomSDKSample.vcxproj" \
+  //p:Configuration=Release //p:Platform=x64
+```
+
+**Key gotchas:**
+- Use forward slashes for the MSBuild exe path (`/c/Program Files/...`)
+- Use `//p:` not `/p:` — git bash interprets single `/p` as a path
+- Use `//t:Rebuild` for clean rebuilds
+- The `.vcxproj` path can use either forward or backslashes
+
+**From cmd.exe / PowerShell** (normal Windows paths):
+```cmd
+"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe" ^
+  ZoomSDKSample.vcxproj /p:Configuration=Release /p:Platform=x64
+```
+
+---
+
 ## See Also
 
 - [Windows Message Loop](windows-message-loop.md) - Runtime callback issues
-- [Virtual Method Implementation](interface-methods.md) - Complete method listings
+- [Virtual Method Implementation](../references/interface-methods.md) - Complete method listings
 - [Authentication Pattern](../examples/authentication-pattern.md) - Getting started

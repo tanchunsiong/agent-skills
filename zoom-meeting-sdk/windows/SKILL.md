@@ -2,7 +2,7 @@
 
 Embed Zoom meeting capabilities into Windows desktop applications for native C++ integrations and headless bots.
 
-## 🚀 New to Zoom SDK? Start Here!
+## New to Zoom SDK? Start Here!
 
 **The fastest way to master the SDK:**
 
@@ -10,10 +10,17 @@ Embed Zoom meeting capabilities into Windows desktop applications for native C++
 2. **[Authentication Pattern](examples/authentication-pattern.md)** - Get a working bot joining meetings
 3. **[Windows Message Loop](troubleshooting/windows-message-loop.md)** - Fix the #1 reason callbacks don't fire
 
+**Building a Custom UI?**
+- [Custom UI Architecture](concepts/custom-ui-architecture.md) - How SDK rendering actually works (child HWNDs, D3D, etc.)
+- [Custom UI Video Rendering Example](examples/custom-ui-video-rendering.md) - Complete working code
+- [SDK-Rendered vs Self-Rendered](concepts/custom-ui-vs-raw-data.md) - Choose the right approach
+- [Custom UI Interface Methods](references/interface-methods.md) - All 13 required virtual methods
+
 **Having issues?**
 - Build errors → [Build Errors Guide](troubleshooting/build-errors.md)
 - Callbacks not firing → [Windows Message Loop](troubleshooting/windows-message-loop.md)
 - Quick diagnostics → [Common Issues](troubleshooting/common-issues.md)
+- MSBuild from git bash → [Build Errors Guide](troubleshooting/build-errors.md#msbuild-command-pattern)
 - Complete navigation → [INDEX.md](INDEX.md)
 
 ## Prerequisites
@@ -25,6 +32,49 @@ Embed Zoom meeting capabilities into Windows desktop applications for native C++
 - vcpkg for dependency management
 
 > **Need help with authentication?** See the **[zoom-oauth](/zoom-oauth/SKILL.md)** skill for JWT token generation.
+
+## Project Preferences & Learnings
+
+> **IMPORTANT**: These are hard-won preferences from real project experience. Follow these when creating new projects.
+
+### Do NOT use CMake — Use native Visual Studio `.vcxproj`
+
+**Always create a native Visual Studio `.sln` + `.vcxproj` project**, not a CMake project. Reasons:
+- More standard and familiar for Windows C++ developers
+- Developers can double-click the `.sln` to open in Visual Studio immediately
+- Project settings (include dirs, lib dirs, preprocessor defines) are easier to see and edit in the VS Property Pages UI
+- No extra CMake tooling or configuration step required
+- Friendlier and easier for developers to understand and maintain
+
+### `config.json` must be visible in Solution Explorer
+
+The `config.json` file (containing `sdk_jwt`, `meeting_number`, `passcode`) must be:
+1. **Included in the `.vcxproj`** as a `<None>` item with `<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>`
+2. **Placed in a "Config" filter** in the `.vcxproj.filters` file so it appears under a "Config" folder in Solution Explorer
+3. **Easily editable** by developers directly from Solution Explorer — they should never have to hunt for it in File Explorer
+
+Example `.vcxproj` entry:
+```xml
+<ItemGroup>
+  <None Include="config.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+```
+
+Example `.vcxproj.filters` entry:
+```xml
+<ItemGroup>
+  <Filter Include="Config">
+    <UniqueIdentifier>{GUID-HERE}</UniqueIdentifier>
+  </Filter>
+</ItemGroup>
+<ItemGroup>
+  <None Include="config.json">
+    <Filter>Config</Filter>
+  </None>
+</ItemGroup>
+```
 
 ## Overview
 
@@ -755,6 +805,10 @@ See: [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md)
 - **API Reference**: https://marketplacefront.zoom.us/sdk/meeting/windows/annotated.html
 - **Developer forum**: https://devforum.zoom.us/
 - **SDK download**: https://marketplace.zoom.us/
+
+**Raw Documentation (Crawled)**:
+- **Dev Docs**: `C:\Users\dreamtcs\agent-skills\raw-docs\developers.zoom.us\docs\meeting-sdk\windows\` (27 markdown files - conceptual guides)
+- **API Reference**: `C:\Users\dreamtcs\agent-skills\raw-docs\marketplacefront.zoom.us\sdk\meeting-sdk\windows\` (573 markdown files - class/method docs)
 
 ---
 

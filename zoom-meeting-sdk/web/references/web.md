@@ -2,6 +2,11 @@
 
 Embed Zoom meetings in web applications.
 
+**Raw Documentation (Crawled)**:
+- **Dev Docs**: `C:\Users\dreamtcs\agent-skills\raw-docs\developers.zoom.us\docs\meeting-sdk\web\` (17 markdown files - conceptual guides)
+- **API Reference (Client View)**: `C:\Users\dreamtcs\agent-skills\raw-docs\marketplacefront.zoom.us\sdk\meeting-sdk\web\client-view\` (120 markdown files)
+- **API Reference (Component View)**: `C:\Users\dreamtcs\agent-skills\raw-docs\marketplacefront.zoom.us\sdk\meeting-sdk\web\component-view\` (144 markdown files)
+
 ## Overview
 
 The Zoom Meeting SDK for Web embeds the full Zoom meeting experience into your web application with two view options: Component View and Client View.

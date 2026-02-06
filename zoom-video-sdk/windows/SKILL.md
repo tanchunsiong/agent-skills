@@ -11,13 +11,34 @@ Expert guidance for developing with the Zoom Video SDK on Windows. This SDK enab
 **API Reference**: https://marketplacefront.zoom.us/sdk/custom/windows/
 **Sample Repository**: https://github.com/zoom/videosdk-windows-rawdata-sample
 
+**Raw Documentation (Crawled)**:
+- **Dev Docs**: `C:\Users\dreamtcs\agent-skills\raw-docs\developers.zoom.us\docs\video-sdk\windows\` (20 markdown files - conceptual guides)
+- **API Reference**: `C:\Users\dreamtcs\agent-skills\raw-docs\marketplacefront.zoom.us\sdk\video-sdk\windows\` (254 markdown files - class/method docs)
+
 ## Quick Links
 
-- **[Getting Started Guide](getting-started.md)** - Setup, prerequisites, and first session
-- **[Implementation Guide](implementation.md)** - Core patterns, raw data, and helpers
-- **[C# Integration](csharp-integration.md)** - C++/CLI wrapper for .NET applications
-- **[API Reference](../references/windows-reference.md)** - Complete API documentation
-- **[Samples](samples.md)** - Official sample applications reference
+**New to Video SDK? Follow this path:**
+
+1. **[SDK Architecture Pattern](concepts/sdk-architecture-pattern.md)** - Universal 3-step pattern for ANY feature
+2. **[Session Join Pattern](examples/session-join-pattern.md)** - Complete working code to join a session
+3. **[Windows Message Loop](troubleshooting/windows-message-loop.md)** - **CRITICAL**: Fix callbacks not firing
+4. **[Video Rendering](examples/video-rendering.md)** - Display video with Canvas API
+
+**Reference:**
+- **[Singleton Hierarchy](concepts/singleton-hierarchy.md)** - 5-level SDK navigation map
+- **[API Reference](references/windows-reference.md)** - Methods, error codes, timing rules
+- **[Delegate Methods](references/delegate-methods.md)** - All 60+ callback methods
+- **[INDEX.md](INDEX.md)** - Complete documentation navigation
+
+**Having issues?**
+- Callbacks not firing → [Windows Message Loop](troubleshooting/windows-message-loop.md)
+- Build errors → [Build Errors Guide](troubleshooting/build-errors.md)
+- Video subscribe fails → [Video Rendering](examples/video-rendering.md) (subscribe in `onUserVideoStatusChanged`)
+- Quick diagnostics → [Common Issues](troubleshooting/common-issues.md)
+
+**Building a Custom UI?**
+- [Canvas vs Raw Data](concepts/canvas-vs-raw-data.md) - Choose your rendering approach
+- [Raw Video Capture](examples/raw-video-capture.md) - YUV420 frame processing
 
 ## SDK Overview
 
@@ -122,24 +143,6 @@ var sdkManager = new ZoomSDKManager();
 sdkManager.Initialize();
 sdkManager.JoinSession("my-session", "jwt-token", "User Name", "");
 ```
-
-## Documentation Structure
-
-### Getting Started
-- [getting-started.md](getting-started.md) - Installation, setup, configuration
-
-### Implementation Guides
-- [implementation.md](implementation.md) - Core patterns and best practices
-- [raw-data.md](raw-data.md) - Raw audio/video capture and injection
-- [helpers.md](helpers.md) - Audio, video, chat, recording helpers
-
-### Integration
-- [csharp-integration.md](csharp-integration.md) - C++/CLI wrapper for .NET
-
-### Reference
-- [samples.md](samples.md) - Official sample applications
-- [troubleshooting.md](troubleshooting.md) - Common issues and solutions
-- [../references/windows-reference.md](../references/windows-reference.md) - Complete API reference
 
 ## Key Features
 
@@ -618,6 +621,48 @@ user2->GetVideoCanvas()->subscribeWithView(user2Window, ...);
 | Can't see self | Subscribing to wrong user | Use `session->getMyself()` for self video |
 | Seeing self in remote list | Not excluding self | Check `if (user != myself)` before subscribing |
 
+## Complete Documentation Library
+
+This skill includes comprehensive guides organized by category:
+
+### Core Concepts (Start Here!)
+- **[SDK Architecture Pattern](concepts/sdk-architecture-pattern.md)** - Universal 3-step pattern for ANY feature
+- **[Singleton Hierarchy](concepts/singleton-hierarchy.md)** - 5-level navigation guide
+- **[Canvas vs Raw Data](concepts/canvas-vs-raw-data.md)** - Choose your rendering approach
+
+### Complete Examples
+- **[Session Join Pattern](examples/session-join-pattern.md)** - JWT auth + session join with full code
+- **[Video Rendering](examples/video-rendering.md)** - Canvas API video display
+- **[Raw Video Capture](examples/raw-video-capture.md)** - YUV420 frame capture
+
+### Troubleshooting
+- **[Windows Message Loop](troubleshooting/windows-message-loop.md)** - **CRITICAL**: Why callbacks don't fire
+- **[Build Errors](troubleshooting/build-errors.md)** - SDK header dependency fixes
+- **[Common Issues](troubleshooting/common-issues.md)** - Quick diagnostics & error codes
+
+### References
+- **[API Reference](references/windows-reference.md)** - 5-level API hierarchy, methods, error codes
+- **[Delegate Methods](references/delegate-methods.md)** - All 60+ callback methods
+- **[INDEX.md](INDEX.md)** - Complete navigation guide
+
+### Most Critical Issues (From Real Debugging)
+
+1. **Callbacks not firing** → Missing Windows message loop (99% of issues)
+   - See: [Windows Message Loop Guide](troubleshooting/windows-message-loop.md)
+
+2. **Video subscribe returns error 2** → Subscribing too early
+   - See: [Video Rendering](examples/video-rendering.md) - Subscribe in `onUserVideoStatusChanged`
+
+3. **Abstract class errors** → Missing virtual method implementations
+   - See: [Delegate Methods](references/delegate-methods.md)
+
+### Key Insight
+
+**Once you learn the 3-step pattern, you can implement ANY feature:**
+1. Get singleton → 2. Implement delegate → 3. Subscribe & use
+
+See: [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md)
+
 ## Resources
 
 - **Official Docs**: https://developers.zoom.us/docs/video-sdk/windows/
@@ -625,3 +670,7 @@ user2->GetVideoCanvas()->subscribeWithView(user2Window, ...);
 - **Dev Forum**: https://devforum.zoom.us/
 - **GitHub Samples**: https://github.com/zoom/videosdk-windows-rawdata-sample
 - **Working Sample**: `C:\tempsdk\zoom-video-sdk-windows-sample\` (complete implementation)
+
+---
+
+**Need help?** Start with [INDEX.md](INDEX.md) for complete navigation.
