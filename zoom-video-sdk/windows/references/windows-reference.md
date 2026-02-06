@@ -2,10 +2,6 @@
 
 **Source**: https://marketplacefront.zoom.us/sdk/custom/windows/
 
-**Raw Documentation (Crawled)**:
-- **Dev Docs**: `raw-docs/developers.zoom.us/docs/video-sdk/windows/` (20 markdown files)
-- **API Reference**: `raw-docs/marketplacefront.zoom.us/sdk/video-sdk/windows/` (254 markdown files)
-
 ---
 
 ## API Hierarchy (5 Levels Deep)

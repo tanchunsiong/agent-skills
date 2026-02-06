@@ -909,11 +909,6 @@ if (!requirements.browserInfo.isChrome && !requirements.browserInfo.isFirefox) {
 - **Component View API Reference**: https://marketplacefront.zoom.us/sdk/meeting/web/components/index.html
 - **Developer forum**: https://devforum.zoom.us/
 
-**Raw Documentation (Crawled)**:
-- **Dev Docs**: `raw-docs/developers.zoom.us/docs/meeting-sdk/web/` (17 markdown files)
-- **Client View API**: `raw-docs/marketplacefront.zoom.us/sdk/meeting-sdk/web/client-view/` (120 markdown files)
-- **Component View API**: `raw-docs/marketplacefront.zoom.us/sdk/meeting-sdk/web/component-view/` (144 markdown files)
-
 ---
 
 **Documentation Version**: Based on Zoom Web Meeting SDK v3.11+

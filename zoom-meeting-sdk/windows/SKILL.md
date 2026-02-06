@@ -806,10 +806,6 @@ See: [SDK Architecture Pattern](concepts/sdk-architecture-pattern.md)
 - **Developer forum**: https://devforum.zoom.us/
 - **SDK download**: https://marketplace.zoom.us/
 
-**Raw Documentation (Crawled)**:
-- **Dev Docs**: `raw-docs/developers.zoom.us/docs/meeting-sdk/windows/` (27 markdown files - conceptual guides)
-- **API Reference**: `raw-docs/marketplacefront.zoom.us/sdk/meeting-sdk/windows/` (573 markdown files - class/method docs)
-
 ---
 
 **Documentation Version**: Based on Zoom Windows Meeting SDK v6.7.2.26830
