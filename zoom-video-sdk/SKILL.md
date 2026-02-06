@@ -290,10 +290,13 @@ See **[use-cases/byos-storage.md](use-cases/byos-storage.md)** for complete setu
 
 ### Platform Guides
 - **[references/authorization.md](references/authorization.md)** - Video SDK JWT generation
-- **[web/references/web.md](web/references/web.md)** - Web Video SDK
+- **[web/SKILL.md](web/SKILL.md)** - Web Video SDK (JavaScript/TypeScript)
+  - **[web/INDEX.md](web/INDEX.md)** - Complete documentation navigation
+  - **[web/examples/react-hooks.md](web/examples/react-hooks.md)** - Official React hooks library
+  - **[web/examples/framework-integrations.md](web/examples/framework-integrations.md)** - Next.js, Vue/Nuxt patterns
 - **[linux/linux.md](linux/linux.md)** - Linux C++ SDK (headless bots, raw media capture/injection)
 - **[linux/references/linux-reference.md](linux/references/linux-reference.md)** - Linux API Reference
-- **[windows/windows.md](windows/windows.md)** - Windows C++ SDK (desktop applications, raw media capture/injection)
+- **[windows/SKILL.md](windows/SKILL.md)** - Windows C++ SDK (desktop applications, raw media capture/injection)
 - **[windows/references/windows-reference.md](windows/references/windows-reference.md)** - Windows API Reference
 - **[references/troubleshooting.md](references/troubleshooting.md)** - Common issues and solutions
 
